@@ -1,0 +1,295 @@
+#include "SceneManager.h"
+#include "../../Scene/SceneBase.h"
+#include "../../Scene/MainScene/SceneTitle.h"
+#include "../System/CollisionController.h" 
+#include "../Decoration/SoundManager.h"
+#include "../System/TimeManager.h"
+#include "Camera.h"
+#include "../System/Loading.h"
+
+// インスタンスを初期化する
+SceneManager* SceneManager::instance_ = nullptr;
+
+// インスタンスを生成する
+void SceneManager::CreateInstance(void)
+{
+    if (instance_ == nullptr)
+    {
+        instance_ = new SceneManager();
+    }
+    instance_->Init();
+}
+
+// インスタンスを取得する
+SceneManager& SceneManager::GetInstance(void)
+{
+    return *instance_;
+}
+
+// インスタンスを破棄する
+void SceneManager::DestroyInstance(void)
+{
+    if (instance_)
+    {
+        delete instance_;
+        instance_ = nullptr;
+    }
+}
+
+// コンストラクタ
+SceneManager::SceneManager(void)
+{
+    isGameEnd_ = false;
+    isSceneChanging_ = false;
+    deltaTime_ = 1.0f / 60.0f;
+    preTime_ = std::chrono::system_clock::now();
+
+    camera_ = std::make_shared<Camera>();
+}
+
+// デストラクタ
+SceneManager::~SceneManager(void)
+{
+    Release();
+}
+
+// 初期化する
+void SceneManager::Init(void)
+{
+    SoundManager::CreateInstance();
+    SoundManager::GetInstance().Init();
+    TimeManager::CreateInstance();
+    Loading::CreateInstance();
+    CollisionController::CreateInstance();
+
+    // カメラを初期化する
+    camera_->Init();
+
+    // 3D描画設定を初期化する
+    Init3D();
+
+    ChangeScene(std::make_shared<SceneTitle>());
+}
+
+// 3D描画設定を初期化する
+void SceneManager::Init3D(void)
+{
+    // 背景色を設定する
+    SetBackgroundColor(0, 0, 0);
+
+    // Zバッファを有効にする
+    SetUseZBuffer3D(true);
+
+    // Zバッファへの書き込みを有効にする
+    SetWriteZBuffer3D(true);
+
+    // バックカリングを有効にする
+    SetUseBackCulling(true);
+
+    // ライティングを有効にする
+    SetUseLighting(true);
+    SetLightEnable(true);
+
+    SetGlobalAmbientLight(GetColorF(0.8f, 0.8f, 0.8f, 1.0f));
+
+    ChangeLightTypeDir(VGet(0.0f, -1.0f, 1.0f));  // ライトの方向
+    SetLightDifColor(GetColorF(1.0f, 1.0f, 1.0f, 1.0f));  // 拡散光
+    SetLightSpcColor(GetColorF(0.5f, 0.5f, 0.5f, 1.0f));  // 鏡面光
+    SetLightAmbColor(GetColorF(0.5f, 0.5f, 0.5f, 1.0f));  // 環境光
+
+    // フォグを設定する
+    SetFogEnable(true);
+    SetFogColor(5, 5, 5);
+    SetFogStartEnd(10000.0f, 20000.0f);
+}
+
+// シーンを変更する（全削除→新規追加）
+void SceneManager::ChangeScene(std::shared_ptr<SceneBase> scene)
+{
+    // 古いシーンを解放
+    for (auto& s : scenes_)
+        s->Release();
+    scenes_.clear();
+
+    // CollisionControllerをクリア
+    CollisionController::GetInstance().Clear();
+
+    // BGMを停止する
+    SoundManager::GetInstance().StopAllBGM();
+
+    // 新しいシーンを設定
+    scenes_.push_back(scene);
+    isSceneChanging_ = true;
+
+    // 非同期ロード開始（ロード画面付き）
+    Loading::GetInstance()->StartAsyncLoad([scene]() {
+        scene->Load();
+        });
+}
+
+// シーンを積む（上に追加する）
+void SceneManager::PushScene(std::shared_ptr<SceneBase> scene)
+{
+    scenes_.push_back(scene);
+
+    // 即時ロード・初期化
+    scene->Load();
+    scene->EndLoad();
+    scene->Init();
+}
+
+// シーンを外す（上を削除する）
+void SceneManager::PopScene()
+{
+    if (scenes_.size() > 1)
+    {
+        scenes_.back()->Release();
+        scenes_.pop_back();
+    }
+}
+
+// シーンをジャンプする（全削除→新規ロード）
+void SceneManager::JumpScene(std::shared_ptr<SceneBase> scene)
+{
+    scenes_.clear();
+
+    // CollisionControllerをクリア
+    CollisionController::GetInstance().Clear();
+
+    // BGMを停止する
+    SoundManager::GetInstance().StopAllBGM();
+
+    isSceneChanging_ = true;
+    scenes_.push_back(scene);
+
+    // 非同期ロードを開始する
+    Loading::GetInstance()->StartAsyncLoad([scene]() {
+        scene->Load();
+        });
+}
+
+void SceneManager::Update(void)
+{
+    if (scenes_.empty()) return;
+
+    TimeManager::GetInstance().Update();
+    auto nowTime = std::chrono::system_clock::now();
+    deltaTime_ = std::chrono::duration<float>(nowTime - preTime_).count();
+    preTime_ = nowTime;
+
+    if (isGameEnd_) return;
+
+
+    // ロード中の処理を完全に分離する
+    if (isSceneChanging_)
+    {
+        auto loader = Loading::GetInstance();
+        loader->Update();
+
+        // ★重要：完全に100%になり、かつ非同期スレッドが終了するまで絶対に出さない
+        if (loader->GetProgress() >= 100.0f && !loader->IsLoading())
+        {
+            auto current = scenes_.back();
+            current->EndLoad(); // ロード終了処理
+            current->Init();    // 初期化
+            isSceneChanging_ = false; // ここで初めてロード終了フラグを立てる
+        }
+        return;
+    }
+
+    auto current = scenes_.back();
+    if (current)
+    {
+        current->Update();
+    }
+
+    // カメラや衝突判定
+    if (camera_) camera_->UpdateBeforeCollision();
+    CollisionController::GetInstance().Update();
+    if (camera_) camera_->Update();
+}
+
+// SceneManager.cpp
+void SceneManager::Draw(void)
+{
+    if (scenes_.empty()) return;
+
+    // 非同期ロード中の描画
+    if (isSceneChanging_ || Loading::GetInstance()->IsLoading())
+    {
+        // 重要：ロード中は「今あるもの」を無理に描画せず、ロード画面だけ出す
+        // もし背景に何か映したい場合は、そのテクスチャが確実に読み込み済みか確認が必要
+        Loading::GetInstance()->Draw();
+        return;
+    }
+
+    // 通常時の描画
+    if (camera_) camera_->SetBeforeDraw();
+
+    for (auto& scene : scenes_)
+    {
+        if (scene) scene->Draw();
+    }
+
+    if (camera_) camera_->Draw();
+}
+
+// 解放する
+void SceneManager::Release(void)
+{
+    // ロード完了を待機する
+    if (Loading::GetInstance()->IsLoading())
+    {
+        while (Loading::GetInstance()->IsLoading())
+        {
+            std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        }
+    }
+
+    // 各シーンを解放する
+    for (auto& scene : scenes_)
+    {
+        scene->Release();
+    }
+    scenes_.clear();
+
+    // カメラを解放する
+    camera_.reset();
+
+    // 各マネージャーを破棄する
+    SoundManager::GetInstance().Destroy();
+    TimeManager::GetInstance().Destroy();
+    Loading::GetInstance()->DestroyInstance();
+    CollisionController::Destroy();
+}
+
+// ゲームを終了させる
+void SceneManager::GameEnd(void)
+{
+    isGameEnd_ = true;
+}
+
+// ゲーム終了フラグを取得する
+bool SceneManager::GetGameEnd(void) const
+{
+    return isGameEnd_;
+}
+
+// デルタタイムを取得する
+float SceneManager::GetDeltaTime(void) const
+{
+    return deltaTime_;
+}
+
+// カメラを取得する
+std::shared_ptr<Camera> SceneManager::GetCamera(void) const
+{
+    return camera_;
+}
+
+// デルタタイムをリセットする
+void SceneManager::ResetDeltaTime(void)
+{
+    deltaTime_ = 1.0f / 60.0f;
+    preTime_ = std::chrono::system_clock::now();
+}
