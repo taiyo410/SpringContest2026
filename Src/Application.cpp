@@ -6,6 +6,7 @@
 #include "Manager/Generic/InputManager.h"
 #include "Manager/Generic/SceneManager.h"
 #include "Manager/System/DataManager.h"
+#include "Loader/DataRegistry.h"
 #include "Fps/FpsController.h"
 #include "Manager/System/Loading.h"
 
@@ -87,6 +88,10 @@ void Application::Init(void)
 	SetUseDirectInputFlag(true);
 	InputManager::CreateInstance();
 
+	//ローダー初期化
+	DataRegistry::CreateInstance();
+	DataRegistry::GetInstance().CreateAll();
+
 	//リソース管理初期化
 	ResourceManager::CreateInstance();
 
@@ -149,6 +154,7 @@ void Application::Destroy(void)
 	SceneManager::GetInstance().DestroyInstance();
 	EffectManager::GetInstance().Destroy();
 	DataManager::GetInstance().Destroy();
+	DataRegistry::GetInstance().Destroy();
 
 	//エフェクシアの終了
 	Effkseer_End();
@@ -193,5 +199,5 @@ Application::Application(void)
 	isReleaseFail_ = false;
 
 	// デバックスクリーンかどうか
-	debugSc_ = false;
+	debugSc_ = true;
 }

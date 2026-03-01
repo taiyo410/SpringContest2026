@@ -1,0 +1,92 @@
+[
+    {
+        "name": "aizu",
+        "position": [
+            {
+                "x": 400.0,
+                "y": 350.0,
+                "z": 0.0
+            }
+        ],
+        "color": [
+            {
+                "red": 255,
+                "green": 0,
+                "blue": 255
+            }
+        ],
+        "accumulationSpeed": 0.5
+    },
+    {
+        "name": "choshu",
+        "position": [
+            {
+                "x": 150.0,
+                "y": 350.0,
+                "z": 0.0
+            }
+        ],
+        "color": [
+            {
+                "red": 0,
+                "green": 0,
+                "blue": 255
+            }
+        ],
+        "accumulationSpeed": 2.0
+    },
+    {
+        "name": "hizen",
+        "position": [
+            {
+                "x": 400.0,
+                "y": 200.0,
+                "z": 0.0
+            }
+        ],
+        "color": [
+            {
+                "red": 255,
+                "green": 255,
+                "blue": 0
+            }
+        ],
+        "accumulationSpeed": 1.0
+    },
+    {
+        "name": "satsuma",
+        "position": [
+            {
+                "x": 150.0,
+                "y": 200.0,
+                "z": 0.0
+            }
+        ],
+        "color": [
+            {
+                "red": 255,
+                "green": 0,
+                "blue": 0
+            }
+        ],
+        "accumulationSpeed": 1.2
+    },
+    {
+        "name": "tosa",
+        "position": [
+            {
+                "x": 150.0,
+                "y": 500.0,
+                "z": 0.0
+            }
+        ],
+        "color": [
+            {
+                "red": 0,
+                "green": 255,
+                "blue": 0
+            }
+        ],
+        "accumulationSpeed": 1.0
+    }
+]

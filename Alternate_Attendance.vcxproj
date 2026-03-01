@@ -159,7 +159,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Src\Loader\CsvLoader.h" />
+    <ClInclude Include="Src\Loader\DataRegistry.h" />
+    <ClInclude Include="Src\Loader\ILoader.h" />
+    <ClInclude Include="Src\Loader\JsonLoader.h" />
+    <ClInclude Include="Src\Loader\LoaderManager.h" />
     <ClInclude Include="Src\Manager\System\DataManager.h" />
+    <ClInclude Include="Src\Object\Charactor\Daimyo\DaimyoImport.h" />
     <ClInclude Include="Src\Scene\SubScene\PauseScene.h" />
     <ClInclude Include="Src\Object\Charactor\Daimyo\DaimyoTosa.h" />
     <ClInclude Include="Src\Object\Charactor\Daimyo\DaimyoAizu.h" />
@@ -204,6 +210,7 @@
     <ClInclude Include="Src\Utility\Utility.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Src\Loader\DataRegistry.cpp" />
     <ClCompile Include="Src\Manager\System\DataManager.cpp" />
     <ClCompile Include="Src\Scene\SubScene\PauseScene.cpp" />
     <ClCompile Include="Src\Object\Charactor\Daimyo\DaimyoTosa.cpp" />
