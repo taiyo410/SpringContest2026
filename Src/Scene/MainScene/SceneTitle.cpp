@@ -14,17 +14,20 @@
 #include "../../Manager/System/TimeManager.h"
 #include "../../Manager/System/Loading.h"
 
-SceneTitle::SceneTitle(void)
+SceneTitle::SceneTitle(void):
+	soundMng_(SoundManager::GetInstance()),
+	sceneMng_(SceneManager::GetInstance()),
+    logo_(-1),
+	grid_(nullptr),
+    isDecided_(false),
+    movieHandle_(-1),
+    showBlackBackground_(false),
+    isPlay_(false),
+    exitRequested_(false),
+    howToPlayPage_(0),
+	pauseUiCount_(0)
 {
-    logo_ = -1;
-    grid_ = nullptr;
-    isDecided_ = false;
-    movieHandle_ = -1;
-    showBlackBackground_ = false;
-    isPlay_ = false;
-    exitRequested_ = false;
-    howToPlayPage_ = 0;
-    pauseUiCount_ = 0;
+
 }
 
 void SceneTitle::Load(void)
@@ -88,7 +91,7 @@ void SceneTitle::EndLoad(void)
 void SceneTitle::Init(void)
 {
     // タイトルBGM
-    SoundManager::GetInstance().Add(SoundManager::TYPE::BGM, SoundManager::SOUND::BGM_TITLE, ResourceManager::GetInstance().Load(ResourceManager::SRC::BGM_TITLE).handleId_);
+    soundMng_.Add(SoundManager::TYPE::BGM, SoundManager::SOUND::BGM_TITLE, ResourceManager::GetInstance().Load(ResourceManager::SRC::BGM_TITLE).handleId_);
 
     //// キャンセル音
     //SoundManager::GetInstance().Add(SoundManager::TYPE::SE, SoundManager::SOUND::SE_CANCEL, ResourceManager::GetInstance().Load(ResourceManager::SRC::SE_CANCEL).handleId_);
@@ -101,6 +104,26 @@ void SceneTitle::Init(void)
 
 
     SetMouseDispFlag(TRUE);
+
+    menuFuncTable_ = {
+        {  MENU_ITEM::START, [this]() {
+            isDecided_ = true;
+            sceneMng_.ChangeScene(std::make_shared<SceneGame>());
+        } },
+        { MENU_ITEM::HOW_TO_PLAY, [this]() {
+            sceneMng_.PushScene(std::make_shared<SceneTutorial>());
+        } },
+        { MENU_ITEM::OPTION, [this]() {
+            sceneMng_.PushScene(std::make_shared<SceneOption>());
+        } },
+        { MENU_ITEM::CREDIT, [this]() {
+            sceneMng_.PushScene(std::make_shared<SceneCredit>());
+        } },
+        { MENU_ITEM::EXIT, [this]() {
+            exitRequested_ = true;
+            sceneMng_.GameEnd();
+        }}
+    };
 
     SoundManager::GetInstance().Play(SoundManager::SOUND::BGM_TITLE);
 
@@ -190,6 +213,8 @@ void SceneTitle::Update(void)
     int itemHeight = 80;
     int menuWidth = 200;
 
+
+	// メニュー項目の矩形を計算して、マウスポインタがどの項目に重なっているかをチェック
     for (int i = 0; i <= maxIndex; i++)
     {
         int rectLeft = Application::SCREEN_SIZE_X / 2 - (menuWidth / 2);
@@ -197,6 +222,7 @@ void SceneTitle::Update(void)
         int rectTop = menuStartY + (i * itemHeight) - (itemHeight / 2);
         int rectBottom = menuStartY + (i * itemHeight) + (itemHeight / 2);
 
+		//マウスポインタがこの矩形内にあるかをチェック
         if (mousePos.x >= rectLeft && mousePos.x <= rectRight &&
             mousePos.y >= rectTop && mousePos.y <= rectBottom)
         {
@@ -223,37 +249,9 @@ void SceneTitle::Update(void)
     // 決定操作
     if (input.IsTrgDown(KEY_INPUT_SPACE) || input.IsTrgMouseLeft())
     {
-        int selected = ui->GetCurrentIndex();
-
-        switch (selected)
-        {
-        case 0: // 開始
-            isDecided_ = true;
-            sound.Play(SoundManager::SOUND::SE_PUSH);
-            SceneManager::GetInstance().ChangeScene(std::make_shared<SceneGame>());
-            break;
-
-        case 1: // 遊び方
-            sound.Play(SoundManager::SOUND::SE_PUSH);
-            SceneManager::GetInstance().PushScene(std::make_shared<SceneTutorial>());
-            break;
-
-        case 2: // 操作説明
-            sound.Play(SoundManager::SOUND::SE_PUSH);
-            SceneManager::GetInstance().PushScene(std::make_shared<SceneOption>());
-            break;
-
-        case 3: // クレジット
-            sound.Play(SoundManager::SOUND::SE_PUSH);
-            SceneManager::GetInstance().PushScene(std::make_shared<SceneCredit>());
-            break;
-
-        case 4: // ゲーム終了
-            sound.Play(SoundManager::SOUND::SE_PUSH);
-            exitRequested_ = true;
-            SceneManager::GetInstance().GameEnd();
-            break;
-        }
+        MENU_ITEM selected = static_cast<MENU_ITEM>(ui->GetCurrentIndex());
+		menuFuncTable_[selected](); // 選択されたメニュー項目に対応する関数を呼び出す
+        soundMng_.Play(SoundManager::SOUND::SE_PUSH);
     }
 }
 

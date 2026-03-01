@@ -1,391 +1,437 @@
+#include "../pch.h"
+#include "../Utility/Utility.h"
 #include "Easing.h"
 
 
-//time			= 進行度
-//totalTime		= 目標時間
-//start			= 開始値
-//end			= 目標値
-
-//↓BackIn BackOut BackInOutのみ
-//s				= 助走量
-
-// 加速しながら値を変化させる（二次関数）
-float QuadIn(float time, float totalTime, float start, float end)
+Easing::Easing(void)
 {
-	end -= start;
-	time /= totalTime;
-
-	return -end * time * time + start;
-}
-
-// 減速しながら値を変化させる（二次関数）
-float QuadQut(float time, float totalTime, float start, float end)
-{
-	end -= start;
-	time /= totalTime;
-
-	return -end * time * (time - 2) + start;
-}
-
-// 加速してから減速する（二次関数）
-float QuadInOut(float time, float totalTime, float start, float end)
-{
-	end -= start;
-	time /= totalTime / 2;
-	if (time < 1) return end / 2 * time * time + start;
-
-	time = time - 1;
-
-	return -end / 2 * (time * (time - 2) - 1) + start;
-}
-
-// 非常にゆっくり加速（三次関数）
-float CubicIn(float time, float totalTime, float start, float end)
-{
-	end -= start;
-	time /= totalTime;
-
-	return end * time * time * time * time * time + start;
-}
-
-// 減速しながら終わる（三次関数）
-float CubicOut(float time, float totalTime, float start, float end)
-{
-	end -= start;
-	time = time / totalTime - 1;
-
-	return end * (time * time * time + 1) + start;
-}
-
-// 加速してから減速する（三次関数）
-float CubicInOut(float time, float totalTime, float start, float end)
-{
-	end -= start;
-	time /= totalTime / 2;
-	if (time < 1) return end / 2 * time * time * time + start;
-
-	time = time - 2;
-
-	return end / 2 * (time * time * time + 2) + start;
-}
-
-// 非常にゆっくり加速（四次関数）
-float QuartIn(float time, float totalTime, float start, float end)
-{
-	end -= start;
-	time /= totalTime;
-
-	return end * time * time * time * time + start;
-}
-
-// 急激に減速（四次関数）
-float QuartOut(float time, float totalTime, float start, float end)
-{
-	end -= start;
-	time = time / totalTime - 1;
-
-	return -end * (time * time * time * time - 1) + start;
-}
-
-// 加速してから減速する（四次関数）
-float QuartInOut(float time, float totalTime, float start, float end)
-{
-	end -= start;
-	time /= totalTime / 2;
-	if (time < 1) return end / 2 * time * time * time * time + start;
-
-	time = time - 2;
-
-	return -end / 2 * (time * time * time * time - 2) + start;
-}
-
-// 非常にゆっくり加速（五次関数）
-float QuintIn(float time, float totalTime, float start, float end)
-{
-	end -= start;
-	time /= totalTime;
-
-	return end * time * time * time * time * time + start;
-}
-
-// 急激に減速（五次関数）
-float QuintOut(float time, float totalTime, float start, float end)
-{
-	end -= start;
-	time = time / totalTime - 1;
-
-	return end * (time * time * time * time * time + 1) + start;
-}
-
-// 加速してから減速する（五次関数）
-float QuintInOut(float time, float totalTime, float start, float end)
-{
-	end -= start;
-	time /= totalTime / 2;
-	if (time < 1) return end / 2 * time * time * time * time * time + start;
-
-	time = time - 2;
-
-	return end / 2 * (time * time * time * time * time + 2) + start;
-}
-
-// ゆっくり始まり滑らかに加速（サイン関数）
-float SineIn(float time, float totalTime, float start, float end)
-{
-	end -= start;
-
-	return -end * cos(time * (DX_PI_F * 90 / 180) / totalTime) + end + start;
-}
-
-// 最初速く、緩やかに停止（サイン関数）
-float SineOut(float time, float totalTime, float start, float end)
-{
-	end -= start;
-
-	return end * sin(time * (DX_PI_F * 90 / 180) / totalTime) + start;
-}
-
-// 加速・減速を滑らかに（サイン関数）
-float SineInOut(float time, float totalTime, float start, float end)
-{
-	end -= start;
-
-	return -end / 2 * (cos(time * DX_PI_F / totalTime) - 1) + start;
-}
-
-// 急激に加速（指数関数）
-float ExpIn(float time, float totalTime, float start, float end)
-{
-    end -= start;
- 
-	return time == 0.0f ? start : end * powf(2, 10 * (time / totalTime - 1)) + start;
-}
-
-// 急激に減速（指数関数）
-float ExpOut(float time, float totalTime, float start, float end)
-{
-    end -= start;
-  
-	return time == totalTime ? end + start : end * (-powf(2, -10 * time / totalTime) + 1) + start;
-}
-
-// 加速・減速が非常に急（指数関数）
-float ExpInOut(float time, float totalTime, float start, float end)
-{
-    if (time == 0.0f) return start;
-    if (time == totalTime) return end;
-    end -= start;
-    time /= totalTime / 2;
-
-    if (time < 1) return end / 2 * powf(2, 10 * (time - 1)) + start;
-
-    time = time - 1;
-
-    return end / 2 * (-powf(2, -10 * time) + 2) + start;
+    easingFuncTable_ = {
+        {EASING_TYPE::LERP, [this](float t) {easingUpdate_ = [this, t](float) {return Lerp(t); }; }},
+        {EASING_TYPE::LERP_COMEBACK, [this](float t) {easingUpdate_ = [this, t](float) {return LerpBack(t); }; }},
+		{EASING_TYPE::OUT_BACK, [this](float t) {easingUpdate_ = [this, t](float) {return OutBack(t); }; }},
+        {EASING_TYPE::QUAD_IN, [this](float t) {easingUpdate_ = [this, t](float) {return EaseQuadIn(t); }; }},
+        {EASING_TYPE::QUAD_OUT, [this](float t) {easingUpdate_ = [this, t](float) {return EaseQuadOut(t); }; }},
+        {EASING_TYPE::QUAD_IN_OUT, [this](float t) {easingUpdate_ = [this, t](float) {return EaseQuadInOut(t); }; }},
+        {EASING_TYPE::QUAD_OUT_IN, [this](float t) {easingUpdate_ = [this, t](float) {return EaseQuadOutIn(t); }; }},
+        {EASING_TYPE::QUAD_BACK, [this](float t) {easingUpdate_ = [this, t](float) {return EaseQuadBack(t); }; }},
+        {EASING_TYPE::CUBIC_IN, [this](float t) {easingUpdate_ = [this, t](float) {return EaseCubicIn(t); }; }},
+        {EASING_TYPE::CUBIC_OUT, [this](float t) {easingUpdate_ = [this, t](float) {return EaseCubicOut(t); }; }},
+        {EASING_TYPE::EXPO, [this](float t) {easingUpdate_ = [this, t](float) {return EaseExpo(t); }; }},
+        {EASING_TYPE::SIN_BACK, [this](float t) {easingUpdate_ = [this, t](float) {return EaseSinBack(t); }; }},
+        {EASING_TYPE::COS_BACK, [this](float t) {easingUpdate_ = [this, t](float) {return EaseCosBack(t); }; }},
+        {EASING_TYPE::ELASTIC_IN, [this](float t) {easingUpdate_ = [this, t](float) {return EaseInElastic(t); }; }},
+        {EASING_TYPE::ELASTIC_OUT, [this](float t) {easingUpdate_ = [this, t](float) {return EaseOutElastic(t); }; }},
+		{EASING_TYPE::ELASTIC_BACK, [this](float t) {easingUpdate_ = [this, t](float) {return EaseBackElastic(t); }; }},
+		{EASING_TYPE::BOUNCE, [this](float t) {easingUpdate_ = [this, t](float) {return EaseBounce(t); }; }}
+    };
 
 }
 
-// 徐々に加速（円関数）
-float CircIn(float time, float totalTime, float start, float end)
+Easing::~Easing(void)
 {
-	end -= start;
-	time /= totalTime;
-
-	return -end * (sqrt(1 - time * time) - 1) + start;
 }
 
-// 徐々に減速（円関数）
-float CircOut(float time, float totalTime, float start, float end)
+void Easing::SetEasing(const float t, const EASING_TYPE type)
 {
-	end -= start;
-	time = time / totalTime - 1;
-
-	return end * sqrt(1 - time * time) + start;
+    easingFuncTable_[type](t);
 }
 
-// 加速してから減速（円関数）
-float CircInOut(float time, float totalTime, float start, float end)
+void Easing::SetReturnEasing(const float t, EASING_RETURN type)
 {
-	end -= start;
-	time /= totalTime / 2;
-	if (time < 1) return -end / 2 * (sqrt(1 - time * time) - 1) + start;
-
-	time = time - 2;
-
-	return end / 2 * (sqrt(1 - time * time) + 1) + start;
-}
-
-// 弾むように加速（弾性関数）
-float ElasticIn(float time, float totalTime, float start, float end)
-{
-    end -= start;
-    time /= totalTime;
-
-    float s = 1.70158f;
-    float p = totalTime * 0.3f;
-    float a = end;
-
-    if (time == 0) return start;
-    if (time == 1) return start + end;
-
-    if (a < abs(end))
+    switch (type)
     {
-        a = end;
-        s = p / 4;
+    case Easing::EASING_RETURN::ELASTIC:
+        easingUpdate_ = [this, t](float) {return EaseBackElastic(t); };
+        break;
+    case Easing::EASING_RETURN::EPICYCLOID:
+        //easingUpdate_ = [this, t](float) {return EaseEpiCycloid(t); };
+        break;
+    case Easing::EASING_RETURN::HYPOCYCLOID:
+        //easingUpdate_ = [this, t](float) {return EaseHypoCycloid(t); };
+        break;
+    default:
+        break;
+    }
+}
+
+int Easing::EaseFunc(const int start, const int end, const float t, const EASING_TYPE type)
+{
+    SetEasing(t, type);
+    int dis = end - start;
+    int ret = Utility::Round(start + dis * easingUpdate_(t));
+    return ret;
+}
+
+float Easing::EaseFunc(const float start, const float end, const float t,const EASING_TYPE type)
+{
+    SetEasing(t, type);
+    float dis = end - start;
+    return start + dis * easingUpdate_(t);
+}
+double Easing::EaseFunc(const double start, const double end, const float t, const EASING_TYPE type)
+{
+    SetEasing(t, type);
+    double dis = end - start;
+    return start + dis * easingUpdate_(t);
+}
+Vector2F Easing::EaseFunc(const Vector2F& start, const Vector2F& end, const float t, const EASING_TYPE type)
+{
+    SetEasing(t, type);
+    Vector2F dis = end - start;
+    return start + dis * easingUpdate_(t);
+}
+Vector2 Easing::EaseFunc(const Vector2& start, const Vector2& end, const float t, const EASING_TYPE type)
+{
+    SetEasing(t, type);
+    Vector2 dis = end - start;
+    Vector2 ret = {};
+    ret.x = Utility::Round(start.x + dis.x * easingUpdate_(t));
+    ret.y = Utility::Round(start.y + dis.y * easingUpdate_(t));
+    return ret;
+}
+VECTOR Easing::EaseFunc(const VECTOR& start, const VECTOR& end, const float t, const EASING_TYPE type)
+{
+    SetEasing(t, type);
+    VECTOR dis = VSub(end, start);
+    VECTOR power = VScale(dis, easingUpdate_(t));
+    return VAdd(start, power);
+}
+
+COLOR_F Easing::EaseFunc(const COLOR_F& start, const COLOR_F& end, const float t, const EASING_TYPE type)
+{
+    // 線形補間
+    if (t >= 1.0f)
+    {
+        return end;
+    }
+    SetEasing(t, type);
+    COLOR_F ret = start;
+    ret.r += (end.r - start.r) * easingUpdate_(t);
+    ret.g += (end.g - start.g) * easingUpdate_(t);
+    ret.b += (end.b - start.b) * easingUpdate_(t);
+    ret.a += (end.a - start.a) * easingUpdate_(t);
+    return ret;
+}
+
+
+
+float Easing::EaseFuncDeg(float& start, float& end, const float t, const EASING_TYPE type)
+{
+    float ret;
+
+    float diff = end - start;
+    if (diff < -HALF_DEG_MAX)
+    {
+        end += DEG_MAX;
+        ret = EaseFunc(start, end, t, type);
+        if (ret >= DEG_MAX)
+        {
+            ret -= DEG_MAX;
+        }
+    }
+    else if (diff > HALF_DEG_MAX)
+    {
+        end -= DEG_MAX;
+        ret = EaseFunc(start, end, t, type);
+        if (ret < 0.0)
+        {
+            ret += DEG_MAX;
+        }
     }
     else
     {
-        s = p / (2 * DX_PI_F) * asin(end / a);
+        ret = EaseFunc(start, end, t, type);
     }
 
-    time = time - 1;
-    return -(a * powf(2, 10 * time) * sin((time * totalTime - s) * (2 * DX_PI_F) / p)) + start;
+    return ret;
 }
 
-// 弾むように減速（弾性関数）
-float ElasticOut(float time, float totalTime, float start, float end)
+double Easing::EaseFuncDeg(double& start, double& end, float t, const EASING_TYPE type)
 {
-    end -= start;
-    time /= totalTime;
+    double ret;
 
-    float s = 1.70158f;
-    float p = totalTime * 0.3f; ;
-    float a = end;
-
-    if (time == 0) return start;
-    if (time == 1) return start + end;
-
-    if (a < abs(end))
+    double diff = end - start;
+    if (diff < -HALF_DEG_MAX)
     {
-        a = end;
-        s = p / 4;
+        end += DEG_MAX;
+        ret = EaseFunc(start, end, t, type);
+        if (ret >= DEG_MAX)
+        {
+            ret -= DEG_MAX;
+        }
+    }
+    else if (diff > HALF_DEG_MAX)
+    {
+        end -= DEG_MAX;
+        ret = EaseFunc(start, end, t, type);
+        if (ret < 0.0)
+        {
+            ret += DEG_MAX;
+        }
     }
     else
     {
-        s = p / (2 * DX_PI_F) * asin(end / a);
+        ret = EaseFunc(start, end, t, type);
     }
 
-    return a * powf(2, -10 * time) * sin((time * totalTime - s) * (2 * DX_PI_F) / p) + end + start;
+    return ret;
 }
 
-// 弾むように加速して減速（弾性関数）
-float ElasticInOut(float time, float totalTime, float start, float end)
+float Easing::EaseFuncRad(float& start, float& end, const float t, const EASING_TYPE type)
 {
-    end -= start;
-    time /= totalTime / 2;
+    SetEasing(t, type);
+    float diff = remainder(end - start, 2.0f * DX_PI_F);
+    return start + diff * easingUpdate_(t);
+}
 
-    float s = 1.70158f;
-    float p = totalTime * (0.3f * 1.5f);
-    float a = end;
 
-    if (time == 0) return start;
-    if (time == 2) return start + end;
+float Easing::Lerp(const float t)
+{
+    if (t > EASING_MAX)return EASING_MAX;
+    //割合だけを返して、Funcで計算
+    return t;
+}
 
-    if (a < abs(end))
+float Easing::LerpBack(const float t)
+{
+    if (t > EASING_MAX)return 0.0f;
+    float ret = 0.0f;
+    if (t <= EASING_HALF)
     {
-        a = end;
-        s = p / 4;
+        ret = Lerp(t / EASING_HALF);
     }
     else
     {
-        s = p / (2 * DX_PI_F) * asin(end / a);
+        ret = Lerp((1.0f - t) / EASING_HALF);
     }
+    return ret;
+}
 
-    if (time < 1)
+float Easing::OutBack(const float t)
+{
+	if (t > EASING_MAX)return EASING_MAX;
+    const float c1 = 1.70158;
+    const float c3 = c1 + 1;
+
+    return 1 + c3 * pow(t - 1, 3) + c1 * pow(t - 1, 2);
+}
+
+float Easing::EaseOutElastic(const float t)
+{
+    if (t > EASING_MAX)return EASING_MAX;
+    const float ELASTIC_DECAY = 10.0f;  //減衰率
+    const float ELASTIC_FREQUENCY = 3.0f; //振動数
+    const float ANGULAR_FREQ = DX_TWO_PI_F / ELASTIC_FREQUENCY;       //サイン波がどれだけの速さで変化するか
+    const float PHASE_SHIFT = 0.75f; //位相のずれ
+    const float OFFSET = 1.0f; //オフセット
+
+    float ret = 0.0f;
+    ret = (powf(2.0f, -ELASTIC_DECAY * t) * sinf((t * ELASTIC_DECAY - PHASE_SHIFT) * ANGULAR_FREQ) + OFFSET);
+    return ret;
+}
+
+float Easing::EaseBackElastic(const float t)
+{
+    if (t > EASING_MAX)return 0.0f;
+    float ret = 0.0f;
+    const float c4 = (DX_TWO_PI_F / 3.0f) - 6.1f;
+
+    //この式はグラフを見ながら試行錯誤した式
+    ret = (powf(2, -10.0f * t) * sinf((t * 10.0f - 0.088f) * c4));
+    return ret;
+}
+
+float Easing::EaseBounce(const float t)
+{
+    if (t > EASING_MAX)return EASING_MAX;
+    const float BOUNCE_POW = 2.75f;
+    const float BOUNCE_ACCEL = 7.5625;
+    MATH_FUNC quad;
+    float ret = 0.0f;
+    quad.accel = BOUNCE_ACCEL;
+    if (t < EASING_MAX / BOUNCE_POW)
     {
-        return -0.5f * (a * powf(2, 10 * (time -= 1)) * sin((time * totalTime - s) * (2 * DX_PI_F) / p)) + start;
+        return EaseQuadIn(t / (EASING_MAX / BOUNCE_POW));
     }
-
-    time = time - 1;
-
-    return a * powf(2, -10 * time) * sin((time * totalTime - s) * (2 * DX_PI_F) / p) * 0.5f + end + start;
-}
-
-// 少し逆方向に動いてから加速（バック関数）
-float BackIn(float time, float totalTime, float start, float end, float s)
-{
-    end -= start;
-    time /= totalTime;
-
-    return end * time * time * ((s + 1) * time - s) + start;
-}
-
-// 加速・減速しつつ逆方向にも動く（バック関数）
-float BackOut(float time, float totalTime, float start, float end, float s)
-{
-    end -= start;
-    time = time / totalTime - 1;
-
-    return end * (time * time * ((s + 1) * time + s) + 1) + start;
-}
-
-// 跳ねるように加速（バウンド関数）
-float BackInOut(float time, float totalTime, float start, float end, float s)
-{
-    end -= start;
-    s *= 1.525f;
-    time /= totalTime / 2;
-    if (time < 1) return end / 2 * (time * time * ((s + 1) * time - s)) + start;
-
-    time = time - 2;
-
-    return end / 2 * (time * time * ((s + 1) * time + s) + 2) + start;
-}
-
-// 跳ねるように減速（バウンド関数）
-float BounceIn(float time, float totalTime, float start, float end)
-{
-    end -= start;
-
-    return end - BounceOut(totalTime - time, totalTime, 0, end) + start;
-}
-
-// 跳ねるように減速（バウンド関数）
-float BounceOut(float time, float totalTime, float start, float end)
-{
-    end -= start;
-    time /= totalTime;
-
-    if (time < 1.0f / 2.75f)
+    else if (1.0f / BOUNCE_POW <= t && t < 2.0f / BOUNCE_POW)
     {
-        return end * (7.5625f * time * time) + start;
+        quad.graph_vertex = { 1.5f / BOUNCE_POW,0.75f };
+        ret = quad.QuadFunc(t);
+
     }
-    else if (time < 2.0f / 2.75f)
+    else if (2.0f / BOUNCE_POW <= t && t < 2.5f / BOUNCE_POW)
     {
-        time -= 1.5f / 2.75f;
-        return end * (7.5625f * time * time + 0.75f) + start;
-    }
-    else if (time < 2.5f / 2.75f)
-    {
-        time -= 2.25f / 2.75f;
-        return end * (7.5625f * time * time + 0.9375f) + start;
+        quad.graph_vertex = { 2.25f / BOUNCE_POW,0.9375f };
+        ret = quad.QuadFunc(t);
     }
     else
     {
-        time -= 2.625f / 2.75f;
-        return end * (7.5625f * time * time + 0.984375f) + start;
+        quad.graph_vertex = { 2.625f / BOUNCE_POW,0.984375f };
+        ret = quad.QuadFunc(t);
     }
+    return ret;
 }
 
-// 跳ねながら加速・減速（バウンド関数）
-float BounceInOut(float time, float totalTime, float start, float end)
+
+float Easing::EaseQuadIn(const float t)
 {
-    if (time < totalTime / 2)
+    if (t >= EASING_MAX)return EASING_MAX;
+    MATH_FUNC quad;
+    float ret = quad.QuadFunc(t);
+    return ret;
+}
+
+
+
+float Easing::EaseQuadOut(const float t)
+{
+    if (t >= EASING_MAX)return EASING_MAX;
+    MATH_FUNC quad;
+    quad.accel = -EASING_MAX;
+    quad.graph_vertex = { EASING_MAX,EASING_MAX };
+    float ret = quad.QuadFunc(t);
+    return ret;
+}
+
+float Easing::EaseQuadBack(const float t)
+{
+    if (t > EASING_MAX)return 0.0f;
+    MATH_FUNC ret;
+    ret.accel = -4.0f;
+    ret.graph_vertex = { EASING_HALF,EASING_MAX };
+
+    return ret.QuadFunc(t);
+}
+
+
+float Easing::EaseQuadInOut(const float t)
+{
+    if (t >= EASING_MAX)return EASING_MAX;
+    float ret = 0.0f;
+    MATH_FUNC quad;
+    if (t <= HALF)
     {
-        return BounceIn(time * 2, totalTime, 0, end - start) * 0.5f + start;
+        quad.accel = 2.0f;
     }
     else
     {
-        return BounceOut(time * 2 - totalTime, totalTime, 0, end - start) * 0.5f + start + (end - start) * 0.5f;
+        quad.graph_vertex = { EASING_MAX,EASING_MAX };
+        quad.accel = -2.0f;
     }
+    ret = quad.QuadFunc(t);
+    return ret;
 }
 
-// 一定速度で直線的に変化（線形補間）
-float Linear(float time, float totalTime, float start, float end)
+
+float Easing::EaseQuadOutIn(const float t)
 {
-    return (end - start) * time / totalTime + start;
+    if (t >= EASING_MAX)return EASING_MAX;
+    float ret = 0.0f;
+    MATH_FUNC quad;
+    if (t < EASING_HALF)
+    {
+        quad.accel = -2.0f;
+        quad.graph_vertex = { EASING_HALF,EASING_HALF };
+    }
+    else
+    {
+        quad.accel = 2.0f;
+        quad.graph_vertex = { EASING_HALF,EASING_HALF };
+    }
+    ret = quad.QuadFunc(t);
+    return ret;
+}
+
+float Easing::EaseCubicIn(const float t)
+{
+    if (t >= EASING_MAX)return EASING_MAX;
+    MATH_FUNC qubic;
+    float ret = qubic.CubicFunc(t);
+    return ret;
+}
+
+float Easing::EaseCubicOut(const float t)
+{
+    if (t >= EASING_MAX)return EASING_MAX;
+    MATH_FUNC qubic;
+    qubic.graph_vertex = { -EASING_MAX,EASING_MAX };
+    float ret = qubic.CubicFunc(t);
+    return ret;
+}
+
+float Easing::EaseCubicInOut(const float start, const float end, const float t)
+{
+    return 0.0f;
+}
+
+float Easing::EaseCubicOutIn(const float start, const float end, const float t)
+{
+    return 0.0f;
+}
+
+float Easing::EaseExpo(const float t, const int expo)
+{
+    if (t >= EASING_MAX)return EASING_MAX;
+    float ret = 0.0f;
+    float scaled = powf(EASING_MAX - t, static_cast<float>(expo));
+    float base = EASING_MAX - scaled;
+    float inv_t = EASING_MAX / t;
+    float expoFunc = powf(base, inv_t);
+    ret = expoFunc;
+
+    return ret;
+}
+
+float Easing::EaseInElastic(const float t)
+{
+    if (t >= EASING_MAX)return EASING_MAX;
+    float ret = 0.0f;
+    const float c4 = (2.0f * DX_PI_F) / 3.0f;
+    ret = -(powf(2, 10.0f * t - 10) * sinf((t * 10.0f - 10.75f) * c4) + 1.0f);
+    return ret;
 }
 
 
+float Easing::EaseSinBack(const float t)
+{
+    if (t >= EASING_MAX)return 0.0f;
+    TRIG_FUNC sinFunc;
+    sinFunc.amplitude = 1.0f;
+    sinFunc.lambda = 2.0f;
+    return sinFunc.SinFunc(t);;
+}
+
+float Easing::EaseCosBack(const float t)
+{
+    if (t >= EASING_MAX)return 0.0f;
+    TRIG_FUNC cosFunc;
+    cosFunc.amplitude = -EASING_HALF;
+    cosFunc.lambda = EASING_MAX;
+    return cosFunc.CosFunc(t);
+}
+
+Vector2F Easing::EaseEpiCycloid(const Vector2F& start, const float t, const float halfRadiusNum, const float smallRadius)
+{
+    if (t > EASING_MAX)return start;
+
+    float rad = DX_TWO_PI_F * t;
+    float baseRadius = smallRadius * halfRadiusNum;
+    Vector2F ret = {};
+    ret.x = (baseRadius + smallRadius) * cos(rad) - smallRadius * cos(((baseRadius + smallRadius) / smallRadius) * rad);
+    ret.y = (baseRadius + smallRadius) * sin(rad) - smallRadius * sin(((baseRadius + smallRadius) / smallRadius) * rad);
+    return start + ret;
+}
+
+Vector2F Easing::EaseHypoCycloid(const Vector2F& start, const float t, const float halfRadiusNum, const float smallRadius)
+{
+    if (t > EASING_MAX)return start;
+
+    float rad = DX_TWO_PI_F * t;
+    float baseRadius = smallRadius * halfRadiusNum;
+    Vector2F ret = {};
+    ret.x = (baseRadius - smallRadius) * cos(rad) + smallRadius * cos(((baseRadius - smallRadius) / smallRadius) * rad);
+    ret.y = (baseRadius - smallRadius) * sin(rad) - smallRadius * sin(((baseRadius - smallRadius) / smallRadius) * rad);
+    return start + ret;
+}
 
 

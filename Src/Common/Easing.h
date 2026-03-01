@@ -1,283 +1,230 @@
 #pragma once
+#include<DxLib.h>
+#include<functional>
+#include"./Vector2.h"
+class Easing
+{
+public:
+	//2点間を定めてイージング
+	enum class EASING_TYPE
+	{
+		LERP,				//線形補間
+		LERP_COMEBACK,		//行って戻る補完
+		OUT_BACK,			//目的地を少し超えて目的に戻る
+		QUAD_IN,			//二次関数(だんだん早く)
+		QUAD_OUT,			//二次関数(だんだん遅く)
+		QUAD_BACK,			//二次関数(行って戻る)
+		QUAD_IN_OUT,		//二次関数(スローインスローアウト)
+		QUAD_OUT_IN,		//二次関数(ファストインファストアウト)
+		CUBIC_IN,			//三次関数(だんだん早く)
+		CUBIC_OUT,			//三次関数(だんだん遅く)
+		EXPO,				//指数関数(〇次関数より若干緩やか)
+		SIN_BACK,			//サイン(もとに戻ってくる)
+		COS_BACK,			//コサイン(もとに戻ってくる)
+		ELASTIC_IN,			//前半ばね(だんだん大きく)
+		ELASTIC_OUT,		//後半ばね
+		BOUNCE,				//跳ねるような動き
 
-/// <summary>
-/// 二次関数的なイージング。開始時に遅く、後半で速くなる加速
-/// </summary>
-/// <param name="time">現在の時間（開始からの経過時間）</param>
-/// <param name="totalTime">全体の時間（アニメーションの総時間）</param>
-/// <param name="start">開始時の値</param>
-/// <param name="end">終了時の値</param>
-float QuadIn(float time, float totalTime, float start, float end);
+		//元の位置に戻すイージング
+		ELASTIC_BACK,	//元の位置に戻るばね
 
-/// <summary>
-/// 二次関数的なイージング。最初は速く、終わりに向かって減速する
-/// </summary>
-/// <param name="time">現在の時間（開始からの経過時間）</param>
-/// <param name="totalTime">全体の時間（アニメーションの総時間）</param>
-/// <param name="start">開始時の値</param>
-/// <param name="end">終了時の値</param>
-float QuadQut(float time, float totalTime, float start, float end);
-
-/// <summary>
-/// 二次関数的なイージング。最初に加速し、最後に減速する（加速と減速の両方を含む）
-/// </summary>
-/// <param name="time">現在の時間（開始からの経過時間）</param>
-/// <param name="totalTime">全体の時間（アニメーションの総時間）</param>
-/// <param name="start">開始時の値</param>
-/// <param name="end">終了時の値</param>
-float QuadInOut(float time, float totalTime, float start, float end);
-
-/// <summary>
-/// 三次関数的なイージング。開始時に非常にゆっくり、後半で速くなる
-/// </summary>
-/// <param name="time">現在の時間（開始からの経過時間）</param>
-/// <param name="totalTime">全体の時間（アニメーションの総時間）</param>
-/// <param name="start">開始時の値</param>
-/// <param name="end">終了時の値</param>
-float CubicIn(float time, float totalTime, float start, float end);
-
-/// <summary>
-/// 三次関数的なイージング。最初は速く、後で減速する
-/// </summary>
-/// <param name="time">現在の時間（開始からの経過時間）</param>
-/// <param name="totalTime">全体の時間（アニメーションの総時間）</param>
-/// <param name="start">開始時の値</param>
-/// <param name="end">終了時の値</param>
-float CubicOut(float time, float totalTime, float start, float end);
-
-/// <summary>
-/// 三次関数的なイージング。加速と減速の両方がある
-/// </summary>
-/// <param name="time">現在の時間（開始からの経過時間）</param>
-/// <param name="totalTime">全体の時間（アニメーションの総時間）</param>
-/// <param name="start">開始時の値</param>
-/// <param name="end">終了時の値</param>
-float CubicInOut(float time, float totalTime, float start, float end);
-
-/// <summary>
-/// 四次関数的なイージング。開始時に非常にゆっくり、後半で急激に加速する
-/// </summary>
-/// <param name="time">現在の時間（開始からの経過時間）</param>
-/// <param name="totalTime">全体の時間（アニメーションの総時間）</param>
-/// <param name="start">開始時の値</param>
-/// <param name="end">終了時の値</param>
-float QuartIn(float time, float totalTime, float start, float end);
-
-/// <summary>
-/// 四次関数的なイージング。最初は速く、終わりに向かって急激に減速する
-/// </summary>
-/// <param name="time">現在の時間（開始からの経過時間）</param>
-/// <param name="totalTime">全体の時間（アニメーションの総時間）</param>
-/// <param name="start">開始時の値</param>
-/// <param name="end">終了時の値</param>
-float QuartOut(float time, float totalTime, float start, float end);
-
-/// <summary>
-/// 四次関数的なイージング。加速と減速が両方ある
-/// </summary>
-/// <param name="time">現在の時間（開始からの経過時間）</param>
-/// <param name="totalTime">全体の時間（アニメーションの総時間）</param>
-/// <param name="start">開始時の値</param>
-/// <param name="end">終了時の値</param>
-float QuartInOut(float time, float totalTime, float start, float end);
-
-/// <summary>
-/// 五次関数的なイージングで最初は非常にゆっくり始まり後半で急激に加速する
-/// </summary>
-/// <param name="time">現在の時間（開始からの経過時間）</param>
-/// <param name="totalTime">全体の時間（アニメーションの総時間）</param>
-/// <param name="start">開始時の値</param>
-/// <param name="end">終了時の値</param>
-float QuintIn(float time, float totalTime, float start, float end);
-
-/// <summary>
-/// 五次関数的なイージングで最初は速く後半に向かって滑らかに減速する
-/// </summary>
-/// <param name="time">現在の時間（開始からの経過時間）</param>
-/// <param name="totalTime">全体の時間（アニメーションの総時間）</param>
-/// <param name="start">開始時の値</param>
-/// <param name="end">終了時の値</param>
-float QuintOut(float time, float totalTime, float start, float end);
-
-/// <summary>
-/// 五次関数的なイージングで最初は滑らかに加速し中盤で最速になり後半に向かって滑らかに減速する
-/// </summary>
-/// <param name="time">現在の時間（開始からの経過時間）</param>
-/// <param name="totalTime">全体の時間（アニメーションの総時間）</param>
-/// <param name="start">開始時の値</param>
-/// <param name="end">終了時の値</param>
-float QuintInOut(float time, float totalTime, float start, float end);
+	};
+	//最終的にスタート位置に戻るイージング
+	enum class EASING_RETURN
+	{
+		ELASTIC,
+		EPICYCLOID,
+		HYPOCYCLOID,
+	};
 
 
-/// <summary>
-/// サイン関数的なイージング。最初に非常に遅く始まり、後半で急速に加速する
-/// </summary>
-/// <param name="time">現在の時間（開始からの経過時間）</param>
-/// <param name="totalTime">全体の時間（アニメーションの総時間）</param>
-/// <param name="start">開始時の値</param>
-/// <param name="end">終了時の値</param>
-float SineIn(float time, float totalTime, float start, float end);
+	//半分の割合
+	static constexpr float HALF = 0.5f;
 
-/// <summary>
-/// サイン関数的なイージング。最初は速く、終わりに向かって急激に減速する
-/// </summary>
-/// <param name="time">現在の時間（開始からの経過時間）</param>
-/// <param name="totalTime">全体の時間（アニメーションの総時間）</param>
-/// <param name="start">開始時の値</param>
-/// <param name="end">終了時の値</param>
-float SineOut(float time, float totalTime, float start, float end);
+	//関数
+	struct MATH_FUNC
+	{
+		//解の公式	a*(x-b)^2+c
+		float accel = 1.0f;	//開き具合(公式のa)
+		Vector2F graph_vertex = { 0.0f,0.0f };		//軸の頂点(b,c)
 
-/// <summary>
-/// サイン関数的なイージング。加速と減速が両方含まれており、サイン波のように滑らかに変化する
-/// </summary>
-/// <param name="time">現在の時間（開始からの経過時間）</param>
-/// <param name="totalTime">全体の時間（アニメーションの総時間）</param>
-/// <param name="start">開始時の値</param>
-/// <param name="end">終了時の値</param>
-float SineInOut(float time, float totalTime, float start, float end);
+		//二次関数の計算
+		float QuadFunc(const float& t)
+		{
+			float pow = powf(t - graph_vertex.x, 2.0f);
+			return (accel * pow) + graph_vertex.y;
+		}
 
-/// <summary>
-/// 指数関数的なイージング。最初は非常に遅く、後半で急激に加速する
-/// </summary>
-/// <param name="time">現在の時間（開始からの経過時間）</param>
-/// <param name="totalTime">全体の時間（アニメーションの総時間）</param>
-/// <param name="start">開始時の値</param>
-/// <param name="end">終了時の値</param>
-float ExpIn(float time, float totalTime, float start, float end);
+		//三次関数の計算
+		float CubicFunc(const float& t)
+		{
+			float pow = powf(t + graph_vertex.x, 3.0f);
+			return (accel * pow) + graph_vertex.y;
+		}
+	};
+	//サイン計算
+	struct TRIG_FUNC
+	{
+		//公式：a*sin((2π/λ)*x)
 
-/// <summary>
-/// 指数関数的なイージング。最初は速く、後半で急激に減速する
-/// </summary>
-/// <param name="time">現在の時間（開始からの経過時間）</param>
-/// <param name="totalTime">全体の時間（アニメーションの総時間）</param>
-/// <param name="start">開始時の値</param>
-/// <param name="end">終了時の値</param>
-float ExpOut(float time, float totalTime, float start, float end);
+		//振れ幅(a)
+		float amplitude = 1.0f;
+		//波長
+		float lambda = 1.0f;
 
-/// <summary>
-/// 指数関数的なイージング。加速と減速が両方含まれ、急激に変化する
-/// </summary>
-/// <param name="time">現在の時間（開始からの経過時間）</param>
-/// <param name="totalTime">全体の時間（アニメーションの総時間）</param>
-/// <param name="start">開始時の値</param>
-/// <param name="end">終了時の値</param>
-float ExpInOut(float time, float totalTime, float start, float end);
+		float SinFunc(const float t)
+		{
+			float phase = (DX_TWO_PI_F / lambda) * t;
+			return amplitude * sin(phase);
+		}
+		float CosFunc(const float t)
+		{
+			float phase = (DX_TWO_PI_F / lambda) * t;
+			//距離を0から始めるための計算
+			return amplitude * cos(phase) - amplitude;
+		}
+	};
 
-/// <summary>
-/// 円関数的なイージング。最初は遅く、後半で急激に加速する
-/// </summary>
-/// <param name="time">現在の時間（開始からの経過時間）</param>
-/// <param name="totalTime">全体の時間（アニメーションの総時間）</param>
-/// <param name="start">開始時の値</param>
-/// <param name="end">終了時の値</param>
-float CircIn(float time, float totalTime, float start, float end);
+	//コンストラクタ
+	Easing(void);
 
-/// <summary>
-/// 円関数的なイージング。最初は速く、終わりに向かって減速する
-/// </summary>
-/// <param name="time">現在の時間（開始からの経過時間）</param>
-/// <param name="totalTime">全体の時間（アニメーションの総時間）</param>
-/// <param name="start">開始時の値</param>
-/// <param name="end">終了時の値</param>
-float CircOut(float time, float totalTime, float start, float end);
+	//デストラクタ
+	~Easing(void);
 
-/// <summary>
-/// 円関数的なイージング。加速と減速の両方があり、円形のようにスムーズな動きを持つ
-/// </summary>
-/// <param name="time">現在の時間（開始からの経過時間）</param>
-/// <param name="totalTime">全体の時間（アニメーションの総時間）</param>
-/// <param name="start">開始時の値</param>
-/// <param name="end">終了時の値</param>
-float CircInOut(float time, float totalTime, float start, float end);
+	//イージングセット(OneWay)
+	void SetEasing(const float t, const EASING_TYPE type);
 
-/// <summary>
-/// 弾性関数的なイージング。最初はゆっくり始まり、途中で反発して加速する
-/// </summary>
-/// <param name="time">現在の時間（開始からの経過時間）</param>
-/// <param name="totalTime">全体の時間（アニメーションの総時間）</param>
-/// <param name="start">開始時の値</param>
-/// <param name="end">終了時の値</param>
-float ElasticIn(float time, float totalTime, float start, float end);
+	//イージングセット(Return)
+	void SetReturnEasing(const float t, const EASING_RETURN type);
 
-/// <summary>
-/// 弾性関数的なイージング。最初は速く、後半に反発しながら減速する
-/// </summary>
-/// <param name="time">現在の時間（開始からの経過時間）</param>
-/// <param name="totalTime">全体の時間（アニメーションの総時間）</param>
-/// <param name="start">開始時の値< / param>
-/// <param name="end">終了時の値</param>
-float ElasticOut(float time, float totalTime, float start, float end);
+	/// @brief イージング計算
+	/// @param start 初期位置
+	/// @param end 終了位置(元の位置に戻すイージングを使用したい場合は動いて良い最大値を代入)
+	/// @param t 現在時間
+	/// @param type 使用するイージング種類
+	/// @return 計算結果
+	int EaseFunc(const int start, const int end, const float t,const EASING_TYPE type);
+	float EaseFunc(const float start, const float end, const float t,const EASING_TYPE type);
+	double EaseFunc(const double start, const double end, const float t,const EASING_TYPE type);
+	Vector2F EaseFunc(const Vector2F& start, const Vector2F& end, const float t,const EASING_TYPE type);
+	Vector2 EaseFunc(const Vector2& start, const Vector2& end, const float t, const EASING_TYPE type);
+	VECTOR EaseFunc(const VECTOR& start, const VECTOR& end, const float t, const EASING_TYPE type);
+	COLOR_F EaseFunc(const COLOR_F& start, const COLOR_F& end, const float t, const EASING_TYPE type);
 
-/// <summary>
-/// 弾性関数的なイージング。加速と減速の間に弾性効果を含んだ動き
-/// </summary>
-/// <param name="time">現在の時間（開始からの経過時間）</param>
-/// <param name="totalTime">全体の時間（アニメーションの総時間）</param>
-/// <param name="start">開始時の値</param>
-/// <param name="end">終了時の値</param>
-float ElasticInOut(float time, float totalTime, float start, float end);
 
-/// <summary>
-/// バック関数的なイージング。最初に少し逆方向に動き、その後加速する
-/// </summary>
-/// <param name="time">現在の時間（開始からの経過時間）</param>
-/// <param name="totalTime">全体の時間（アニメーションの総時間）</param>
-/// <param name="start">開始時の値</param>
-/// <param name="end">終了時の値</param>
-float BackIn(float time, float totalTime, float start, float end, float s);
+	/// @brief 角度の最終計算(360度などの制限があるため、別で処理する)
+	/// @param start 初期位置
+	/// @param end 終了位置
+	/// @param t 現在時間
+	/// @param type 使用するイージング種類
+	/// @return 計算結果
+	float EaseFuncDeg(float& start, float& end, const float t, const EASING_TYPE type);
+	double EaseFuncDeg(double& start, double& end, const float t, const EASING_TYPE type);
+	float EaseFuncRad(float& start, float& end, const float t, const EASING_TYPE type);
 
-/// <summary>
-/// バック関数的なイージング。最初は速く、後半に少し逆方向に動いて減速する
-/// </summary>
-/// <param name="time">現在の時間（開始からの経過時間）</param>
-/// <param name="totalTime">全体の時間（アニメーションの総時間）</param>
-/// <param name="start">開始時の値</param>
-/// <param name="end">終了時の値</param>
-float BackOut(float time, float totalTime, float start, float end, float s);
 
-/// <summary>
-/// バック関数的なイージング。加速と減速の両方があり、バック関数の特徴を含んでいる
-/// </summary>
-/// <param name="time">現在の時間（開始からの経過時間）</param>
-/// <param name="totalTime">全体の時間（アニメーションの総時間）</param>
-/// <param name="start">開始時の値</param>
-/// <param name="end">終了時の値</param>
-float BackInOut(float time, float totalTime, float start, float end, float s);
 
-/// <summary>
-/// バウンド関数的なイージング。最初に跳ねるような動きで加速する
-/// </summary>
-/// <param name="time">現在の時間（開始からの経過時間）</param>
-/// <param name="totalTime">全体の時間（アニメーションの総時間）</param>
-/// <param name="start">開始時の値</param>
-/// <param name="end">終了時の値</param>
-float BounceIn(float time, float totalTime, float start, float end);
 
-/// <summary>
-/// バウンド関数的なイージング。最初は速く、跳ねるように減速する
-/// </summary>
-/// <param name="time">現在の時間（開始からの経過時間）</param>
-/// <param name="totalTime">全体の時間（アニメーションの総時間）</param>
-/// <param name="start">開始時の値</param>
-/// <param name="end">終了時の値</param>
-float BounceOut(float time, float totalTime, float start, float end);
 
-/// <summary>
-/// バウンド関数的なイージング。加速と減速が両方あり、跳ねる動きがある
-/// </summary>
-/// <param name="time">現在の時間（開始からの経過時間）</param>
-/// <param name="totalTime">全体の時間（アニメーションの総時間）</param>
-/// <param name="start">開始時の値</param>
-/// <param name="end">終了時の値</param>
-float BounceInOut(float time, float totalTime, float start, float end);
+private:
 
-/// <summary>
-/// 線形補間。加速も減速もなく、一定の速度で直線的に変化する
-/// </summary>
-/// <param name="time">現在の時間（開始からの経過時間）</param>
-/// <param name="totalTime">全体の時間（アニメーションの総時間）</param>
-/// <param name="start">開始時の値</param>
-/// <param name="end">終了時の値</param>
-float Linear(float time, float totalTime, float start, float end);
+	//イージングの最大値
+	static constexpr float EASING_MAX = 1.0f;
 
+	//イージング中央値
+	static constexpr float EASING_HALF = 0.5f;
+
+	//角度の最大値(デグリー)
+	static constexpr double DEG_MAX = 360.0;
+
+	//半円の最大値(デグリー)
+	static constexpr double HALF_DEG_MAX = 180.0;
+
+	//角度の最大値(ラジアン)
+	static constexpr float RAD_MAX = DX_TWO_PI_F;
+
+	//半円の最大値(ラジアン)
+	static constexpr float HALF_RAD_MAX = DX_PI_F;
+
+	//イージングの更新を格納
+	std::function<float(const float)>easingUpdate_;
+
+	//イージング関数テーブル
+	std::unordered_map<EASING_TYPE, std::function<void(float)>>easingFuncTable_;
+
+	/// @brief 線形補完
+	/// @param t 時間
+	/// @return 
+	float Lerp(const float t);
+	float LerpBack(const float t);		//戻る補完
+
+	float OutBack(const float t);		//目的地を少し超えて戻る
+
+	//---------------------------------------------------------------------------------------------
+	//二次関数系
+	//---------------------------------------------------------------------------------------------
+	// 二次関数的な動き(だんだん早く)
+	float EaseQuadIn(const float t);
+
+	// 二次関数的な動き(だんだん遅く)
+	float EaseQuadOut(const float t);
+
+	//二次関数的な動き(元に戻る)
+	float EaseQuadBack(const float t);
+
+	//二次関数的な動き(スローインスローアウト的な)
+	float EaseQuadInOut(const float t);
+
+	//二次関数的な動き(ファストインファストアウト的な)
+	float EaseQuadOutIn(const float t);
+	//---------------------------------------------------------------------------------------------
+	//三次関数(二次関数よりも緩やか)
+	//---------------------------------------------------------------------------------------------
+
+	// 三次関数の動き(だんだん早く)
+	float EaseCubicIn(const float t);
+
+	// 三次関数の動き(だんだん遅く)
+	float EaseCubicOut(const float t);
+
+	// 三次関数的な動き(スローインスローアウト的な)
+	float EaseCubicInOut(const float start, const float end, const float t);
+
+	//三次関数的な動き(ファストインファストアウト的な)
+	float EaseCubicOutIn(const float start, const float end, const float t);
+
+	//---------------------------------------------------------------------------------------------
+	//指数関数
+	//---------------------------------------------------------------------------------------------
+	// 指数を決めてその動きをする
+	float EaseExpo(const float t,const int expo=2);
+
+	//前半ばね
+	float EaseInElastic(const float t);
+
+	//後半にばねのような動き 
+	float EaseOutElastic(const float t);
+
+	//元に戻ってくるばね
+	float EaseBackElastic(const float t);
+
+	//バウンドの動き 
+	float EaseBounce(const float t);
+	
+
+	//三角関数
+	//----------------------------------------------------------------------------------------------
+	//サイン波(初めから早く)
+	float EaseSinBack(const float t);
+	//コサイン波(遅く始まる)
+	float EaseCosBack(const float t);
+
+	//外周を回る(お花の形)
+	Vector2F EaseEpiCycloid(const Vector2F& start, const float t, const float halfRadiusNum = 4, const float smallRadius = 30);
+
+	//内側を回る(とんがりお花)
+	Vector2F EaseHypoCycloid(const Vector2F& start, const float t, const float halfRadiusNum = 4, const float smallRadius = 30);
+
+
+};
 

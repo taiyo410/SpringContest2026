@@ -132,6 +132,77 @@ void Font::SetDefaultFont(const std::string& fontId)
 //テキスト描画
 void Font::DrawText(const std::string& fontId, int x, int y, const char* text, int color, int fontSize, int fontType)
 {
+	int fontHandle=GetFontHandle(fontId, fontSize, fontType);
+
+	DrawFormatStringFToHandle(x, y, color, fontHandle, text);
+}
+
+// デフォルトフォントで描画
+void Font::DrawDefaultText(int x, int y, const char* text, int color, int fontSize, int fontType)
+{
+	DrawText(defaultFont_, x, y, text, color, fontSize, fontType);
+}
+
+//文字の横幅を取得
+int Font::GetDefaultTextWidth(const std::string& text) const
+{
+	return GetDrawStringWidth(text.c_str(), static_cast<int>(text.size()));
+}
+
+void Font::DrawTextCentered(int centerX, int centerY, const char* text, int color, int fontSize, float angle, int fontType)
+{
+	int fontHandle = GetFontHandle(defaultFont_, fontSize, fontType);
+
+	int w, h;
+
+	// 文字サイズ取得
+	GetDrawStringSizeToHandle(
+		&w,
+		&h,
+		NULL,
+		text,
+		strlen(text),
+		fontHandle
+	);
+
+	// 中心基準描画
+	DrawRotaStringFToHandle(
+		centerX,
+		centerY,
+		1.0,
+		1.0,
+		w * 0.5,   // RotCenterX
+		h * 0.5,   // RotCenterY ← ここ重要
+		0.0f,
+		color,
+		fontHandle,
+		0,
+		FALSE,
+		text
+	);
+}
+
+//一時的なフォントを取得または生成
+int Font::GetDynamicFontHandle(const std::string& internalFontName, int fontSize, int fontWeight, int fontType)
+{
+	auto key = std::make_pair(fontSize, fontType);
+	auto it = dynamicFontHandles_.find(key);
+
+	if (it != dynamicFontHandles_.end())
+	{
+		return it->second;
+	}
+
+	int fontHandle = CreateFontToHandle(internalFontName.c_str(), fontSize, fontWeight, fontType);
+	if (fontHandle != -1)
+	{
+		dynamicFontHandles_[key] = fontHandle;
+	}
+	return fontHandle;
+}
+
+const int Font::GetFontHandle(const std::string& fontId, int fontSize, int fontType)
+{
 	int fontHandle = -1;
 	int useFontType = (fontType >= 0) ? fontType : FONT_TYPE_NORMAL;
 
@@ -174,38 +245,6 @@ void Font::DrawText(const std::string& fontId, int x, int y, const char* text, i
 	if (fontHandle == -1)
 	{
 		fontHandle = DX_DEFAULT_FONT_HANDLE;
-	}
-
-	DrawFormatStringFToHandle(x, y, color, fontHandle, text);
-}
-
-// デフォルトフォントで描画
-void Font::DrawDefaultText(int x, int y, const char* text, int color, int fontSize, int fontType)
-{
-	DrawText(defaultFont_, x, y, text, color, fontSize, fontType);
-}
-
-//文字の横幅を取得
-int Font::GetDefaultTextWidth(const std::string& text) const
-{
-	return GetDrawStringWidth(text.c_str(), static_cast<int>(text.size()));
-}
-
-//一時的なフォントを取得または生成
-int Font::GetDynamicFontHandle(const std::string& internalFontName, int fontSize, int fontWeight, int fontType)
-{
-	auto key = std::make_pair(fontSize, fontType);
-	auto it = dynamicFontHandles_.find(key);
-
-	if (it != dynamicFontHandles_.end())
-	{
-		return it->second;
-	}
-
-	int fontHandle = CreateFontToHandle(internalFontName.c_str(), fontSize, fontWeight, fontType);
-	if (fontHandle != -1)
-	{
-		dynamicFontHandles_[key] = fontHandle;
 	}
 	return fontHandle;
 }

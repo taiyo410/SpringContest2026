@@ -47,6 +47,9 @@ public:
 	//文字の横幅を取得
 	int GetDefaultTextWidth(const std::string& text) const;
 
+	//センター座標でテキスト描画
+	void DrawTextCentered(int centerX, int centerY, const char* text, int color,  int fontSize = -1, const float angle = 0.0f, int fontType = -1);
+
 	//解放
 	void Destroy(void);
 
@@ -82,5 +85,10 @@ private:
 	/// <param name="fontWeight">フォントの幅</param>
 	/// <param name="fontType">フォントのタイプ</param>
 	int GetDynamicFontHandle(const std::string& internalFontName, int fontSize, int fontWeight, int fontType);
+
+	const int GetFontHandle(const std::string& fontId, int fontSize, int fontType);
+	
+
+
 
 };
