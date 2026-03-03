@@ -199,5 +199,5 @@ Application::Application(void)
 	isReleaseFail_ = false;
 
 	// デバックスクリーンかどうか
-	debugSc_ = true;
+	debugSc_ = false;
 }

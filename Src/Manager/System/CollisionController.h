@@ -72,6 +72,7 @@ private:
 
     // 2DŒü‚¯‚ÌÕ“Ë”»’èŠÖ”
     bool CheckCircleVsCircle(const ColliderBase* colA, const ColliderBase* colB, CollisionInfo& outInfo);
+    bool CheckCircleVsBox(const ColliderBase* colA, const ColliderBase* colB, CollisionInfo& outInfo);
 
     bool IsCollisionEnabled(ColliderBase::TAG tagA, ColliderBase::TAG tagB);
 };

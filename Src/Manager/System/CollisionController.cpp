@@ -119,6 +119,11 @@ bool CollisionController::CheckCircleVsCircle(const ColliderBase* colA, const Co
     return false;
 }
 
+bool CollisionController::CheckCircleVsBox(const ColliderBase* colA, const ColliderBase* colB, CollisionInfo& outInfo)
+{
+    return false;
+}
+
 bool CollisionController::IsCollisionEnabled(ColliderBase::TAG tagA, ColliderBase::TAG tagB)
 {
     // 2Dゲームで必要な組み合わせのみ true を返す

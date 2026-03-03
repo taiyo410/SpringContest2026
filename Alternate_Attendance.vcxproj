@@ -159,6 +159,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Src\Manager\System\CollisionManager2D.h" />
+    <ClInclude Include="Src\Object\Common\Collider2D\Geometry2D\BoxGeo.h" />
+    <ClInclude Include="Src\Object\Common\Collider2D\Geometry2D\Circle.h" />
+    <ClInclude Include="Src\Object\Common\Collider2D\Geometry2D\Geometry2D.h" />
+    <ClInclude Include="Src\Object\Common\Collider2D\Collider2D.h" />
     <ClInclude Include="Src\Loader\CsvLoader.h" />
     <ClInclude Include="Src\Loader\DataRegistry.h" />
     <ClInclude Include="Src\Loader\ILoader.h" />
@@ -210,6 +215,11 @@
     <ClInclude Include="Src\Utility\Utility.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Src\Manager\System\CollisionManager2D.cpp" />
+    <ClCompile Include="Src\Object\Common\Collider2D\Geometry2D\BoxGeo.cpp" />
+    <ClCompile Include="Src\Object\Common\Collider2D\Geometry2D\Circle.cpp" />
+    <ClCompile Include="Src\Object\Common\Collider2D\Geometry2D\Geometry2D.cpp" />
+    <ClCompile Include="Src\Object\Common\Collider2D\Collider2D.cpp" />
     <ClCompile Include="Src\Loader\DataRegistry.cpp" />
     <ClCompile Include="Src\Manager\System\DataManager.cpp" />
     <ClCompile Include="Src\Scene\SubScene\PauseScene.cpp" />
