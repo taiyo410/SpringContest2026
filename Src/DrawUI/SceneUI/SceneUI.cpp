@@ -43,15 +43,13 @@ void SceneUi::DrawFont(int baseYOverride)
         if (static_cast<int>(i) == currentIndex_)
         {
             color = GetColor(255, 255, 0);
-            fontSize_ = easing_->EaseFunc(42, 68, easingTime_ / EASING_DURATION, Easing::EASING_TYPE::COS_BACK);
+            fontSize_ = easing_->EaseFunc(42, 50, easingTime_ / EASING_DURATION, Easing::EASING_TYPE::COS_BACK);
         }
         else
         {
             color =  GetColor(170, 170, 170);
             fontSize_ = 42;
         }
-        //DrawRotaStringFToHandle(xPos, yPos, fontSize_, fontSize_, xPos, yPos, 0.0f, color, Font::FONT_TYPE_ANTIALIASING_EDGE, GetColor(0,0,0),false,font.message.c_str());
-        //Font::GetInstance().DrawDefaultText(xPos, yPos, font.message.c_str(), color, fontSize_, Font::FONT_TYPE_ANTIALIASING_EDGE);
         Font::GetInstance().DrawTextCentered(xPos, yPos, font.message.c_str(), color, fontSize_, Font::FONT_TYPE_ANTIALIASING_EDGE);
     }
 }

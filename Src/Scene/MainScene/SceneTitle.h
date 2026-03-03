@@ -2,6 +2,7 @@
 #include "../SceneBase.h"
 #include "../../DrawUI/SceneUI/SceneUi.h"
 
+class CollisionController;
 class SoundManager;
 class SceneManager;
 class Grid;
@@ -78,6 +79,9 @@ private:
 
     //シーンマネージャ
 	SceneManager& sceneMng_;
+
+    //コリジョンコントローラー
+	CollisionController& collisionController_;
 
 	//ロゴ
     int logo_;

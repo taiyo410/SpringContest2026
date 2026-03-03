@@ -12,11 +12,13 @@
 #include "../../Application.h"
 #include "../../DrawUI/Font.h"
 #include "../../Manager/System/TimeManager.h"
+#include "../../Manager/System/CollisionController.h"
 #include "../../Manager/System/Loading.h"
 
 SceneTitle::SceneTitle(void):
 	soundMng_(SoundManager::GetInstance()),
 	sceneMng_(SceneManager::GetInstance()),
+	collisionController_(CollisionController::GetInstance()),
     logo_(-1),
 	grid_(nullptr),
     isDecided_(false),
