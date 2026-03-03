@@ -1,179 +1,149 @@
-#include "Pch.h"
-#include"Application.h"
-
-#include "Manager/Decoration/EffectManager.h"
-#include "Manager/Generic/ResourceManager.h"
-#include "Manager/Generic/InputManager.h"
+#include <DxLib.h>
+#include <EffekseerForDXLib.h>
 #include "Manager/Generic/SceneManager.h"
-#include "Manager/System/DataManager.h"
-#include "Fps/FpsController.h"
-#include "Manager/System/Loading.h"
+#include "Manager/Generic/InputManager.h"
+#include "Manager/Generic/InputManagerS.h"
+#include "Manager/Resource/ResourceManager.h"
+#include "Manager/Resource/FontManager.h"
+#include "Manager/Resource/SoundManager.h"
+#include "FpsControl/FpsControl.h"
+#include "Application.h"
 
+const std::wstring Application::PATH_IMAGE = L"Data/Image/";
+const std::wstring Application::PATH_MODEL = L"Data/Model/";
+const std::wstring Application::PATH_ANIM_PLAYER = L"Data/Model/Animation/Player/";
+const std::wstring Application::PATH_ANIM_ENEMY = L"Data/Model/Animation/Enemy/";
+const std::wstring Application::PATH_EFFECT = L"Data/Effect/";
+const std::wstring Application::PATH_SOUND_BGM = L"Data/Sound/BGM/";
+const std::wstring Application::PATH_SOUND_SE = L"Data/Sound/SE/";
+const std::wstring Application::PATH_FONT = L"Data/Font/";
+const std::wstring Application::PATH_TEXT = L"Data/Text/";
+const std::wstring Application::PATH_JSON = L"Data/JSON/";
+const std::wstring Application::PATH_CSV = L"Data/CSV/";
+const std::wstring Application::PATH_SHADER = L"Data/Shader/";
 
-Application* Application::instance_ = nullptr;
-
-//ファイル指定パス
-const std::string Application::PATH_IMAGE = "Data/Image/";
-const std::string Application::PATH_MODEL = "Data/Model/";
-const std::string Application::PATH_ANIM = "Data/Anim/";
-const std::string Application::PATH_EFFECT = "Data/Effect/";
-const std::string Application::PATH_TEXT = "Data/Text/";
-const std::string Application::PATH_FONT = "Data/Font/";
-const std::string Application::PATH_BGM = "Data/Sound/BGM/";
-const std::string Application::PATH_SE = "Data/Sound/SE/";
-const std::string Application::PATH_MOVIE = "Data/Movie/";
-const std::string Application::PATH_MAP_DATA = "Data/MapData/MapData.csv";
-const std::string Application::PATH_CSV = "Data/CSV/";
-
-void Application::CreateInstance(void)
+bool Application::Init(void)
 {
-	if (instance_ == nullptr)
-	{
-		instance_ = new Application();
-		instance_->Init();
-	}
-}
 
-Application& Application::GetInstance(void)
-{
-	return *instance_;
-}
+	// アプリケーションの初期設定
+	SetWindowText(L"ActionCardBattle");
 
-void Application::Init(void)
-{
-	//アプリケーションの初期設定
-	SetWindowText("Fly");
+	// ウィンドウサイズ
+	SetGraphMode(SCREEN_SIZE_X, SCREEN_SIZE_Y, 32);
+	ChangeWindowMode(true);
 
-	if (debugSc_)
-	{
-		//ウィンドウのサイズ
-		SetGraphMode(DEFA_SCREEN_SIZE_X, DEFA_SCREEN_SIZE_Y, 32);
-
-		ChangeWindowMode(true);
-	}
-	else
-	{
-		//ウィンドウのサイズ
-		SetGraphMode(SCREEN_SIZE_X, SCREEN_SIZE_Y, 32);
-
-		ChangeWindowMode(false);
-	}
-
-
-
-
-
-	//非アクティブ状態でも動作する
-	SetAlwaysRunFlag(TRUE);
-
-	//FPS制御クラス
-	fps_ = std::make_unique<FpsController>(DEFAULT_FPS);
-
-	//DXLibの初期化
+	// DxLibの初期化
 	SetUseDirect3DVersion(DX_DIRECT3D_11);
-	isInitFail_ = false;
 	if (DxLib_Init() == -1)
 	{
-		//エラー処理
-		isInitFail_ = true;
-		return;
+		return false;
 	}
-	SetMouseDispFlag(FALSE);
 
-	//エフェクシアの初期化
+	// Effekseerの初期化
 	InitEffekseer();
 
 	// キー制御初期化
 	SetUseDirectInputFlag(true);
-	InputManager::CreateInstance();
+	InputManager::CreateInstance();			//生成
+	InputManagerS::CreateInstance();			//生成
+	InputManager::GetInstance().Init();		//初期化
+	InputManagerS::GetInstance().Init();		//初期化
 
-	//リソース管理初期化
+	// リソース管理初期化
 	ResourceManager::CreateInstance();
+	ResourceManager::GetInstance().Init();
+
+	//サウンド管理初期化
+	SoundManager::CreateInstance();
+	SoundManager::GetInstance().Init();
 
 	// シーン管理初期化
-	SceneManager::CreateInstance();
+	SceneManager::CreateInstance();		
+	SceneManager::GetInstance().Init();	
 
-	EffectManager::CreateInstance();
 
-	DataManager::CreateInstance();
+	// FPS初期化
+	fps_ = std::make_unique<FpsControl>();
+	fps_->Init();
+
+	// フォント管理初期化
+	fontMng_ = std::make_unique<FontManager>();
+	fontMng_->Init();
+
+	isGameEnd_ = false;
+
+	return true;
 }
 
 void Application::Run(void)
 {
+	LONGLONG time = GetNowHiPerformanceCount();
+
 	auto& inputManager = InputManager::GetInstance();
+	auto& inputManagerS = InputManagerS::GetInstance();
 	auto& sceneManager = SceneManager::GetInstance();
 
-
-	MSG msg;
-
-	while (ProcessMessage() == 0)
+	// ゲームループ
+	while (ProcessMessage() == 0 &&((CheckHitKey(KEY_INPUT_ESCAPE)) == 0&&!isGameEnd_))
 	{
-		if (sceneManager.GetGameEnd()) break;
-		SetDrawScreen(DX_SCREEN_BACK);
-		ClearDrawScreen();
+		//フレームレートを更新
+		if (!fps_->UpdateFrameRate()) continue;
 
+		//更新処理
 		inputManager.Update();
-
-		if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
-		{
-			TranslateMessage(&msg);
-			DispatchMessage(&msg);
-		}
-
-		Sleep(1);
-
-		// 通常ゲーム処理
+		inputManagerS.Update();
 		sceneManager.Update();
 
-		// 描画
+		//描画処理
 		sceneManager.Draw();
-		// 平均FPS描画
-		fps_->Draw();
 
-		// エフェクト描画
-		DrawEffekseer3D();
+		//フレームレート計算
+		fps_->CalcFrameRate();
 
-		fps_->Wait();
+#ifdef _DEBUG
+		fps_->DrawFrameRate();
+#endif // _DEBUG
 
 		ScreenFlip();
-
-
-
 	}
+
 }
 
-void Application::Destroy(void)
+bool Application::Release(void)
 {
-	InputManager::GetInstance().Destroy();
-	ResourceManager::GetInstance().Destroy();
-	SceneManager::GetInstance().DestroyInstance();
-	EffectManager::GetInstance().Destroy();
-	DataManager::GetInstance().Destroy();
+	//各クラスのリソースの破棄
+	InputManager::GetInstance().Release();
+	InputManagerS::GetInstance().Release();
+	ResourceManager::GetInstance().Release();
+	SceneManager::GetInstance().Release();
+	SoundManager::GetInstance().Release();
 
-	//エフェクシアの終了
+	//インスタンスの破棄
+	fontMng_->Destroy();
+	InputManager::GetInstance().Destroy();
+	InputManagerS::GetInstance().Destroy();
+	ResourceManager::GetInstance().Destroy();
+	SceneManager::GetInstance().Destroy();
+	SoundManager::GetInstance().Destroy();
+
+	// Effekseerを終了する。
 	Effkseer_End();
 
-	//DXLibの終了
+	// DxLib終了
 	if (DxLib_End() == -1)
 	{
-		isReleaseFail_ = true;
+		return false;
 	}
 
-	if (fps_)
-	{
-		fps_.reset();
-	}
-	delete instance_;
+	return true;
 }
 
-bool Application::IsInitFail(void) const
+Application::Application(void):
+	isGameEnd_(false),
+	fps_(nullptr),
+	fontMng_(nullptr)
 {
-	return isInitFail_;
-}
 
-bool Application::IsReleaseFail(void) const
-{
-	return isReleaseFail_;
 }
 
 void Application::InitEffekseer(void)
@@ -182,16 +152,8 @@ void Application::InitEffekseer(void)
 	{
 		DxLib_End();
 	}
-	SetChangeScreenModeGraphicsSystemResetFlag(false);
+
+	SetChangeScreenModeGraphicsSystemResetFlag(FALSE);
+
 	Effekseer_SetGraphicsDeviceLostCallbackFunctions();
-
-}
-
-Application::Application(void)
-{
-	isInitFail_ = false;
-	isReleaseFail_ = false;
-
-	// デバックスクリーンかどうか
-	debugSc_ = false;
 }

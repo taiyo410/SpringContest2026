@@ -1,79 +1,77 @@
-#include "../Pch.h"
-#include "ObjectBase.h"
-#include "../Manager/Generic/ResourceManager.h"
+#include "../Manager/Resource/ResourceManager.h"
 #include "../Manager/Generic/SceneManager.h"
-#include "../Collider/ColliderBase.h"
+#include "../Manager/Game/CollisionManager.h"
+#include "ObjectBase.h"
 
-// コンストラクタ
 ObjectBase::ObjectBase(void)
+	: resMng_(ResourceManager::GetInstance()),
+	scnMng_(SceneManager::GetInstance())
 {
 }
 
-// デストラクタ
 ObjectBase::~ObjectBase(void)
 {
+	collider_.clear();
+}
+void ObjectBase::OnHit(const std::weak_ptr<Collider> _hitCol)
+{
+
 }
 
-void ObjectBase::InitLoad(void)
+void ObjectBase::MakeCollider(const TAG_PRIORITY _tagPriority, const std::set<Collider::TAG> _tag, std::unique_ptr<Geometry> _geometry, const std::set<Collider::TAG> _notHitTags)
 {
+	//情報を使ってコライダの作成
+	std::shared_ptr col = std::make_shared<Collider>(*this, _tag, std::move(_geometry), _notHitTags);
+	collider_.emplace(_tagPriority,col);
+	//コライダを管理マネージャーに追加
+	CollisionManager::GetInstance().AddCollider(col);
 }
 
-// 初期化処理
-void ObjectBase::Init(void)
+const bool ObjectBase::IsAliveCollider(const Collider::TAG _chataTag, const Collider::TAG _tag)
 {
-	InitTransform();
-	InitCollider();
-}
-
-// 描画処理
-void ObjectBase::Draw(void) const
-{
-#ifdef _DEBUG
-
-	// デバック用全コライダの描画
-	for (const auto& own : ownColliders_)
+	for (auto& col:collider_)
 	{
-		if (own.second)
+		auto tags = col.second->GetTags();
+		//特定のタグを見つけるまでイテレータを回す
+		//発見できなかった場合、最後まで回る
+		auto it = tags.find(_chataTag);
+		if (it != tags.end())
 		{
-			own.second->Draw();
+			//キャラタグを発見したら、さらに攻撃の当たり判定を探す
+			auto it2 = tags.find(_tag);
+			if (it2 != tags.end())
+			{
+				return true;
+			}
 		}
 	}
-#endif 
-
+	return false;
 }
 
-// 解放処理
-void ObjectBase::Release(void)
+
+void ObjectBase::DeleteCollider(const TAG_PRIORITY _priority)
 {
-	// 所有コライダの自動解放
-	for (auto& own : ownColliders_)
+	auto it = collider_.find(_priority);
+	if (it == collider_.end() || it->second == nullptr)return;
+	//コライダの削除
+	collider_[_priority]->Kill();
+
+	//配列の削除
+	std::erase_if(collider_, [](auto& col) {return col.second->IsDead(); });
+}
+
+void ObjectBase::DeleteAllCollider(void)
+{
+	for (auto& col : collider_)
 	{
-		delete own.second;
+		//当たり判定が存在しないならスキップ
+		if (col.second == nullptr)continue;
+
+		//コライダの削除
+		col.second->Kill();
 	}
 
-	ownColliders_.clear();
-	hitColliders_.clear();
+	//当たり判定情報の削除
+	collider_.clear();
 }
 
-const ColliderBase* ObjectBase::GetOwnCollider(int key) const
-{
-	if (ownColliders_.count(key) == 0) return nullptr;
-	return ownColliders_.at(key);
-}
-
-void ObjectBase::AddHitCollider(const ColliderBase* hitCollider)
-{
-	if (!hitCollider) return;
-
-	// 重複チェック
-	for (const auto& c : hitColliders_)
-	{
-		if (c == hitCollider) return;
-	}
-	hitColliders_.emplace_back(hitCollider);
-}
-
-void ObjectBase::ClearHitCollider(void)
-{
-	hitColliders_.clear();
-}

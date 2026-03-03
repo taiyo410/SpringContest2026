@@ -1,46 +1,100 @@
-#include"SceneBase.h"
+#include <DxLib.h>
+#include <string>
+#include "../Manager/Generic/SceneManager.h"
+#include "../Manager/Generic/InputManager.h"
+#include "../Manager/Resource/ResourceManager.h"
+#include "../Utility/UtilityCommon.h"
+#include "SceneBase.h"
 
-//デストラクタ
+SceneBase::SceneBase(void) :
+	resMng_(ResourceManager::GetInstance())
+	,scnMng_(SceneManager::GetInstance())
+	,inputMng_(InputManager::GetInstance())
+{
+	buttonFontHandle_ = -1;
+	loadingTime_ = -1;
+}
+
 SceneBase::~SceneBase(void)
 {
-	isLoading_ = false;
+	DeleteFontToHandle(buttonFontHandle_); //フォントの削除
 }
 
-//初期化
-void SceneBase::Init(void)
-{
-	isLoading_ = false;
-}
-
-//更新処理
-void SceneBase::Update(void)
-{
-}
-
-//描画処理
-void SceneBase::Draw(void)
-{
-}
-
-//解放処理
-void SceneBase::Release(void)
-{
-}
-
-// ロード開始
 void SceneBase::Load(void)
 {
-	isLoading_ = true;
 }
 
-// ロード完了
-void SceneBase::EndLoad(void)
+void SceneBase::Init(void)
 {
-	isLoading_ = false;
 }
 
-// ロード中か
-bool SceneBase::IsLoading(void) const
+void SceneBase::Update(void)
 {
-	return isLoading_;
+	updateFunc_();
+	return;
+}
+
+void SceneBase::Draw(void)
+{
+	drawFunc_();
+	return;
+}
+
+void SceneBase::LoadingUpdate(void)
+{
+	bool loadTimeOver = UtilityCommon::IsTimeOver(loadingTime_, LOADING_TIME);
+
+	//ロードが完了したか判断
+	if (GetASyncLoadNum() == 0 && loadTimeOver)
+	{
+		//非同期処理を無効にする
+		SetUseASyncLoadFlag(false);
+
+		//初期化処理
+		Init();
+
+		//フェードイン開始
+		scnMng_.StartFadeIn();
+
+		scnMng_.SetIsSceneChange(false);
+
+		//通常の処理へ移る(シーン遷移時に処理する関数へ)
+		OnSceneEnter();
+	}
+}
+
+void SceneBase::NormalUpdate(void)
+{
+}
+
+void SceneBase::LoadingDraw(void)
+{
+	//NowLoadingの描画
+	DrawNowLoading();
+}
+
+void SceneBase::NormalDraw(void)
+{
+}
+
+void SceneBase::OnSceneEnter(void)
+{
+}
+
+void SceneBase::DrawNowLoading(void)
+{
+	//ロード中
+	auto time = scnMng_.GetTotalTime();
+	int count = static_cast<int>(time / COMMA_TIME);
+	count %= COMMA_MAX_NUM;
+
+	std::wstring loadStr = L"Now loading";
+	std::wstring dotStr = L".";
+
+	for (int i = 0; i < count; i++)
+	{
+		loadStr += dotStr;
+	}
+	DrawStringToHandle(LOADING_STRING_POS_X, LOADING_STRING_POS_Y, loadStr.c_str(), 0xffffff, buttonFontHandle_);
+
 }

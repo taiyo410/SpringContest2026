@@ -1,25 +1,6 @@
-#include "../../Pch.h"
+#include <DxLib.h>
+#include "../Manager/Generic/SceneManager.h"
 #include "InputManager.h"
-
-InputManager* InputManager::instance_ = nullptr;
-
-void InputManager::CreateInstance(void)
-{
-	if (instance_ == nullptr)
-	{
-		instance_ = new InputManager();
-	}
-	instance_->Init();
-}
-
-InputManager& InputManager::GetInstance(void)
-{
-	if (instance_ == nullptr)
-	{
-		InputManager::CreateInstance();
-	}
-	return *instance_;
-}
 
 void InputManager::Init(void)
 {
@@ -27,27 +8,45 @@ void InputManager::Init(void)
 	// ゲームで使用したいキーを、
 	// 事前にここで登録しておいてください
 	InputManager::GetInstance().Add(KEY_INPUT_SPACE);
+	InputManager::GetInstance().Add(KEY_INPUT_N);
+	InputManager::GetInstance().Add(KEY_INPUT_Z);
 
+	//プレイヤー操作関連
+	//---------------------------------------------------
+	//移動キー
 	InputManager::GetInstance().Add(KEY_INPUT_W);
-	InputManager::GetInstance().Add(KEY_INPUT_S);
 	InputManager::GetInstance().Add(KEY_INPUT_A);
+	InputManager::GetInstance().Add(KEY_INPUT_S);
 	InputManager::GetInstance().Add(KEY_INPUT_D);
 
-	InputManager::GetInstance().Add(KEY_INPUT_UP);
-	InputManager::GetInstance().Add(KEY_INPUT_DOWN);
-	InputManager::GetInstance().Add(KEY_INPUT_LEFT);
-	InputManager::GetInstance().Add(KEY_INPUT_RIGHT);
-
-	InputManager::GetInstance().Add(KEY_INPUT_TAB);
-
-	InputManager::GetInstance().Add(KEY_INPUT_P);
-	InputManager::GetInstance().Add(KEY_INPUT_Z);
-	InputManager::GetInstance().Add(KEY_INPUT_X);
-	InputManager::GetInstance().Add(KEY_INPUT_R);
+	//ドッジ(回避)
+	InputManager::GetInstance().Add(KEY_INPUT_LSHIFT);
+	//カードセレクト
 	InputManager::GetInstance().Add(KEY_INPUT_E);
+	InputManager::GetInstance().Add(KEY_INPUT_Q);
+	InputManager::GetInstance().Add(KEY_INPUT_LCONTROL);
+	//ポーズ
+	InputManager::GetInstance().Add(KEY_INPUT_P);
+	//ターゲットロックオンカメラ切り替え
+	InputManager::GetInstance().Add(KEY_INPUT_T);
+
+
+	//選択
+	InputManager::GetInstance().Add(KEY_INPUT_DOWN);
+	InputManager::GetInstance().Add(KEY_INPUT_UP);
+	InputManager::GetInstance().Add(KEY_INPUT_RIGHT);
+	InputManager::GetInstance().Add(KEY_INPUT_LEFT);
+
+	//決定
 	InputManager::GetInstance().Add(KEY_INPUT_RETURN);
-	InputManager::GetInstance().Add(KEY_INPUT_NUMPADENTER);
-	InputManager::GetInstance().Add(KEY_INPUT_ESCAPE);
+
+	//カード使用
+	InputManager::GetInstance().Add(KEY_INPUT_F);
+	InputManager::GetInstance().Add(KEY_INPUT_RCONTROL);
+	//カードチャージ
+	InputManager::GetInstance().Add(KEY_INPUT_R);
+	//---------------------------------------------------
+
 
 	InputManager::MouseInfo info;
 
@@ -69,7 +68,6 @@ void InputManager::Init(void)
 	info.keyTrgUp = false;
 	mouseInfos_.emplace(info.key, info);
 
-
 }
 
 void InputManager::Update(void)
@@ -82,6 +80,7 @@ void InputManager::Update(void)
 		p.second.keyNew = CheckHitKey(p.second.key);
 		p.second.keyTrgDown = p.second.keyNew && !p.second.keyOld;
 		p.second.keyTrgUp = !p.second.keyNew && p.second.keyOld;
+		p.second.UpdateKeepTime();
 	}
 
 	// マウス検知
@@ -105,11 +104,10 @@ void InputManager::Update(void)
 
 }
 
-void InputManager::Destroy(void)
+void InputManager::Release(void)
 {
 	keyInfos_.clear();
 	mouseInfos_.clear();
-	delete instance_;
 }
 
 void InputManager::Add(int key)
@@ -119,6 +117,8 @@ void InputManager::Add(int key)
 	info.keyOld = false;
 	info.keyNew = false;
 	info.keyTrgDown = false;
+	info.keyCnt = 0.0f;
+	info.keyKeeping = false;
 	info.keyTrgUp = false;
 	keyInfos_.emplace(key, info);
 }
@@ -129,11 +129,6 @@ void InputManager::Clear(void)
 }
 
 bool InputManager::IsNew(int key) const
-{
-	return Find(key).keyNew;
-}
-
-bool InputManager::IsPress(int key) const
 {
 	return Find(key).keyNew;
 }
@@ -178,18 +173,9 @@ bool InputManager::IsTrgMouseRight(void) const
 	return FindMouse(MOUSE_INPUT_RIGHT).keyTrgDown;
 }
 
-bool InputManager::IsMousePress(int key) const
-{
-	return FindMouse(key).keyNew;
-}
-
 InputManager::InputManager(void)
 {
 	mouseInput_ = -1;
-}
-
-InputManager::InputManager(const InputManager& manager)
-{
 }
 
 const InputManager::Info& InputManager::Find(int key) const
@@ -235,6 +221,53 @@ XINPUT_STATE InputManager::GetJPadXInputState(JOYPAD_NO no)
 	return joyXInState_;
 }
 
+const bool InputManager::IsKeyKeepPressed(const int _key, const float _time)
+{
+	auto it = keyInfos_.find(_key);
+	if (it == keyInfos_.end())return infoEmpty_.keyKeeping;
+	if (it->second.keyTrgDown)
+	{
+		it->second.keyCnt = _time;
+		return false;
+	}
+	return it->second.keyKeeping;
+}
+
+const bool InputManager::IsBtnKeepPressed(JOYPAD_NO no, JOYPAD_BTN btn, const float _time)
+{
+	if (padInfos_[static_cast<int>(no)].IsTrgDown[static_cast<int>(btn)])
+	{
+		padInfos_[static_cast<int>(no)].btnCnt[static_cast<int>(btn)] = _time;
+		return false;
+	}
+	return padInfos_[static_cast<int>(no)].IsKeeping[static_cast<int>(btn)];
+}
+
+#ifdef _DEBUG
+void InputManager::MoveObject(Vector2F& _pos, const float _spd)
+{
+	if (IsNew(KEY_INPUT_UP))
+	{
+		_pos.y -= _spd;
+	}
+	if (IsNew(KEY_INPUT_DOWN))
+	{
+		_pos.y += _spd;
+	}
+	if (IsNew(KEY_INPUT_LEFT))
+	{
+		_pos.x -= _spd;
+	}
+	if (IsNew(KEY_INPUT_RIGHT))
+	{
+		_pos.x += _spd;
+	}
+
+}
+#endif // _DEBUG
+
+
+
 void InputManager::SetJPadInState(JOYPAD_NO jpNo)
 {
 
@@ -256,6 +289,13 @@ void InputManager::SetJPadInState(JOYPAD_NO jpNo)
 		stateNow.IsTrgDown[i] = stateNow.IsNew[i] && !stateNow.IsOld[i];
 		stateNow.IsTrgUp[i] = !stateNow.IsNew[i] && stateNow.IsOld[i];
 
+		if (stateNow.IsTrgDown[i])
+		{
+			int i = 0;
+		}
+
+		//一定時間長押し情報更新
+		UpdateKeepBtnTime(no, i);
 
 		stateNow.AKeyLX = stateNew.AKeyLX;
 		stateNow.AKeyLY = stateNew.AKeyLY;
@@ -293,16 +333,16 @@ InputManager::JOYPAD_IN_STATE InputManager::GetJPadInputState(JOYPAD_NO no)
 		// X   B
 		//   A
 
-		idx = static_cast<int>(JOYPAD_BTN::TOP);
+		idx = static_cast<int>(JOYPAD_BTN::RIGHTBUTTON_TOP);
 		ret.ButtonsNew[idx] = d.Buttons[3];// Y
 
-		idx = static_cast<int>(JOYPAD_BTN::LEFT);
+		idx = static_cast<int>(JOYPAD_BTN::RIGHTBUTTON_LEFT);
 		ret.ButtonsNew[idx] = d.Buttons[2];// X
 
-		idx = static_cast<int>(JOYPAD_BTN::RIGHT);
+		idx = static_cast<int>(JOYPAD_BTN::RIGHTBUTTON_RIGHT);
 		ret.ButtonsNew[idx] = d.Buttons[1];// B
 
-		idx = static_cast<int>(JOYPAD_BTN::DOWN);
+		idx = static_cast<int>(JOYPAD_BTN::RIGHTBUTTON_DOWN);
 		ret.ButtonsNew[idx] = d.Buttons[0];// A
 
 		idx = static_cast<int>(JOYPAD_BTN::R_TRIGGER);
@@ -312,24 +352,43 @@ InputManager::JOYPAD_IN_STATE InputManager::GetJPadInputState(JOYPAD_NO no)
 		ret.ButtonsNew[idx] = x.LeftTrigger; // L_TRIGGER
 
 		idx = static_cast<int>(JOYPAD_BTN::R_BUTTON);
-		ret.ButtonsNew[idx] = d.Buttons[5];//R_BOTTON
+		ret.ButtonsNew[idx] = d.Buttons[5];// R_BUTTON
 
 		idx = static_cast<int>(JOYPAD_BTN::L_BUTTON);
-		ret.ButtonsNew[idx] = d.Buttons[4];//L_BOTTON
+		ret.ButtonsNew[idx] = d.Buttons[4]; // L_BUTTON
 
 		idx = static_cast<int>(JOYPAD_BTN::START_BUTTON);
-		ret.ButtonsNew[idx] = d.Buttons[7];//START_BUTTON
+		ret.ButtonsNew[idx] = d.Buttons[7];// START
 
 		idx = static_cast<int>(JOYPAD_BTN::SELECT_BUTTON);
-		ret.ButtonsNew[idx] = d.Buttons[6];//SELECT_BOTTON
+		ret.ButtonsNew[idx] = d.Buttons[6]; // SELECT
+
+		idx = static_cast<int>(JOYPAD_BTN::LEFTBUTTON_TOP);
+		ret.ButtonsNew[idx] = x.Buttons[0]; // LEFTBUTTON_TOP
+
+		idx = static_cast<int>(JOYPAD_BTN::LEFTBUTTON_DOWN);
+		ret.ButtonsNew[idx] = x.Buttons[1]; // LEFTBUTTON_DOWN
+
+		idx = static_cast<int>(JOYPAD_BTN::LEFTBUTTON_LEFT);
+		ret.ButtonsNew[idx] = x.Buttons[2]; // LEFTBUTTON_LEFT
+
+		idx = static_cast<int>(JOYPAD_BTN::LEFTBUTTON_RIGHT);
+		ret.ButtonsNew[idx] = x.Buttons[3]; // LEFTBUTTON_RIGHT
+
+		idx = static_cast<int>(JOYPAD_BTN::LEFT_STICK);
+		ret.ButtonsNew[idx] = x.Buttons[6]; // 左スティック押し込み
+
+		idx = static_cast<int>(JOYPAD_BTN::RIGHT_STICK);
+		ret.ButtonsNew[idx] = x.Buttons[7]; // 右スティック押し込み
 
 		// 左スティック
 		ret.AKeyLX = d.X;
 		ret.AKeyLY = d.Y;
-		
+
 		// 右スティック
 		ret.AKeyRX = d.Rx;
 		ret.AKeyRY = d.Ry;
+
 
 	}
 		break;
@@ -345,16 +404,16 @@ InputManager::JOYPAD_IN_STATE InputManager::GetJPadInputState(JOYPAD_NO no)
 		// □  〇
 		//   ×
 
-		idx = static_cast<int>(JOYPAD_BTN::TOP);
+		idx = static_cast<int>(JOYPAD_BTN::RIGHTBUTTON_TOP);
 		ret.ButtonsNew[idx] = d.Buttons[3];// △
 
-		idx = static_cast<int>(JOYPAD_BTN::LEFT);
+		idx = static_cast<int>(JOYPAD_BTN::RIGHTBUTTON_LEFT);
 		ret.ButtonsNew[idx] = d.Buttons[0];// □
 
-		idx = static_cast<int>(JOYPAD_BTN::RIGHT);
+		idx = static_cast<int>(JOYPAD_BTN::RIGHTBUTTON_RIGHT);
 		ret.ButtonsNew[idx] = d.Buttons[2];// 〇
 
-		idx = static_cast<int>(JOYPAD_BTN::DOWN);
+		idx = static_cast<int>(JOYPAD_BTN::RIGHTBUTTON_DOWN);
 		ret.ButtonsNew[idx] = d.Buttons[1];// ×
 
 		// 左スティック
@@ -396,144 +455,44 @@ bool InputManager::IsPadBtnTrgUp(JOYPAD_NO no, JOYPAD_BTN btn) const
 	return padInfos_[static_cast<int>(no)].IsTrgUp[static_cast<int>(btn)];
 }
 
-bool InputManager::IsPadBtnPress(JOYPAD_NO no, JOYPAD_BTN btn) const
+void InputManager::Info::UpdateKeepTime(void)
 {
-	return padInfos_[static_cast<int>(no)].IsNew[static_cast<int>(btn)];
+	if (!keyNew)
+	{
+		keyCnt = 0.0f;
+		keyKeeping = false;
+		return;
+	}
+	if (keyCnt > 0.0f)
+	{
+		keyKeeping = false;
+		keyCnt -= SceneManager::GetInstance().GetDeltaTime();
+	}
+	else
+	{
+		keyKeeping = true;
+		keyCnt = 0.0f;
+	}
 }
 
-float InputManager::GetPadStickLX(int padNo) const
+void InputManager::UpdateKeepBtnTime(const int no, const int i)
 {
-	XINPUT_STATE xstate{};
-	int xresult = GetJoypadXInputState(DX_INPUT_PAD1 + padNo, &xstate);
-
-	// XInput が接続されていれば XInput を使用
-	if (xresult != 0)
+	auto& stateNow = padInfos_[no];
+	if (!stateNow.IsNew[i])
 	{
-		return static_cast<float>(xstate.ThumbLX) / 32768.0f;
+		stateNow.btnCnt[i] = 0.0f;
+		stateNow.IsKeeping[i] = false;
+		return;
 	}
-
-	// XInput が未接続の場合は DInput にフォールバック
-	DINPUT_JOYSTATE dstate{};
-	int dresult = GetJoypadDirectInputState(DX_INPUT_PAD1 + padNo, &dstate);
-	if (dresult != 0)
+	if (stateNow.btnCnt[i] > 0.0f)
 	{
-		// DInput の X 値（範囲: -32768～32767）
-		// そのまま正規化
-		float normalized = static_cast<float>(dstate.X) / 32768.0f;
-
-		// デッドゾーン処理
-		const float deadZone = 0.15f;
-		if (fabs(normalized) < deadZone)
-		{
-			return 0.0f;
-		}
-		return normalized;
+		stateNow.IsKeeping[i] = false;
+		stateNow.btnCnt[i] -= SceneManager::GetInstance().GetDeltaTime();
 	}
-
-	return 0.0f;
+	else
+	{
+		stateNow.IsKeeping[i] = true;
+		stateNow.btnCnt[i] = 0.0f;
+	}
 }
 
-float InputManager::GetPadStickLY(int padNo) const
-{
-	XINPUT_STATE xstate{};
-	int xresult = GetJoypadXInputState(DX_INPUT_PAD1 + padNo, &xstate);
-
-	// XInput が接続されていれば XInput を使用
-	if (xresult != 0)
-	{
-		return static_cast<float>(xstate.ThumbLY) / 32768.0f;
-	}
-
-	// XInput が未接続の場合は DInput にフォールバック
-	DINPUT_JOYSTATE dstate{};
-	int dresult = GetJoypadDirectInputState(DX_INPUT_PAD1 + padNo, &dstate);
-	if (dresult != 0)
-	{
-		// DInput の Y 値（範囲: -32768～32767）
-		// そのまま正規化
-		float normalized = static_cast<float>(dstate.Y) / 32768.0f;
-
-		// デッドゾーン処理
-		const float deadZone = 0.15f;
-		if (fabs(normalized) < deadZone)
-		{
-			return 0.0f;
-		}
-		return normalized;
-	}
-
-	return 0.0f;
-}
-
-float InputManager::GetPadStickRX(int padNo) const
-{
-	XINPUT_STATE xstate{};
-	int xresult = GetJoypadXInputState(DX_INPUT_PAD1 + padNo, &xstate);
-
-	if (xresult != 0)
-	{
-		return static_cast<float>(xstate.ThumbRX) / 32768.0f;
-	}
-
-	// DInput にフォールバック（右スティック = Z軸）
-	DINPUT_JOYSTATE dstate{};
-	int dresult = GetJoypadDirectInputState(DX_INPUT_PAD1 + padNo, &dstate);
-	if (dresult != 0)
-	{
-		float normalized = static_cast<float>(dstate.Z) / 32768.0f;
-
-		const float deadZone = 0.15f;
-		if (fabs(normalized) < deadZone)
-		{
-			return 0.0f;
-		}
-		return normalized;
-	}
-
-	return 0.0f;
-}
-
-float InputManager::GetPadStickRY(int padNo) const
-{
-	XINPUT_STATE xstate{};
-	int xresult = GetJoypadXInputState(DX_INPUT_PAD1 + padNo, &xstate);
-
-	if (xresult != 0)
-	{
-		return static_cast<float>(xstate.ThumbRY) / 32768.0f;
-	}
-
-	// DInput にフォールバック（右スティック = Rz軸）
-	DINPUT_JOYSTATE dstate{};
-	int dresult = GetJoypadDirectInputState(DX_INPUT_PAD1 + padNo, &dstate);
-	if (dresult != 0)
-	{
-		float normalized = static_cast<float>(dstate.Rz) / 32768.0f;
-
-		const float deadZone = 0.15f;
-		if (fabs(normalized) < deadZone)
-		{
-			return 0.0f;
-		}
-		return normalized;
-	}
-
-	return 0.0f;
-}
-
-VECTOR InputManager::GetDirectionXZAKey(int aKeyX, int aKeyY)
-{
-	VECTOR ret = { 0.0f, 0.0f, 0.0f };
-	float dirX = static_cast<float>(aKeyX) / AKEY_VAL_MAX;
-	float dirZ = static_cast<float>(aKeyY) / AKEY_VAL_MAX;
-
-	float len = sqrtf(dirX * dirX + dirZ * dirZ);
-	if (len < THRESHOLD) return ret;
-
-	float scale = (len - THRESHOLD) / (1.0f - THRESHOLD);
-	dirX = (dirX / len) * scale;
-	dirZ = (dirZ / len) * scale;
-
-	ret = VNorm({ dirX, 0.0f, -dirZ }); // Z軸反転
-	return ret;
-}

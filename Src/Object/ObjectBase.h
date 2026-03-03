@@ -1,11 +1,39 @@
 #pragma once
+#include<memory>
+#include<map>
+#include<vector>
 #include "Common/Transform.h"
+#include "../Common/IntVector3.h"
+#include "./Common/Collider.h"
 
-class ColliderBase;
+class ResourceManager;
+class SceneManager;
+class Geometry;
 
 class ObjectBase
 {
+
 public:
+
+	//タグ優先順位
+	enum class  TAG_PRIORITY
+	{
+		BODY,
+		LEFT_ONE,
+		LEFT_TWO,
+		LEFT_THREE,
+		RIGHT_ONE,
+		RIGHT_TWO,
+		RIGHT_THREE,
+		MOVE_LINE,
+		UPDOWN_LINE,
+		ATK_SPHERE,
+		ROCK_SPHERE,
+		DOUBLE_SPHERE_1,
+		DOUBLE_SPHERE_2,
+		CAMERA_SPHERE,
+		CAMERA_LINE,
+	};
 
 	// コンストラクタ
 	ObjectBase(void);
@@ -13,61 +41,62 @@ public:
 	// デストラクタ
 	virtual ~ObjectBase(void);
 
-	// 初期化処理
-	virtual void Init(void);
-
-	// 更新処理
+	virtual void Load(void) {}
+	virtual void Init(void) = 0;
 	virtual void Update(void) = 0;
-
-	// 描画処理
-	virtual void Draw(void) const;
-
-	// 解放処理
-	virtual void Release(void);
-
-	// 座標・回転・大きさの情報取得(固定)
-	const Transform& GetTransform(void) const { return trans_; }
-
-	// 座標・回転・大きさの情報取得(変動)
-	Transform& GetTransform(void) {	return trans_;}
-
-	// 座標の取得(固定)
-	const VECTOR& GetPos(void) const { return trans_.pos; }
-
-	// 座標の設定
-	void SetPos(const VECTOR& pos);
-
-	// 角度の取得
-	const VECTOR& GetAngle(void) const { return trans_.rot; }
-
-	// 角度の設定
-	void SetAngle(void);
+	virtual void Draw(void) {}
 	
-	const std::map<int, ColliderBase*>& GetOwnColliders(void) const { return ownColliders_; }
+	/// @brief 基本情報の取得
+	/// @param  
+	/// @return 
+	inline const Transform& GetTransform(void) const { return trans_; }
 	
-	const ColliderBase* GetOwnCollider(int key) const;
+	/// @brief 当たったときの処理
+	/// @param _hitCol ヒットしたコライダ
+	virtual void OnHit(const std::weak_ptr<Collider> _hitCol);
 
-	void AddHitCollider(const ColliderBase* hitCollider);
-
-	void ClearHitCollider(void);
+	/// @brief 特定のオブジェクトがあるかどうかを判定する
+	/// @param _chataTag 自身のタグ
+	/// @param _tag 作りたいタグ
+	/// @return true:特定のオブジェクトが存在する	false存在しない
+	const bool IsAliveCollider(const Collider::TAG _chataTag, const Collider::TAG _tag);
 
 protected:
 
-	// 基本情報
+	// シングルトン参照
+	ResourceManager& resMng_;
+	SceneManager& scnMng_;
+
+	// モデル制御の基本情報
 	Transform trans_;
 
-	// 衝突判定関連
-	std::map<int, ColliderBase*> ownColliders_;
-	std::vector<const ColliderBase*> hitColliders_;
+	//当たり判定関係
+	//std::vector<ColParam> colParam_;
+	std::map<TAG_PRIORITY, std::shared_ptr<Collider>> collider_;	//全体の当たり判定情報
 
-	// リソースのロード
-	virtual void InitLoad(void);
+	//タグ
+	Collider::TAG tag_;
 
-	// 座標・回転・大きさの初期化
-	virtual void InitTransform(void){}
+	//当たり判定をしないタグ設定
+	std::set<Collider::TAG> noneHitTag_;
 
-	// 衝突判定の初期化
-	virtual void InitCollider(void){}
+	//初めのタグ順格納
+	std::vector<TAG_PRIORITY>tagPrioritys_;
+	
+	/// @brief 当たり判定作成(形状情報作成後)
+	/// @param _tag 自身の当たり判定タグ
+	/// @param _geometry 自身の形状情報
+	/// @param _notHitTags 衝突させないタグ
+	void MakeCollider(const TAG_PRIORITY _tagPriority,const std::set<Collider::TAG> _tag, std::unique_ptr<Geometry> _geometry, const std::set<Collider::TAG> _notHitTags = {});
+
+
+
+
+	//特定の配列番号の当たり判定の削除
+	void DeleteCollider(const TAG_PRIORITY _priority);
+
+	//全当たり判定の削除
+	void DeleteAllCollider(void);
 
 };
 

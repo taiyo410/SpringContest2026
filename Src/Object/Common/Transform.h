@@ -1,6 +1,8 @@
 #pragma once
-
-#include"../../Common/Quaternion.h"
+#include <memory>
+#include <DxLib.h>
+#include "../../Common/Quaternion.h"
+#include "../Common/Collider.h"
 
 /// <summary>
 /// モデル制御の基本情報
@@ -10,76 +12,82 @@
 /// </summary>
 class Transform
 {
+
 public:
 
-	//コンストラクタ
+	// コンストラクタ
 	Transform(void);
 	Transform(int model);
 
-	//デストラクタ
+	// デストラクタ
 	~Transform(void);
 
-	//モデルのハンドルID
+	// モデルのハンドルID
 	int modelId;
 
-	//大きさ
+	// 大きさ
 	VECTOR scl;
-
-	//回転
+	// 回転
 	VECTOR rot;
+	// 位置
+	VECTOR pos;			//基本位置
+	VECTOR localPos;	//相対位置
+	VECTOR overAllPos;	//総合位置
 
-	//位置
-	VECTOR pos;
-	VECTOR localPos;
+	MATRIX matScl;		//大きさ(行列)
+	MATRIX matRot;		//回転(行列)
+	MATRIX matPos;		//位置(行列)
 
-	MATRIX matScl;
-	MATRIX matRot;
-	MATRIX matPos;
-
-	//回転
+	// 回転
 	Quaternion quaRot;
 
-	//ローカル回転
+	// ローカル回転
 	Quaternion quaRotLocal;
 
-	/// <summary>
-	/// モデル制御の基本情報更新
-	/// </summary>
-	/// <param name=""></param>
+	// コライダ
+	std::shared_ptr<Collider> collider;
+
+	/// @brief モデル制御の基本情報更新
+	/// @param  
 	void Update(void);
 
-	//解放処理
-	void Release(void);
-
-	//モデルの設定
+	/// @brief モデルセット
+	/// @param modelHId 
 	void SetModel(int modelHId);
-
-	//前方方向を取得
+	
+	/// @brief 
+	/// @param  前方方向を取得
+	/// @return 
 	VECTOR GetForward(void) const;
 
-	//後方方向を取得
+	/// @brief 後方方向を取得
+	/// @param  
+	/// @return 
 	VECTOR GetBack(void) const;
 
-	//右方向を取得
+	/// @brief 右方向を取得
+	/// @param  
+	/// @return 
 	VECTOR GetRight(void) const;
 
-	//左方向を取得
+	/// @brief 左方向を取得
+	/// @param  
+	/// @return 
 	VECTOR GetLeft(void) const;
 
-	//上方向を取得
+	/// @brief 上方向を取得
+	/// @param  
+	/// @return 
 	VECTOR GetUp(void) const;
 
-	//下方向を取得
+	/// @brief 下方向を取得
+	/// @param  
+	/// @return 
 	VECTOR GetDown(void) const;
 
-	//対象方向を取得
+	/// @brief 対象方向を取得
+	/// @param vec 
+	/// @return 
 	VECTOR GetDir(const VECTOR& vec) const;
 
-	//座標のポインタを取得
-	VECTOR* GetPosPtr(void);
-
-	//読み取り専用の座標ポインタを取得
-	const VECTOR* GetPosPtr(void) const;
-
 };
-

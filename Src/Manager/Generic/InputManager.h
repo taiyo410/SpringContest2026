@@ -1,31 +1,31 @@
 #pragma once
+#include <map>
+#include <Dxlib.h>
+#include "../../Template/Singleton.h"
 #include "../../Common/Vector2.h"
+#include "../../Common/Vector2F.h"
 
-/// <summary>
-/// 入力全般（キーボード、マウス、ゲームパッド）を管理するクラス（シングルトン）
-/// </summary>
-class InputManager
+class InputManager : public Singleton<InputManager>
 {
+	// シングルトンにだけ共有する
+	friend class Singleton<InputManager>;
 
 public:
-	/// <summary>
-	/// ゲームコントローラーの認識番号
-	/// DxLib定数、DX_INPUT_PAD1等に対応
-	/// </summary>
+
+	// ゲームコントローラーの認識番号
+	// DxLib定数、DX_INPUT_PAD1等に対応
 	enum class JOYPAD_NO
 	{
-		KEY_PAD1,			/// キー入力とパッド１入力
-		PAD1,				/// パッド１入力
-		PAD2,				/// パッド２入力
-		PAD3,				/// パッド３入力
-		PAD4,				/// パッド４入力
-		INPUT_KEY = 4096	/// キー入力
+		KEY_PAD1,			// キー入力とパッド１入力
+		PAD1,				// パッド１入力
+		PAD2,				// パッド２入力
+		PAD3,				// パッド３入力
+		PAD4,				// パッド４入力
+		INPUT_KEY = 4096	// キー入力
 	};
 
-	/// <summary>
-	/// ゲームコントローラータイプ
-	/// DxLib定数、DX_OTHER等に対応
-	/// </summary>
+	// ゲームコントローラータイプ
+	// DxLib定数、DX_OTHER等に対応
 	enum class JOYPAD_TYPE
 	{
 		OTHER = 0,
@@ -39,26 +39,29 @@ public:
 		MAX
 	};
 
-	/// <summary>
-	/// ゲームコントローラーボタン
-	/// </summary>
+	// ゲームコントローラーボタン
 	enum class JOYPAD_BTN
 	{
-		LEFT = 0,
-		RIGHT,
-		TOP,
-		DOWN,
-		R_TRIGGER,
-		L_TRIGGER,
-		R_BUTTON,
-		L_BUTTON,
-		START_BUTTON,
-		SELECT_BUTTON,
+		RIGHTBUTTON_LEFT = 0,	// X
+		RIGHTBUTTON_RIGHT,		// B
+		RIGHTBUTTON_TOP,		// Y
+		RIGHTBUTTON_DOWN,		// A
+		R_TRIGGER,				// R_TRIGGER
+		L_TRIGGER,				// L_TRIGGER
+		R_BUTTON,				// R_BUTTON
+		L_BUTTON,				// L_BUTTON
+		START_BUTTON,			// START_BUTTON
+		SELECT_BUTTON,			// SELECT_BUTTON
+		LEFTBUTTON_TOP,			// 上
+		LEFTBUTTON_DOWN,		// 下
+		LEFTBUTTON_LEFT,		// 左
+		LEFTBUTTON_RIGHT,		// 右
+		LEFT_STICK,				// 左スティック押し込み
+		RIGHT_STICK,			// 右スティック押し込み
 		MAX
 	};
-	/// <summary>
-	/// ゲームコントローラーの入力情報
-	/// </summary>
+
+	// ゲームコントローラーの入力情報
 	struct JOYPAD_IN_STATE
 	{
 		unsigned char ButtonsOld[static_cast<int>(JOYPAD_BTN::MAX)];
@@ -67,167 +70,157 @@ public:
 		bool IsNew[static_cast<int>(JOYPAD_BTN::MAX)];
 		bool IsTrgDown[static_cast<int>(JOYPAD_BTN::MAX)];
 		bool IsTrgUp[static_cast<int>(JOYPAD_BTN::MAX)];
+		bool IsBtnKeep[static_cast<int>(JOYPAD_BTN::MAX)];
+		float btnCnt[static_cast<int>(JOYPAD_BTN::MAX)];
+		bool IsKeeping[static_cast<int>(JOYPAD_BTN::MAX)];
 		int AKeyLX;
 		int AKeyLY;
 		int AKeyRX;
 		int AKeyRY;
 	};
 
-	/// <summary>
-	/// インスタンスを明示的に生成
-	/// </summary>
-	static void CreateInstance(void);
+	//コントローラーデバイス
+	enum class CONTROLL_TYPE
+	{
+		KEY_BOARD		//キーボード
+		,CONTROLLER		//コントローラー
+		,ALL			//すべての入力を受け付ける
+	};
 
-	/// <summary>
-	/// インスタンスの取得
-	/// </summary>
-	static InputManager& GetInstance(void);
-
-	/// <summary>
-	/// 初期化処理
-	/// </summary>
+	/// @brief 初期化
+	/// @param  
 	void Init(void);
 
-	/// <summary>
-	/// 更新処理
-	/// </summary>
+	/// @brief 更新
+	/// @param  
 	void Update(void);
 
-	/// <summary>
-	/// リソースの破棄
-	/// </summary>
-	void Destroy(void);
+	/// @brief  リソースの破棄
+	/// @param  
+	void Release(void);
 
-	/// <summary>
-	/// 判定を行うキーを追加
-	/// </summary>
+	/// @brief 判定を行うキーを追加
+	/// @param key 
 	void Add(int key);
 
-	/// <summary>
-	/// 判定を行うキーをクリア
-	/// </summary>
+	/// @brief 判定を行うキーをクリア
+	/// @param  
 	void Clear(void);
 
-	/// <summary>
-	/// キーの押下判定
-	/// </summary>
+	/// @brief キーの押下判定
+	/// @param key 
+	/// @return 
 	bool IsNew(int key) const;
 
-	/// <summary>
-	/// キーが押されているか（押しっぱなしOK
-	/// </summary>
-	bool IsPress(int key) const;
-
-	/// <summary>
-	/// キーの押下判定(押しっぱなしはNG)
-	/// </summary>
+	/// @brief  キーの押下判定(押しっぱなしはNG)
+	/// @param key キー
+	/// @return 
 	bool IsTrgDown(int key) const;
 
-	/// <summary>
-	/// キーを離した時の判定
-	/// </summary>
+	/// @brief キーを離した時の判定
+	/// @param key キー
+	/// @return 
 	bool IsTrgUp(int key) const;
 
-	/// <summary>
-	/// マウス座標の取得
-	/// </summary>
+	/// @brief  マウス座標の取得
+	/// @param  
+	/// @return マウス座標
 	Vector2 GetMousePos(void) const;
 
-	/// <summary>
-	/// マウスのクリック状態を取得(MOUSE_INPUT_LEFT、RIGHT)
-	/// </summary>
+	/// @brief マウスのクリック状態を取得(MOUSE_INPUT_LEFT、RIGHT)
+	/// @param  
+	/// @return マウスのクリック状態
 	int GetMouse(void) const;
 
-	/// <summary>
-	/// マウスが左クリックされたか
-	/// </summary>
+	/// @brief マウスが左クリックされたか
+	/// @param  
+	/// @return 
 	bool IsClickMouseLeft(void) const;
 
-	/// <summary>
-	/// マウスが右クリックされたか
-	/// </summary>
+	/// @brief マウスが右クリックされたか
+	/// @param  
+	/// @return 
 	bool IsClickMouseRight(void) const;
 
-	/// <summary>
-	/// マウスが左クリックされたか(押しっぱなしはNG)
-	/// </summary>
+	/// @brief マウスが左クリックされたか(押しっぱなしはNG)
+	/// @param  
+	/// @return 
 	bool IsTrgMouseLeft(void) const;
 
-	/// <summary>
-	/// マウスが右クリックされたか(押しっぱなしはNG)
-	/// </summary>
+	/// @brief  マウスが右クリックされたか(押しっぱなしはNG)
+	/// @param  
+	/// @return 
 	bool IsTrgMouseRight(void) const;
 
-	/// <summary>
-	/// マウスが押されているか（押しっぱなしOK）
-	/// </summary>
-	bool IsMousePress(int key) const;
-
-	/// <summary>
-	/// コントローラの入力情報を取得する
-	/// </summary>
+	/// @brief コントローラの入力情報を取得する
+	/// @param no 
+	/// @return 
 	JOYPAD_IN_STATE GetJPadInputState(JOYPAD_NO no);
-	
-	/// <summary>
-	/// ボタンが押された
-	/// </summary>
+
+	/// @brief ボタンが押された
+	/// @param no コントローラー番号
+	/// @param btn ボタン
+	/// @return 
 	bool IsPadBtnNew(JOYPAD_NO no, JOYPAD_BTN btn) const;
 
-	/// <summary>
-	/// パッドボタンが新しく押されたか
-	/// </summary>
+	/// @brief ボタンが押された(押しっぱなしNG)
+	/// @param no コントローラー番号
+	/// @param btn ボタン
+	/// @return 
 	bool IsPadBtnTrgDown(JOYPAD_NO no, JOYPAD_BTN btn) const;
-	
-	/// <summary>
-	/// パッドボタンが離されたか
-	/// </summary>
+
+	/// @brief ボタンが離された
+	/// @param no コントローラー番号
+	/// @param btn ボタン
+	/// @return 
 	bool IsPadBtnTrgUp(JOYPAD_NO no, JOYPAD_BTN btn) const;
 
-	/// <summary>
-	/// パッドボタンが押されているか（押しっぱなし判定）
-	/// </summary>
-	bool IsPadBtnPress(JOYPAD_NO no, JOYPAD_BTN btn) const;
+	/// @brief  コントローラの入力情報を取得する
+	/// @param no コントローラー番号
+	/// @return 
+	DINPUT_JOYSTATE GetJPadDInputState(JOYPAD_NO no);
 
-	/// <summary>
-	/// 右ステッィクのX軸の値を取得
-	/// </summary>
-	float GetPadStickLX(int padNo) const;
+	/// @brief  コントローラ(XBOX)の入力情報を取得する
+	/// @param no コントローラー番号
+	/// @return 
+	XINPUT_STATE GetJPadXInputState(JOYPAD_NO no);
 
-	/// <summary>
-	/// 右ステッィクのY軸の値を取得
-	/// </summary>
-	float GetPadStickLY(int padNo) const;
+	/// @brief 一定時間以上押したかどうか
+	/// @param _key キー
+	/// @param _time キー入力時間
+	/// @return 
+	const bool IsKeyKeepPressed(const int _key, const float _time);
 
-	/// <summary>
-	/// 左ステッィクのX軸の値を取得
-	/// </summary>
-	float GetPadStickRX(int padNo) const;
+	/// @brief 一定時間以上押したかどうか
+	/// @param _key キー
+	/// @param _time キー入力時間
+	/// @return 
+	const bool IsBtnKeepPressed(JOYPAD_NO no, JOYPAD_BTN btn, const float _time);
 
-	/// <summary>
-	/// 左ステッィクのY軸の値を取得
-	/// </summary>
-	float GetPadStickRY(int padNo) const;
+#ifdef _DEBUG
 
-	//左スティック入力から方向ベクトルを取得
-	VECTOR GetDirectionXZAKey(int aKeyX, int aKeyY);
+	/// @brief オブジェクトを動かす(デバッグ用)
+	/// @param _pos 
+	void MoveObject(Vector2F& _pos, const float _spd = 1);
+#endif // _DEBUG
 
 private:
 
-	/// <summary>
-	/// キー情報
-	/// </summary>
+	// キー情報
 	struct Info
 	{
-		int key;			// キーID
-		bool keyOld;		// 1フレーム前の押下状態
-		bool keyNew;		// 現フレームの押下状態
-		bool keyTrgDown;	// 現フレームでボタンが押されたか
-		bool keyTrgUp;		// 現フレームでボタンが離されたか
+		int key;					// キーID
+		bool keyOld;				// 1フレーム前の押下状態
+		bool keyNew;				// 現フレームの押下状態
+		float keyCnt;				// 何秒間キーが押されたか
+		float keyTime;				// キー長押し時間格納
+		bool keyTrgDown;			// 現フレームでボタンが押されたか
+		bool keyTrgUp;				// 現フレームでボタンが離されたか
+		bool keyKeeping;			// キー長押し中か(キー長押し時間指定)
+		void UpdateKeepTime(void);	//一定時間キー長押し判定
 	};
 
-	/// <summary>
-	/// マウス情報
-	/// </summary>
+	// マウス
 	struct MouseInfo
 	{
 		int key;			// キーID
@@ -237,90 +230,47 @@ private:
 		bool keyTrgUp;		// 現フレームでボタンが離されたか
 	};
 
-	// 左スティック入力の最大値(XInput/DInputの場合は32767など)
-	static constexpr float AKEY_VAL_MAX = 32767.0f;
-
-	// スティックの無効範囲（倒し具合が小さい場合は無視）
-	static constexpr float THRESHOLD = 0.01f;
-
-	/// <summary>
-	/// コントローラ情報
-	/// </summary>
+	// コントローラ情報
 	DINPUT_JOYSTATE joyDInState_;
 
-	/// <summary>
-	/// コントローラ情報(XBOX)
-	/// </summary>
+	// コントローラ情報(XBOX)
 	XINPUT_STATE joyXInState_;
 
-	/// <summary>
-	/// シングルトン用インスタンス
-	/// </summary>
-	static InputManager* instance_;
-
-	///<summary>
-	/// キー情報
-	/// </summary>
+	// キー情報
 	std::map<int, InputManager::Info> keyInfos_;
 	InputManager::Info infoEmpty_;
 
-	/// <summary>
-	/// マウス情報
-	/// </summary>
+	// マウス情報
 	std::map<int, InputManager::MouseInfo> mouseInfos_;
 	InputManager::MouseInfo mouseInfoEmpty_;
 
-	/// <summary>
-	/// マウスカーソルの位置
-	/// </summary>
+	// マウスカーソルの位置
 	Vector2 mousePos_;
 	
-	/// <summary>
-	/// マウスボタンの入力状態
-	/// </summary>
+	// マウスボタンの入力状態
 	int mouseInput_;
 
-	/// <summary>
 	// パッド情報
-	/// </summary>
 	JOYPAD_IN_STATE padInfos_[5];
 
-	/// <summary>
-	/// デフォルトコンストラクタをprivateにして、
-	/// 外部から生成できない様にする
-	/// </summary>
+	// デフォルトコンストラクタをprivateにして、
+	// 外部から生成できない様にする
 	InputManager(void);
-	InputManager(const InputManager& manager);
 	~InputManager(void) = default;
 
-	/// <summary>
-	/// 配列の中からキー情報を取得する
-	/// </summary>
+	// 配列の中からキー情報を取得する
 	const InputManager::Info& Find(int key) const;
 
-	/// <summary>
-	/// 配列の中からマウス情報を取得する
-	/// </summary>
+
+	// 配列の中からマウス情報を取得する
 	const InputManager::MouseInfo& FindMouse(int key) const;
 
-	/// <summary>
-	/// 接続されたコントローラの種別を取得する
-	/// </summary>
+	// 接続されたコントローラの種別を取得する
 	JOYPAD_TYPE GetJPadType(JOYPAD_NO no);
 
-	/// <summary>
-	/// コントローラの入力情報を取得する
-	/// </summary>
-	DINPUT_JOYSTATE GetJPadDInputState(JOYPAD_NO no);
-
-	/// <summary>
-	/// コントローラ(XBOX)の入力情報を取得する
-	/// </summary>
-	XINPUT_STATE GetJPadXInputState(JOYPAD_NO no);
-
-	/// <summary>
-	/// コントローラの入力情報を更新する
-	/// </summary>
+	// コントローラの入力情報を更新する
 	void SetJPadInState(JOYPAD_NO jpNo);
+
+	void UpdateKeepBtnTime(const int no,const int i);
 
 };

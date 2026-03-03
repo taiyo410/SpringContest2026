@@ -1,105 +1,174 @@
 #pragma once
-#include "../../Pch.h"
-#include "../../Application.h"
+#include <memory>
+#include <chrono>
+#include <list>
+#include "../../Template/Singleton.h"
+#include "../../Common/Fader.h"
+
+// 推奨しませんが、どうしても使いたい方は
+//#define mainCamera SceneManager::GetInstance().GetCamera().lock()
 
 class SceneBase;
+class Fader;
 class Camera;
 
-class SceneManager
+class SceneManager : public Singleton<SceneManager>
 {
+	//シングルトンにだけ共有する
+	friend class Singleton<SceneManager>; 
+
 public:
 
-    // インスタンスを生成する
-    static void CreateInstance(void);
+	// シーン管理用
+	enum class SCENE_ID
+	{
+		NONE,
+		TITLE,
+		GAME,
+		GAME_CLEAR,
+		GAME_OVER,
+	};
+	
+	/// @brief 初期化
+	/// @param  
+	void Init(void);
+	
+	/// @brief 3D関連の初期化
+	/// @param  
+	void Init3D(void);
 
-    // インスタンスを取得する
-    static SceneManager& GetInstance(void);
+	/// @brief 更新
+	/// @param  
+	void Update(void);
 
-    // インスタンスを破棄する
-    static void DestroyInstance(void);
+	/// @brief 描画
+	/// @param  
+	void Draw(void);
 
-    // 初期化する
-    void Init(void);
+	/// @brief  リソースの破棄
+	/// @param  
+	void Release(void);
+	
+	/// @brief 先頭の（Updateが呼ばれる）シーンを切り替える
+	/// @param scene 切り替え先のシーン
+	void CreateScene(std::shared_ptr<SceneBase> scene);
+	
+	/// @brief すべてのシーンを切り替える
+	/// @param scene 切り替え先のシーン
+	void ChangeAllScene(std::shared_ptr<SceneBase> scene);
+	
+	/// @brief シーンをプッシュする。スタックの数が増える
+	/// 一番上のシーンのUpdateしか呼ばれません。
+	/// @param scene 
+	void PushScene(std::shared_ptr<SceneBase> scene);
+	
+	/// @brief スタックの頭のシーンを削除する。
+	/// ただし、スタック上にシーンが一つしかない場合は、削除しない。
+	/// @param  
+	void PopScene(void);
+	
+	/// @brief シーン遷移
+	/// @param nextId 変更先のシーン
+	void ChangeScene(SCENE_ID nextId);
+	
+	/// @brief フェードを始める(だんだん明るくなる)
+	/// @param  
+	void StartFadeIn(void);
 
-    // 更新する
-    void Update(void);
+	/// @brief フェードアウトを始める(だんだん暗くなる)
+	void StartFadeOut(void);
+	
+	/// @brief シーンチェンジのセット
+	/// @param _isSceneChange 
+	inline void SetIsSceneChange(const bool _isSceneChange) {isSceneChanging_ = _isSceneChange;}
 
-    // 描画する
-    void Draw(void);
+	/// @brief 現在のシーンIDを返す
+	/// @param  
+	/// @return 現在のシーンID
+	inline SCENE_ID GetSceneID(void) const { return sceneId_; }
+	
+	/// @brief デルタタイムを返す
+	/// @param  
+	/// @return デルタタイム
+	inline float GetDeltaTime(void) const { return deltaTime_; }
+	
+	/// @brief 経過時間を返す
+	/// @param  
+	/// @return 経過時間
+	inline float GetTotalTime(void) const { return totalTime_; }
+	
+	/// @brief カメラを返す
+	/// @param  
+	/// @return カメラ
+	std::weak_ptr<Camera> GetCamera(void) const { return camera_; }
 
-    // 解放する
-    void Release(void);
+	/// @brief メインスクリーンのハンドルを返す
+	/// @param  
+	/// @return メインスクリーンのハンドル
+	inline int GetMainScreen(void) const { return mainScreen_; }
 
-    // シーンを変更する（全削除→新規追加）
-    void ChangeScene(std::shared_ptr<SceneBase> scene);
+	/// @brief フェード終了フラグ取得
+	/// @param  
+	/// @return フェード終了フラグ
+	inline bool GetIsEndFade(void)const { return isEndFade_; }
 
-    // シーンを積む（上に追加する）
-    void PushScene(std::shared_ptr<SceneBase> scene);
+	/// @brief フェードの取得
+	/// @param  
+	/// @return 
+	const Fader& GetFader(void);
 
-    // シーンを外す（上を削除する）
-    void PopScene(void);
 
-    // シーンをジャンプする（全削除→新規ロード）
-    void JumpScene(std::shared_ptr<SceneBase> scene);
-
-    // ゲーム終了フラグを取得する
-    bool GetGameEnd(void) const;
-
-    // デルタタイムを取得する
-    float GetDeltaTime(void) const;
-
-    // カメラを取得する
-    std::shared_ptr<Camera> GetCamera(void) const;
-
-    // ゲームを終了させる
-    void GameEnd(void);
+	/// @brief  フェード
+	/// @param  
+	void Fade(void);
 
 private:
-    // 唯一のインスタンス
-    static SceneManager* instance_;
 
-    // シーンを保持する（スタック構造）
-    std::list<std::shared_ptr<SceneBase>> scenes_;
+	SCENE_ID sceneId_;
+	SCENE_ID waitSceneId_;
 
-    // シーンアクセスを保護するミューテックス
-    std::mutex sceneMutex_;
+	// 各種シーン
+	std::list<std::shared_ptr<SceneBase>> scenes_;
 
-    // ゲーム終了フラグ
-    bool isGameEnd_;
+	// フェード
+	std::unique_ptr<Fader> fader_;
 
-    // シーン切り替え中フラグ
-    bool isSceneChanging_;
+	// カメラ
+	std::shared_ptr<Camera> camera_;
 
-    // カメラ
-    std::shared_ptr<Camera> camera_;
+	// シーン遷移中判定
+	bool isSceneChanging_;
 
-    // 前フレームの時刻
-    std::chrono::system_clock::time_point preTime_;
+	// デルタタイム
+	std::chrono::system_clock::time_point preTime_;
+	float deltaTime_;
 
-    // デルタタイム
-    float deltaTime_;
+	//経過時間
+	float totalTime_;
 
-    // 3D描画設定を初期化する
-    void Init3D(void);
+	//メインスクリーン
+	int mainScreen_;
 
-    // デルタタイムをリセットする
-    void ResetDeltaTime(void);
+	//フェードが終了したか
+	bool isEndFade_;
 
-    // コンストラクタ
-    SceneManager(void);
+	
+	// デフォルトコンストラクタをprivateにして、
+	// 外部から生成できない様にする
+	SceneManager(void);
 
-    // デストラクタ
-    ~SceneManager(void);
+	// デストラクタも同様
+	~SceneManager(void) = default;
 
-    // コピーコンストラクタを禁止する
-    SceneManager(const SceneManager&) = delete;
+	// デルタタイムをリセットする
+	void ResetDeltaTime(void);
 
-    // 代入演算子を禁止する
-    SceneManager& operator=(const SceneManager&) = delete;
+	// シーン遷移
+	void DoChangeScene(SCENE_ID sceneId);
 
-    // ムーブコンストラクタを禁止する
-    SceneManager(SceneManager&&) = delete;
 
-    // ムーブ代入演算子を禁止する
-    SceneManager& operator=(SceneManager&&) = delete;
+
+	//シーン遷移用フェード
+	void SceneChangeFade(void);
+
 };
