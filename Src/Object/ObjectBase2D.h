@@ -1,7 +1,8 @@
 #pragma once
+#include<set>
+#include<memory>
 #include"../Common/Vector2F.h"
-
-class Collider2D;
+#include"../Object/Common/Collider2D/Collider2D.h"
 
 class ObjectBase2D
 {
@@ -29,7 +30,7 @@ public:
 	virtual void Release(void) = 0;
 
 	//ヒット処理
-	virtual void OnHit(const std::weak_ptr<Collider2D> _partner);
+	virtual void OnHit(const std::weak_ptr<Collider2D> _partner) = 0;
 
 	//当たり判定の削除
 	void Sweep(void);
@@ -54,7 +55,7 @@ protected:
 	/// <param name="_tag">自身のタグ</param>
 	/// <param name="_geo">形状情報</param>
 	/// <param name="_noHitTags">当たり判定をしないタグたち</param>
-	void MakeCollider(Collider2D::TAG _tag, std::unique_ptr<Geometry2D> _geo, std::set<Collider2D::TAG> _noHitTags);
+	void MakeCollider(const Collider2D::TAG _tag, std::unique_ptr<Geometry2D> _geo, const std::set<Collider2D::TAG> _noHitTags = {});
 
 	//該当タグで当たり判定削除
 	void DeleteColliderAtTag(Collider2D::TAG _tag);

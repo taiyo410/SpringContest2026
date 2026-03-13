@@ -28,3 +28,7 @@ void CharacterBase2D::Draw(void)
 void CharacterBase2D::Release(void)
 {
 }
+
+void CharacterBase2D::OnHit(const std::weak_ptr<Collider2D> _partner)
+{
+}

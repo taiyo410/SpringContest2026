@@ -1,40 +1,18 @@
 #pragma once
 #include<unordered_map>
+#include"../Template/Singleton.h"
 #include"ILoader.h"
 #include"JsonLoader.h"
 #include"CsvLoader.h"
 
 template<typename T>
-class LoaderManager
+class LoaderManager : public Singleton<LoaderManager<T>>
 {
+    //継承元のコンストラクタ等にアクセスするため
+    using LoaderType = LoaderManager<T>;
+    friend class Singleton<LoaderType>;
+
 public:
-
-    //インスタンス生成
-    static void CreateInstance(void)
-    {
-        if (instance_ == nullptr)
-        {
-            instance_ = new T();
-        }
-    }
-
-    //インスタンス取得
-    static T& GetInstance(void)
-    {
-        if (instance_ == nullptr)
-        {
-            CreateInstance();
-        }
-
-        return *instance_;
-    }
-
-    //削除
-    void Destroy(void)
-    {
-        delete instance_;
-        instance_ = nullptr;
-    }
 
     /// @brief ファイルの全データを取得
     /// @param _fileName ファイル名 
@@ -74,9 +52,6 @@ public:
 
 private:
 
-    //インスタンス
-    static T* instance_;
-
     //拡張子をstring型で格納
     const std::string JSON = "json";
     const std::string CSV = "csv";
@@ -89,14 +64,6 @@ private:
 	std::unordered_map<std::string, std::vector<T>> nameToDataList_;
 	std::unordered_map<std::string, bool> isNameToDataLoaded_;
 
-    //コンストラクタ
-    LoaderManager(void) {};
-    ~LoaderManager(void) {};
-
-    //コピー禁止
-    LoaderManager(const LoaderManager& _copy) = delete;
-    LoaderManager& operator=(const LoaderManager& _copy) = delete;
-
     /// @brief ロード
     /// @param filename ファイル名
     void FileLoad(const std::string& _fileName)
@@ -105,7 +72,7 @@ private:
         fs::path path(_fileName);
         std::string ext = path.extension().string();
 
-        // もし ext に ".json" が入るので、先頭の '.' を除く
+        // "."を除く
         if (!ext.empty() && ext[0] == '.') ext.erase(0, 1);
 
         std::cout << "[DEBUG] ext = [" << ext << "]" << std::endl;
@@ -168,6 +135,3 @@ private:
     }
 };
 
-//静的インスタンスの初期化
-template<typename T>
-T* LoaderManager<T>::instance_ = nullptr;

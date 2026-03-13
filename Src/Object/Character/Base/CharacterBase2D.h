@@ -26,6 +26,9 @@ public:
 	//解放
 	virtual void Release(void)override;
 
+	//ヒット処理
+	virtual void OnHit(const std::weak_ptr<Collider2D> _partner)override;
+
 protected:
 };
 

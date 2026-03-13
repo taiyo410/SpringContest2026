@@ -117,10 +117,6 @@ void GameScene::NormalUpdate(void)
 
 void GameScene::NormalDraw(void)
 {
-	CharacterManager::GetInstance().Draw();
-
-	//UIなどの描画
-	CharacterManager::GetInstance().Draw2D();
 
 	UIManager::GetInstance().Draw();
 
@@ -129,6 +125,7 @@ void GameScene::NormalDraw(void)
 	//デバッグ処理
 	DebagDraw();
 #endif // _DEBUG
+	CharacterManager::GetInstance().Draw();
 
 }
 
@@ -163,14 +160,14 @@ void GameScene::ChangeFade(void)
 
 void GameScene::ChangeNormal(void)
 {
-	CharacterManager::GetInstance().ChangeCharacterNormalUpdate();
+	CharacterManager::GetInstance().Update();
 	updateFunc_ = [this]() {NormalUpdate(); };
 	drawFunc_ = [this]() {NormalDraw(); };
 }
 
 void GameScene::ChangeSlow(void)
 {
-	CharacterManager::GetInstance().ChangeCharacterNormalUpdate();
+	CharacterManager::GetInstance().Update();
 	updateFunc_ = [this]() {SlowUpdate(); };
 }
 

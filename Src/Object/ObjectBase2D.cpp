@@ -14,17 +14,13 @@ ObjectBase2D::~ObjectBase2D(void)
 	colliders_.clear();
 }
 
-void ObjectBase2D::OnHit(const std::weak_ptr<Collider2D> _partner)
-{
-}
-
 void ObjectBase2D::Sweep(void)
 {
 	//削除された判定を配列から破棄
 	std::erase_if(colliders_, [](std::shared_ptr<Collider2D>& _collider) {return _collider->IsDead(); });
 }
 
-void ObjectBase2D::MakeCollider(Collider2D::TAG _tag, std::unique_ptr<Geometry2D> _geo, std::set<Collider2D::TAG> _noHitTags)
+void ObjectBase2D::MakeCollider(const Collider2D::TAG _tag, std::unique_ptr<Geometry2D> _geo, const std::set<Collider2D::TAG> _noHitTags)
 {
 	std::shared_ptr<Collider2D> col = std::make_shared<Collider2D>(*this, _tag, std::move(_geo), _noHitTags);
 	colliders_.push_back(col);

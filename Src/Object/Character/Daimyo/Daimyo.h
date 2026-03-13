@@ -1,12 +1,13 @@
 #pragma once
 #include "../Base/CharacterBase2D.h"
+#include "DaimyoImport.h"
 
 class Daimyo : public CharacterBase2D
 {
 public:
 
 	//コンストラクタ
-	Daimyo(void);
+	Daimyo(const DaimyoImport _import);
 
 	//デストラクタ
 	~Daimyo(void)override;
@@ -26,6 +27,12 @@ public:
 	//解放
 	void Release(void)override;
 
-protected:
+	//ヒット処理
+	void OnHit(const std::weak_ptr<Collider2D> _partner)override;
+
+private:
+
+	//インポート情報
+	DaimyoImport import_;
 };
 

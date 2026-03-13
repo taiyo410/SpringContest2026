@@ -1,8 +1,9 @@
 #pragma once
 #include<memory>
 #include<set>
-#include"../../ObjectBase2D.h"
 #include"Geometry2D/Geometry2D.h"
+
+class ObjectBase2D;
 
 class Collider2D
 {
@@ -22,7 +23,7 @@ public:
 	/// <param name="_myTag">自身のタグ</param>
 	/// <param name="_geo">形状情報</param>
 	/// <param name="_noHitTags">当たらないタグ達</param>
-	Collider2D(ObjectBase2D& _owner, TAG _myTag, std::unique_ptr<Geometry2D>_geo, std::set<TAG>_noHitTags);
+	Collider2D(ObjectBase2D& _owner, const TAG _myTag, std::unique_ptr<Geometry2D>_geo, const std::set<TAG>_noHitTags);
 
 	//デストラクタ
 	~Collider2D(void);
