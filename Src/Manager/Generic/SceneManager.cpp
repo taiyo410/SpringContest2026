@@ -9,7 +9,6 @@
 #include "../Resource/ResourceManager.h"
 #include "../Generic/ButtonUIManager.h"
 #include "SceneManager.h"
-#include "Camera.h"
 
 void SceneManager::Init(void)
 {
@@ -19,10 +18,6 @@ void SceneManager::Init(void)
 
 	fader_ = std::make_unique<Fader>();
 	fader_->Init();
-
-	// カメラ
-	camera_ = std::make_shared<Camera>();
-	camera_->Init();
 
 	isSceneChanging_ = true;
 
@@ -96,8 +91,6 @@ void SceneManager::Update(void)
 		//Fade();
 	}
 	Fade();
-	// カメラ更新
-	camera_->Update();
 
 	//シーンごとの更新
 	scenes_.back()->Update();
@@ -114,9 +107,6 @@ void SceneManager::Draw(void)
 	// 画面を初期化
 	ClearDrawScreen();
 
-	// カメラ設定
-	camera_->SetBeforeDraw();
-
 	// Effekseerにより再生中のエフェクトを更新する。
 	UpdateEffekseer3D();
 
@@ -125,9 +115,6 @@ void SceneManager::Draw(void)
 	{
 		scene->Draw();
 	}
-
-	// 主にポストエフェクト用
-	camera_->Draw();
 
 	// Effekseerにより再生中のエフェクトを描画する。
 	DrawEffekseer3D();
@@ -237,8 +224,6 @@ SceneManager::SceneManager(void)
 
 	// デルタタイム
 	deltaTime_ = 1.0f / 60.0f;
-
-	camera_ = nullptr;
 
 	totalTime_ = -1.0f;
 

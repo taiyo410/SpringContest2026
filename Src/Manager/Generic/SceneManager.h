@@ -10,7 +10,6 @@
 
 class SceneBase;
 class Fader;
-class Camera;
 
 class SceneManager : public Singleton<SceneManager>
 {
@@ -96,11 +95,6 @@ public:
 	/// @param  
 	/// @return 経過時間
 	inline float GetTotalTime(void) const { return totalTime_; }
-	
-	/// @brief カメラを返す
-	/// @param  
-	/// @return カメラ
-	std::weak_ptr<Camera> GetCamera(void) const { return camera_; }
 
 	/// @brief メインスクリーンのハンドルを返す
 	/// @param  
@@ -133,9 +127,6 @@ private:
 	// フェード
 	std::unique_ptr<Fader> fader_;
 
-	// カメラ
-	std::shared_ptr<Camera> camera_;
-
 	// シーン遷移中判定
 	bool isSceneChanging_;
 
@@ -165,8 +156,6 @@ private:
 
 	// シーン遷移
 	void DoChangeScene(SCENE_ID sceneId);
-
-
 
 	//シーン遷移用フェード
 	void SceneChangeFade(void);

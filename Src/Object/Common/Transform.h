@@ -2,7 +2,7 @@
 #include <memory>
 #include <DxLib.h>
 #include "../../Common/Quaternion.h"
-#include "../Common/Collider.h"
+#include "../Common/Collider3D/Collider.h"
 
 /// <summary>
 /// ƒ‚ƒfƒ‹§Œä‚ÌŠî–{î•ñ

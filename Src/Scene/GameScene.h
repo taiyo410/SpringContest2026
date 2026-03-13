@@ -90,9 +90,6 @@ private:
 	void ChangeSlow(void);
 	//処理の変更
 	void OnSceneEnter(void) override;
-
-	//演出スキップ
-	void Skip(void);
 	
 #ifdef _DEBUG
 	//デバッグ処理
