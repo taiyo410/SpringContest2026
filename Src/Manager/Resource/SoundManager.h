@@ -5,6 +5,7 @@
 
 
 
+
 class SoundManager : public Singleton<SoundManager>
 {
 	friend class Singleton<SoundManager>;
@@ -42,7 +43,7 @@ public:
 		CARD_RELOAD_FINISH,			//カードリロード終了音
 
 		//ボタン
-		MOVE_BTN_SE	,				//移動ボタン
+		MOVE_BTN_SE,				//移動ボタン
 		DESIDE_BTN_SE,				//決定ボタン
 		GAME_START_SE				//ゲームスタート音
 

@@ -19,7 +19,9 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Src\Scene\SettingScene.cpp" />
     <ClCompile Include="Src\Manager\Generic\ButtonUIManager.cpp" />
+    <ClCompile Include="Src\Manager\Generic\MenuController.cpp" />
     <ClCompile Include="Src\Object\Character\Base\CharacterOnHitBase.cpp" />
     <ClCompile Include="Src\Object\DirectionUI.cpp" />
     <ClCompile Include="Src\Object\Character\UIData\CharacterUIData.cpp" />
@@ -87,9 +89,12 @@
     <ClCompile Include="Src\Object\Stage.cpp" />
     <ClCompile Include="Src\Object\Character\Base\UIBase2D.cpp" />
     <ClCompile Include="Src\Manager\Generic\UIManager.cpp" />
+    <ClCompile Include="Src\Scene\StartScene.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Src\Scene\SettingScene.h" />
     <ClInclude Include="Src\Manager\Generic\ButtonUIManager.h" />
+    <ClInclude Include="Src\Manager\Generic\MenuController.h" />
     <ClInclude Include="Src\Object\Character\Base\CharacterOnHitBase.h" />
     <ClInclude Include="Src\Object\DirectionUI.h" />
     <ClInclude Include="Src\Object\Character\UIData\CharacterUIData.h" />
@@ -200,6 +205,7 @@
     <ClInclude Include="Src\Object\Stage.h" />
     <ClInclude Include="Src\Object\Character\Base\UIBase2D.h" />
     <ClInclude Include="Src\Manager\Generic\UIManager.h" />
+    <ClInclude Include="Src\Scene\StartScene.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Src\Shader\Common\Pixel\PixelShader2DHeader.hlsli" />

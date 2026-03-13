@@ -10,7 +10,7 @@
 PauseScene::PauseScene(void)
 {
 	//更新関数のセット
-	updateFunc_ = std::bind(&PauseScene::NormalUpdate, this);
+	updateFunc_ = [this]() {NormalUpdate(); };
 	//描画関数のセット
 	drawFunc_ = std::bind(&PauseScene::NormalDraw, this);
 

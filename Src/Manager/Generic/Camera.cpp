@@ -421,7 +421,6 @@ void Camera::Collision(void)
 	bool isCol = false;
 	MV1_COLL_RESULT_POLY hitPoly;
 	float minDist = FLT_MAX;
-
 	for (int i = 0; i < hits.HitNum; i++)
 	{
 		auto hit = hits.Dim[i];
@@ -435,12 +434,9 @@ void Camera::Collision(void)
 			hitPoly = hit;
 		}
 	}
-	//検出した地面ポリゴン情報後始末
-	//MV1CollResultPolyDimTerminate(hits);
 
 	//カメラから注視点へのベクトル
 	MV1CollResultPolyDimTerminate(hits);
-
 	if (hits.HitNum > 0)
 	{
 		VECTOR vecToFollow = Utility3D::GetMoveVec(pos_, followFramePos_);

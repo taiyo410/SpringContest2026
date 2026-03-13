@@ -18,9 +18,9 @@ GameClearScene::GameClearScene(void):
 	strYPos_(SceneBase::BACK_TITLE_STRING_POS.y)
 {
 	//更新関数のセット
-	updateFunc_ = std::bind(&GameClearScene::LoadingUpdate, this);
+	updateFunc_ = [this]() {LoadingUpdate(); };
 	//描画関数のセット
-	drawFunc_ = std::bind(&GameClearScene::LoadingDraw, this);
+	drawFunc_=[this]() {LoadingDraw(); };
 }
 
 GameClearScene::~GameClearScene(void)
@@ -91,5 +91,7 @@ void GameClearScene::OnSceneEnter(void)
 {
 	//処理変更
 	updateFunc_ = std::bind(&GameClearScene::NormalUpdate, this);
-	drawFunc_ = std::bind(&GameClearScene::NormalDraw, this);
+	updateFunc_ = [this]() {NormalUpdate(); };
+	//drawFunc_ = std::bind(&GameClearScene::NormalDraw, this);
+	drawFunc_=[this]() {NormalDraw(); };
 }

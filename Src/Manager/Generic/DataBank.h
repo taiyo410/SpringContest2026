@@ -43,6 +43,8 @@ private:
 	int playerNum_;		//プレイヤーの人数
 	int maxPlayerNum_;	//コントローラー数よりプレイヤー人数が多くならないようにする
 
+	float bgmVol_;
+
 	//フルスクリーンの設定
 	bool isFullScreen_;
 };

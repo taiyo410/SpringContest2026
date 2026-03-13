@@ -19,10 +19,9 @@
 GameScene::GameScene(void)
 {
 	//更新関数のセット
-	updateFunc_ = std::bind(&GameScene::LoadingUpdate, this);
+	updateFunc_ = [this]() {LoadingUpdate(); };
 	//描画関数のセット
-	drawFunc_ = std::bind(&GameScene::LoadingDraw, this);
-
+	drawFunc_ = [this]() {LoadingDraw(); };
 	postEffectScreen_ = MakeScreen(Application::SCREEN_SIZE_X, Application::SCREEN_SIZE_Y, true);
 
 	CharacterManager::CreateInstance();

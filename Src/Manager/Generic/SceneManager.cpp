@@ -2,6 +2,7 @@
 #include <DxLib.h>
 #include <EffekseerForDXLib.h>
 #include "../Generic/DataBank.h"
+#include "../../Scene/StartScene.h"
 #include "../../Scene/TitleScene.h"
 #include "../../Scene/GameScene.h"
 #include "../../Scene/GameClearScene.h"
@@ -180,6 +181,7 @@ void SceneManager::PopScene()
 	{
 		scenes_.pop_back();
 	}
+	scenes_.back()->PopSceneAfter();
 }
 
 void SceneManager::Release(void)
@@ -242,6 +244,14 @@ SceneManager::SceneManager(void)
 
 	totalTime_ = -1.0f;
 
+	createSceneTable_ = {
+		{SCENE_ID::START,[this]() {CreateScene(std::make_unique<StartScene>()); }},
+		{SCENE_ID::TITLE,[this]() {CreateScene(std::make_unique<TitleScene>()); }},
+		{SCENE_ID::GAME,[this]() {CreateScene(std::make_unique<GameScene>()); }},
+		{SCENE_ID::GAME_CLEAR,[this]() {CreateScene(std::make_unique<GameClearScene>()); }},
+		{SCENE_ID::GAME_OVER,[this]() {CreateScene(std::make_unique<GameOverScene>()); }}
+	};
+
 }
 
 void SceneManager::ResetDeltaTime(void)
@@ -265,23 +275,7 @@ void SceneManager::DoChangeScene(SCENE_ID sceneId)
 		scenes_.pop_back(); // シーンを使い終わったのでリストからも削除
 	}
 
-	//シーン生成
-	switch (sceneId_)
-	{
-	case SCENE_ID::TITLE:
-		CreateScene(std::make_unique<TitleScene>());
-		break;
-	case SCENE_ID::GAME:
-		CreateScene(std::make_unique<GameScene>());
- 		break;
-	case SCENE_ID::GAME_CLEAR:
-		CreateScene(std::make_unique<GameClearScene>());
-		break;
-	case SCENE_ID::GAME_OVER:
-		CreateScene(std::make_unique<GameOverScene>());
-		break;
-	}
-
+	createSceneTable_[sceneId_]();
 	ResetDeltaTime();
 
 	waitSceneId_ = SCENE_ID::NONE;

@@ -23,6 +23,7 @@ public:
 	enum class SCENE_ID
 	{
 		NONE,
+		START,
 		TITLE,
 		GAME,
 		GAME_CLEAR,
@@ -126,6 +127,9 @@ private:
 
 	SCENE_ID sceneId_;
 	SCENE_ID waitSceneId_;
+
+	//シーン生成
+	std::unordered_map<SCENE_ID, std::function<void(void)>>createSceneTable_;
 
 	// 各種シーン
 	std::list<std::shared_ptr<SceneBase>> scenes_;

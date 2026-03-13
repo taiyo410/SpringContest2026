@@ -14,7 +14,7 @@ GameOverScene::GameOverScene(void):
 	//更新関数のセット
 	updateFunc_ = std::bind(&GameOverScene::LoadingUpdate, this);
 	//描画関数のセット
-	drawFunc_ = std::bind(&GameOverScene::LoadingDraw, this);
+	drawFunc_=[this]() {LoadingDraw(); };
 }
 
 GameOverScene::~GameOverScene(void)
@@ -67,6 +67,6 @@ void GameOverScene::NormalDraw(void)
 void GameOverScene::OnSceneEnter(void)
 {
 	//処理変更
-	updateFunc_ = std::bind(&GameOverScene::NormalUpdate, this);
-	drawFunc_ = std::bind(&GameOverScene::NormalDraw, this);
+	updateFunc_ = [this]() {NormalUpdate(); };
+	drawFunc_ = [this]() {NormalDraw(); };
 }

@@ -42,7 +42,6 @@ private:
 
 	//フォントサイズ
 	static constexpr int FONT_SIZE = 30;
-
 	//スキップボタンゲージシェーダの定数バッファサイズ
 	static constexpr int SKIP_GAUGE_CONST_BUFF_SIZE = 2;
 	//割合定数バッファ番号
@@ -87,7 +86,5 @@ private:
 
 	//集中線アニメーション更新
 	void UpdateIntensiveLineAnim(void);
-
-
 };
 
