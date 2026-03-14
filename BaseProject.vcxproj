@@ -90,6 +90,7 @@
     <ClCompile Include="Src\Object\Character\Base\UIBase2D.cpp" />
     <ClCompile Include="Src\Manager\Generic\UIManager.cpp" />
     <ClCompile Include="Src\Scene\StartScene.cpp" />
+    <ClCompile Include="Src\Common\TextWriter.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Src\Scene\SettingScene.h" />
@@ -206,6 +207,7 @@
     <ClInclude Include="Src\Object\Character\Base\UIBase2D.h" />
     <ClInclude Include="Src\Manager\Generic\UIManager.h" />
     <ClInclude Include="Src\Scene\StartScene.h" />
+    <ClInclude Include="Src\Common\TextWriter.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Src\Shader\Common\Pixel\PixelShader2DHeader.hlsli" />

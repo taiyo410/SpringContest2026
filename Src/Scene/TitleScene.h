@@ -3,6 +3,7 @@
 #include "../Common/Easing.h"
 #include "SceneBase.h"
 
+class TextWriter;
 class SettingScene;
 class SoundManager;
 class Easing;
@@ -126,6 +127,8 @@ private:
 	static constexpr float BTN_STR_OFFSET_X = 16.0f;
 	//イージング
 	std::unique_ptr<Easing>easing_;
+	//テキスト
+	std::unique_ptr<TextWriter>textWtiter_;
 
 	//各選択肢の更新
 	std::function<void(void)>updateTitle_;

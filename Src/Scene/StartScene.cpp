@@ -19,7 +19,7 @@ StartScene::StartScene(void)
 
 StartScene::~StartScene(void)
 {
-	//DeleteFontToHandle(buttonFontHandle_); //フォントの削除
+	DeleteFontToHandle(buttonFontHandle_); //フォントの削除
 }
 
 void StartScene::OnSceneEnter(void)

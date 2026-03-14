@@ -13,6 +13,7 @@
 #include "../Manager/Resource/FontManager.h"
 #include "./SettingScene.h"
 #include "../Common/Easing.h"
+#include "../Common/TextWriter.h"
 #include "TitleScene.h"
 
 TitleScene::TitleScene(void) :
@@ -23,6 +24,7 @@ TitleScene::TitleScene(void) :
 	//描画関数のセット
 	drawFunc_=[this]() {LoadingDraw(); };
 	menuController_ = std::make_unique<MenuController>();
+	textWtiter_ = std::make_unique<TextWriter>();
 	settingScn_ = std::make_shared<SettingScene>();
 }
 
@@ -75,7 +77,7 @@ void TitleScene::Init(void)
 		{TITLE_BTN::EXIT,L"ゲーム終了"}
 	};
 
-
+	textWtiter_->AddText(L"あああああああああああああああああああああああああああああああああああああああああああああああああああ");
 	yesNoStrTable_ = {
 		{YES_NO::YES,L"はい"},
 		{YES_NO::NO,L"いいえ"}
@@ -115,6 +117,7 @@ void TitleScene::ChangeState(const TITLE_STATE& _state)
 
 void TitleScene::NormalUpdate(void)
 {
+	textWtiter_->Update();
 	updateTitle_();
 }
 
@@ -152,6 +155,8 @@ void TitleScene::NormalDraw(void)
 		L"戻る",
 		UtilityCommon::WHITE, buttonFontHandle_);
 
+
+	textWtiter_->Draw();
 }
 
 void TitleScene::OnSceneEnter(void)
@@ -237,7 +242,7 @@ void TitleScene::UpdateSelectGame(void)
 	}
 
 	//ゲームシーンに遷移
-	SceneManager::GetInstance().ChangeScene(SceneManager::SCENE_ID::GAME);
+	SceneManager::GetInstance().ChangeScene(SceneManager::SCENE_ID::START);
 }
 
 void TitleScene::UpdateExitMenu(void)
