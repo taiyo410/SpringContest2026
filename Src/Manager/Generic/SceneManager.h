@@ -22,10 +22,11 @@ public:
 	enum class SCENE_ID
 	{
 		NONE,
-		TITLE,
-		GAME,
-		GAME_CLEAR,
-		GAME_OVER,
+		TITLE,			//タイトル
+		GAME,			//ゲーム
+		DAIMYO_MENU,	//大名のメニュー
+		GAME_CLEAR,		//ゲームクリア
+		GAME_OVER,		//ゲームオーバー
 	};
 	
 	/// @brief 初期化
