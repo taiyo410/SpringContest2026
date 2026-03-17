@@ -2,15 +2,15 @@
 #include "Circle.h"
 #include "BoxGeo.h"
 
-BoxGeo::BoxGeo(const Vector2F& _pos, const Vector2F& _movedPos, const Vector2F _min, Vector2F _max)
-    : Geometry2D(_pos,_movedPos)
+BoxGeo::BoxGeo(const Vector2F& _pos, const Vector2F& _movedPos, const float _preHitRadius, const Vector2F _min, Vector2F _max)
+    : Geometry2D(_pos,_movedPos, _preHitRadius)
 {
     obb_.vMin = _min;
     obb_.vMax = _max;
 }
 
-BoxGeo::BoxGeo(const Vector2F& _pos, const Vector2F& _movedPos, const Vector2F _halfSize)
-    : Geometry2D(_pos, _movedPos)
+BoxGeo::BoxGeo(const Vector2F& _pos, const Vector2F& _movedPos, const float _preHitRadius, const Vector2F _halfSize)
+    : Geometry2D(_pos, _movedPos, _preHitRadius)
 {
     obb_.vMin = _halfSize * -1.0f;
     obb_.vMax = _halfSize;

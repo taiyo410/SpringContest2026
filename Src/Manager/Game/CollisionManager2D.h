@@ -48,5 +48,11 @@ private:
 	//コピー禁止
 	CollisionManager2D(CollisionManager2D& _copy) = delete;
 	CollisionManager2D& operator= (CollisionManager2D& _copy) = delete;
+
+	//当たり判定前判定
+	bool PreCollision(const std::weak_ptr<Collider2D> _col1, const std::weak_ptr<Collider2D> _col2);
+
+	//本当たり判定
+	bool IsCollision(const std::weak_ptr<Collider2D> _col1, const std::weak_ptr<Collider2D> _col2);
 };
 

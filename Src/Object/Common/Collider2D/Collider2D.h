@@ -43,11 +43,17 @@ public:
 	//“–‚½‚Á‚½‚©‚Ì”»’è‚Ìæ“¾
 	inline const bool IsHit(void)const { return isHit_; }
 
+	//“–‚½‚Á‚Ä‚È‚¢
+	inline void NotHit(void) { isHit_ = false; }
+
 	//I—¹”»’è‚Ìæ“¾
 	inline const bool IsDead(void)const { return isDead_; }
 
 	//I—¹ˆ—(ŠÒ‚Ì‰ğ•ú‚É’u‚­)
 	inline void Kill(void) { isDead_ = true; };
+
+	//“–‚½‚Á‚½ˆ—
+	void OnHit(std::weak_ptr<Collider2D> _partner);
 	
 private:
 

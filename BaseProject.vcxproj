@@ -19,6 +19,8 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Src\Object\Character\Daimyo\DaimyoOnHit.cpp" />
+    <ClCompile Include="Src\Object\Character\Cursor\Cursor.cpp" />
     <ClCompile Include="Src\Object\Character\Daimyo\Daimyo.cpp" />
     <ClCompile Include="Src\Object\Character\Base\CharacterBase2D.cpp" />
     <ClCompile Include="Src\Object\ObjectBase2D.cpp" />
@@ -78,6 +80,8 @@
     <ClCompile Include="Src\Manager\Generic\UIManager.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Src\Object\Character\Daimyo\DaimyoOnHit.h" />
+    <ClInclude Include="Src\Object\Character\Cursor\Cursor.h" />
     <ClInclude Include="Src\Object\Character\Daimyo\Daimyo.h" />
     <ClInclude Include="Src\Object\Character\Base\CharacterBase2D.h" />
     <ClInclude Include="Src\Loader\CsvLoader.h" />
@@ -275,7 +279,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v145</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">

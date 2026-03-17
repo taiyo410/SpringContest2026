@@ -16,3 +16,9 @@ Collider2D::~Collider2D(void)
 {
 	Kill();
 }
+
+void Collider2D::OnHit(const std::weak_ptr<Collider2D> _partner)
+{
+	//‚ ‚½‚Á‚½ˆ—
+	owner_.OnHit(_partner);
+}

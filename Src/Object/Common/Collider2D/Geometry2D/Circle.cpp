@@ -2,8 +2,8 @@
 #include "BoxGeo.h"
 #include "Circle.h"
 
-Circle::Circle(const Vector2F& _pos, const Vector2F& _movedPos, const float _radius)
-	: Geometry2D(_pos,_movedPos),
+Circle::Circle(const Vector2F& _pos, const Vector2F& _movedPos, const float _preHitRadius, const float _radius)
+	: Geometry2D(_pos,_movedPos,_preHitRadius),
 	radius_(_radius)
 {
 }
@@ -14,7 +14,7 @@ Circle::~Circle(void)
 
 void Circle::Draw(unsigned const int _color)
 {
-	DrawCircle(pos_.x, pos_.y, _color, true);
+	DrawCircle(pos_.x, pos_.y, radius_, _color, true);
 }
 
 const bool Circle::IsHit(Geometry2D& _partnerGeo)

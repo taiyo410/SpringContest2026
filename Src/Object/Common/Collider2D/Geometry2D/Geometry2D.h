@@ -36,6 +36,9 @@ public:
 	//移動後座標の取得
 	inline const Vector2F GetMovedPos(void)const { return movedPos_; }
 
+	//事前当たり判定用半径の取得
+	inline const float GetPreHitRadius(void)const { return preHitRadius_; }
+
 	//ヒット情報の取得
 	inline const HitResult GetHitResult(void)const { return hitResult_; }
 
@@ -47,6 +50,7 @@ protected:
 	//親情報
 	const Vector2F& pos_;		//座標
 	const Vector2F& movedPos_;	//移動後座標
+	const float preHitRadius_;	//事前当たり判定
 
 	//ヒット情報
 	HitResult hitResult_;
@@ -56,6 +60,6 @@ protected:
 	/// </summary>
 	/// <param name="_pos">座標</param>
 	/// <param name="_movedPos">移動後座標</param>
-	Geometry2D(const Vector2F& _pos, const Vector2F _movedPos);
+	Geometry2D(const Vector2F& _pos, const Vector2F _movedPos, const float _preHitRadius);
 };
 

@@ -4,6 +4,7 @@
 #include "../Manager/Generic/UIManager.h"
 #include "../Loader/LoaderManager.h"
 #include "../Object/Character/Base/CharacterBase2D.h"
+#include "../Object/Character/Cursor/Cursor.h"
 #include "../Object/Character/Daimyo/Daimyo.h"
 #include "CharacterManager.h"
 
@@ -17,6 +18,7 @@ void CharacterManager::Init(void)
 	//各オブジェクトの生成
 	CreateEdo();
 	CreateDaimyo();
+	CreateCursor();
 }
 
 void CharacterManager::Update(void)
@@ -25,6 +27,7 @@ void CharacterManager::Update(void)
 	for (auto& chara : characters_)
 	{
 		chara->Update();
+		chara->Sweep();
 	}
 }
 
@@ -52,6 +55,19 @@ CharacterManager::CharacterManager(void)
 }
 CharacterManager::~CharacterManager(void)
 {
+}
+
+void CharacterManager::CreateCursor(void)
+{
+	//生成
+	std::unique_ptr<Cursor> c = std::make_unique<Cursor>();
+
+	//読み込みと初期化
+	c->Load();
+	c->Init();
+
+	//格納
+	characters_.push_back(std::move(c));
 }
 
 void CharacterManager::CreateEdo(void)

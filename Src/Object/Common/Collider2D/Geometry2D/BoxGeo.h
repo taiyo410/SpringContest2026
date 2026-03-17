@@ -14,8 +14,8 @@ public:
 	};
 
 	//コンストラクタ
-	BoxGeo(const Vector2F& _pos, const Vector2F& _movedPos, const Vector2F _min, Vector2F _max);
-	BoxGeo(const Vector2F& _pos, const Vector2F& _movedPos, const Vector2F _halfSize);
+	BoxGeo(const Vector2F& _pos, const Vector2F& _movedPos, const float _preHitRadius, const Vector2F _min, Vector2F _max);
+	BoxGeo(const Vector2F& _pos, const Vector2F& _movedPos, const float _preHitRadius, const Vector2F _halfSize);
 
 	//デストラクタ
 	~BoxGeo(void)override;

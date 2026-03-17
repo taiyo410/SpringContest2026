@@ -1,5 +1,6 @@
 #pragma once
 #include "../Common/Vector2.h"
+#include "../Common/Vector2F.h"
 
 class Utility2D
 {
@@ -7,8 +8,11 @@ public:
 
 	//ベクトルの長さ
 	static double Magnitude(const Vector2& v);
+	static double Magnitude(const Vector2F& v);
 	static int SqrMagnitude(const Vector2& v);
+	static int SqrMagnitude(const Vector2F& v);
 	static double Distance(const Vector2& v1, const Vector2& v2);
+	static double Distance(const Vector2F& v1, const Vector2F& v2);
 	
 	/// @brief ワールド座標をマップ座標へ
 	/// @param worldPos ワールド座標

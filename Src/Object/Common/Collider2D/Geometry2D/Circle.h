@@ -6,7 +6,7 @@ class Circle : public Geometry2D
 public:
 
 	//コンストラクタ
-	Circle(const Vector2F& _pos, const Vector2F& _movedPos, const float _radius);
+	Circle(const Vector2F& _pos, const Vector2F& _movedPos, const float _preHitRadius, const float _radius);
 
 	//デストラクタ
 	~Circle(void)override;

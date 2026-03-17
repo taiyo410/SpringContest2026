@@ -45,6 +45,9 @@ private:
 	//デストラクタ
 	~CharacterManager(void)override;
 
+	//カーソルの生成
+	void CreateCursor(void);
+
 	//江戸の生成
 	void CreateEdo(void);
 

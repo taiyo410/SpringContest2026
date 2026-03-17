@@ -2,6 +2,8 @@
 #include "../Base/CharacterBase2D.h"
 #include "DaimyoImport.h"
 
+class DaimyoOnHit;
+
 class Daimyo : public CharacterBase2D
 {
 public:
@@ -31,6 +33,9 @@ public:
 	void OnHit(const std::weak_ptr<Collider2D> _partner)override;
 
 private:
+
+	//当たり判定
+	std::unique_ptr<DaimyoOnHit> onHit_;
 
 	//インポート情報
 	DaimyoImport import_;
