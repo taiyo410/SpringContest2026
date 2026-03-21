@@ -25,6 +25,16 @@ public:
 	/// @return プレイヤー人数
 	int GetPlayerNum(void);
 
+	/// @brief BGMの音量の取得
+	/// @param  
+	/// @return 
+	const float GetBGMVolume(void)const { return bgmVol_; }
+
+	/// @brief BGMの音量のセット
+	/// @param _bgmVol 
+	/// @return 
+	void SetBGMVolume(const int _bgmVol) { bgmVol_ = _bgmVol; }
+
 	/// @brief フルスクリーンフラグの取得
 	/// @param  
 	/// @return フルスクリーンフラグ

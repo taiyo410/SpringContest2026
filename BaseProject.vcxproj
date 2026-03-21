@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Src\Common\FontController.cpp" />
     <ClCompile Include="Src\Scene\SettingScene.cpp" />
     <ClCompile Include="Src\Manager\Generic\ButtonUIManager.cpp" />
     <ClCompile Include="Src\Manager\Generic\MenuController.cpp" />
@@ -93,6 +94,7 @@
     <ClCompile Include="Src\Common\TextWriter.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Src\Common\FontController.h" />
     <ClInclude Include="Src\Scene\SettingScene.h" />
     <ClInclude Include="Src\Manager\Generic\ButtonUIManager.h" />
     <ClInclude Include="Src\Manager\Generic\MenuController.h" />

@@ -4,7 +4,9 @@
 class InputManager;
 class InputManagerS;
 class MenuController;
-class SettingScene :
+class DataBank;
+
+class SettingScene:
     public SceneBase
 {
 public:
@@ -55,7 +57,13 @@ public:
 private:
 
     //ボタン間の間隔
-    static constexpr int BUTTON_OFFSAET = 50;
+    static constexpr int BUTTON_OFFSET = 100;
+
+    //ボタンX座標
+    static constexpr Vector2 BUTTON_POS = { 200,200 };
+
+    //音の大きさの最大値(描画用)
+    static constexpr float VOL_MAX = 100.0f;
 
     //現在の状態
     SETTING_STATE state_;
@@ -71,8 +79,20 @@ private:
 
     //更新
     std::function<void(void)>updateSetting_;
+
     //サウンド
     SoundManager& soundMng_;
+
+    //データバンク
+    DataBank& dataBank_;
+
+    //BGMの大きさ
+    int bgmVol_;
+    //SEの大きさ
+    int seVol_;
+    //テキスト速度
+    int textSpd_;
+
     /// @brief 状態遷移
     /// @param _state 遷移したい状態
     void ChangeSetting(const SETTING_STATE _state);
@@ -90,5 +110,18 @@ private:
     void UpdateSE(void);
     void UpdateTextSpeed(void);
     void UpdateExitSetting(void);
+
+    /// @brief 音量やBGMの調整
+    /// @param _num 
+    void SetNumber(int& _num);
+
+    //スライダーの描画
+    void DrawSliderUI(Vector2F _leftTopPos, Vector2F _length, float _value);
+
+    /// @brief 文字列から音量をそれぞれ返す
+    /// @param _str 調べたい文字列
+    /// @return 
+    const float GetVolumeFromString(const std::wstring _str)const;
 };
+
 

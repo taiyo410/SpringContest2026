@@ -49,6 +49,13 @@ bool Application::Init(void)
 	InputManager::GetInstance().Init();		//初期化
 	InputManagerS::GetInstance().Init();		//初期化
 
+	//フォント管理初期化
+	//FontManager::CreateInstance();
+	//FontManager::GetInstance().Init();
+
+	fontMng_ = std::make_unique<FontManager>();
+	fontMng_->Init();
+
 	// リソース管理初期化
 	ResourceManager::CreateInstance();
 	ResourceManager::GetInstance().Init();
@@ -66,9 +73,8 @@ bool Application::Init(void)
 	fps_ = std::make_unique<FpsControl>();
 	fps_->Init();
 
-	// フォント管理初期化
-	fontMng_ = std::make_unique<FontManager>();
-	fontMng_->Init();
+
+
 
 	isGameEnd_ = false;
 
@@ -119,13 +125,13 @@ bool Application::Release(void)
 	SoundManager::GetInstance().Release();
 
 	//インスタンスの破棄
-	fontMng_->Destroy();
+	
 	InputManager::GetInstance().Destroy();
 	InputManagerS::GetInstance().Destroy();
 	ResourceManager::GetInstance().Destroy();
 	SceneManager::GetInstance().Destroy();
 	SoundManager::GetInstance().Destroy();
-
+	fontMng_->Release();
 	// Effekseerを終了する。
 	Effkseer_End();
 
@@ -140,8 +146,7 @@ bool Application::Release(void)
 
 Application::Application(void):
 	isGameEnd_(false),
-	fps_(nullptr),
-	fontMng_(nullptr)
+	fps_(nullptr)
 {
 
 }

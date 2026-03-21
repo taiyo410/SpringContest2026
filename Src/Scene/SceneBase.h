@@ -7,6 +7,7 @@ class SceneManager;
 class ResourceManager;
 class InputManager;
 class InputManagerS;
+class FontController;
 
 class SceneBase
 {
@@ -62,6 +63,10 @@ protected:
 	InputManager& inputMng_;
 	InputManagerS& inputMngS_;
 	SceneManager& scnMng_;
+	
+	//フォントコントローラー
+	std::unique_ptr<FontController>fontController_;
+
 
 	//更新処理管理
 	std::function<void(void)> updateFunc_;
@@ -72,6 +77,8 @@ protected:
 
 	//選択ボタンフォントハンドル
 	int buttonFontHandle_;
+
+
 
 	//更新関数
 	virtual void LoadingUpdate(void);

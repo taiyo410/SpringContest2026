@@ -2,11 +2,6 @@
 #include <DxLib.h>
 #include "../Application.h"
 
-const std::wstring FontManager::FONT_DOT = L"ベストテンDOT";
-const std::wstring FontManager::FONT_BOKUTATI = L"ぼくたちのゴシック";
-const std::wstring FontManager::FONT_APRIL_GOTHIC = L"April Gothic one Regular";
-
-
 FontManager::FontManager(void)
 {
 	//初期化
@@ -38,8 +33,11 @@ void FontManager::Init(void)
 	}
 }
 
-void FontManager::Destroy(void)
+
+
+void FontManager::Release(void)
 {
+
 	// フォント登録解除
 	for (int i = 0; i < FONT_TYPES; i++)
 	{
@@ -47,9 +45,12 @@ void FontManager::Destroy(void)
 			(Application::PATH_FONT + fontPath_[i]).c_str(),
 			FR_PRIVATE,
 			NULL)
-			== -1)
+			== 0)
 		{
 			return;
 		}
+		fontPath_[i].clear();
+
 	}
+
 }

@@ -5,6 +5,8 @@
 #include "../Manager/Generic/InputManager.h"
 #include "../Manager/Generic/InputManagerS.h"
 #include "../Manager/Resource/SoundManager.h"
+#include "../Manager/Resource/FontManager.h"
+#include "../Common/FontController.h"
 #include "../Application.h"
 #include "../Common/Easing.h"
 #include "MenuController.h"
@@ -21,6 +23,7 @@ MenuController::MenuController(void) :
 	yesNoState_(YES_NO::NO)
 {
 	easing_ = std::make_unique<Easing>();
+	fontController_ = std::make_unique<FontController>();
 }
 
 MenuController::~MenuController(void)
@@ -31,15 +34,9 @@ void MenuController::LoadFont(const std::wstring _fontType, const int _size)
 {
 	defaultFontHandle_ = _fontType;
 	defaultFontSize_ = _size;
-	if (_fontType.empty())
-	{
-		fontHandle_ = DX_DEFAULT_FONT_HANDLE;
-	}
-	else
-	{
-		fontHandle_ = CreateFontToHandle(_fontType.c_str(), _size, 0);
-		sizeEasingFontHandleTable_[_size] = fontHandle_;
-	}
+
+	fontHandle_ = fontController_->GetFontHandle(_fontType, _size, 0);
+
 }
 
 void MenuController::AddMenu(const int _arrayNum, const std::wstring _menu,const Vector2 _pos)
@@ -163,16 +160,9 @@ void MenuController::Draw(void)
 	for (auto& menu : menuList_)
 	{
 		//選択中のメニューはサイズイージングして赤色で描画
-		if (menu.first == selectMenuNum_)
-		{
-			color = UtilityCommon::RED;
-		}
-		else
-		{
-			color = UtilityCommon::WHITE;
-		}
-		DrawFormatStringToHandle(
-			menu.second.curPos.x, menu.second.curPos.y, color, fontHandle_, menu.second.btnStr.c_str());
+		color = DecideColor(menu.first);
+		DrawStringToHandle(
+			menu.second.curPos.x, menu.second.curPos.y, menu.second.btnStr.c_str(), color, fontHandle_);
 	}
 }
 
@@ -182,17 +172,11 @@ void MenuController::DrawCenter(void)
 	for (auto& menu : menuList_)
 	{
 		//選択中のメニューはサイズイージングして赤色で描画
-		if (menu.first == selectMenuNum_)
-		{
-			color = UtilityCommon::RED;
-		}
-		else
-		{
-			color = UtilityCommon::WHITE;
-		}
+		color = DecideColor(menu.first);
 		UtilityDraw::DrawStringCenter(menu.second.curPos.x, menu.second.curPos.y, color, fontHandle_, menu.second.btnStr.c_str());
 	}
 }
+
 
 void MenuController::YesNoDraw(const std::wstring _questionStr)
 {
@@ -269,36 +253,39 @@ void MenuController::SubSelectMenuNum(void)
 	}
 }
 
-void MenuController::DrawFromCenter(const int _arrayNum, const unsigned int _color, const int _fontHandle)
+
+
+const bool MenuController::IsHasFormat(const std::wstring _str)const
 {
-	Vector2 strPos = menuList_[_arrayNum].curPos;
+	if (_str.find(L"%d") != std::wstring::npos || _str.find(L"%f") != std::wstring::npos)
+	{
+		return true;
+	}
+	return false;
+}
+
+const Vector2 MenuController::GetMenuCenterPos(const std::wstring _str)const
+{
 	int w, h;
 	GetDrawStringSizeToHandle(
 		&w,
 		&h,
 		NULL,
-		menuList_[_arrayNum].btnStr.c_str()
-		,static_cast<int>(wcslen(menuList_[_arrayNum].btnStr.c_str()))
-		,_fontHandle );
-
-	strPos.x += static_cast<int>(w * 0.5f);
-	strPos.y += static_cast<int>(h * 0.5f);
-
-	// 中心基準描画
-	DrawRotaStringFToHandle(
-		static_cast<float>(strPos.x),
-		static_cast<float>(strPos.y),
-		1.0,
-		1.0,
-		w * 0.5,   // RotCenterX
-		h * 0.5,   // RotCenterY ← ここ重要
-		0.0f,
-		_color,
-		_fontHandle,
-		0,
-		FALSE,
-		menuList_[_arrayNum].btnStr.c_str()
-	);
-
+		_str.c_str(),
+		static_cast<int>(wcslen(_str.c_str())),
+		fontHandle_);
+	int centerX = w / 2;
+	int centerY = h / 2;
+	return {centerX,centerY};
 }
+
+unsigned int MenuController::DecideColor(const int btnNum)
+{
+	if (btnNum == selectMenuNum_)
+	{
+		return SELECT_COL;
+	}
+	return UNSELECT_COL;
+}
+
 

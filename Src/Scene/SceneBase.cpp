@@ -4,6 +4,8 @@
 #include "../Manager/Generic/InputManager.h"
 #include "../Manager/Generic/InputManagerS.h"
 #include "../Manager/Resource/ResourceManager.h"
+#include "../Manager/Resource/FontManager.h"
+#include "../Common/FontController.h"
 #include "../Utility/UtilityCommon.h"
 #include "SceneBase.h"
 
@@ -15,6 +17,7 @@ SceneBase::SceneBase(void) :
 {
 	buttonFontHandle_ = -1;
 	loadingTime_ = -1;
+	fontController_ = std::make_unique<FontController>();
 }
 
 SceneBase::~SceneBase(void)

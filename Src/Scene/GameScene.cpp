@@ -42,7 +42,7 @@ GameScene::~GameScene(void)
 void GameScene::Load(void)
 {
 	//フォントの登録
-	buttonFontHandle_ = CreateFontToHandle(FontManager::FONT_APRIL_GOTHIC.c_str(), FONT_SIZE, 0);
+	buttonFontHandle_ = CreateFontToHandle(FontManager::FONT_APRIL_GOTHIC, FONT_SIZE, 0);
 
 
 	//ポーズ画面のリソース

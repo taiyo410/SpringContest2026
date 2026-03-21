@@ -2,6 +2,7 @@
 #include "../Manager/Generic/InputManagerS.h"
 #include "../Manager/Generic/SceneManager.h"
 #include "../Manager/Resource/FontManager.h"
+#include "../Common/FontController.h"
 #include "../Utility/UtilityCommon.h"
 #include "../Utility/UtilityDraw.h"
 #include "../Common/Easing.h"
@@ -32,7 +33,7 @@ void StartScene::OnSceneEnter(void)
 void StartScene::Load(void)
 {
 	//ƒtƒHƒ“ƒg‚Ì“o˜^
-	//buttonFontHandle_ = CreateFontToHandle(FontManager::FONT_APRIL_GOTHIC.c_str(), FONT_SIZE, 0);
+ 	buttonFontHandle_ = fontController_->GetFontHandle(FontManager::FONT_APRIL_GOTHIC, FONT_SIZE, 0);
 }
 
 void StartScene::Init(void)
@@ -42,8 +43,8 @@ void StartScene::Init(void)
 
 void StartScene::NormalUpdate(void)
 {
-	//stringAlpha_ = easing_->EaseFunc(0, 255, blendCnt_ / BLEND_TIME, Easing::EASING_TYPE::LERP_COMEBACK);
-	//blendCnt_> BLEND_TIME?blendCnt_=0: blendCnt_ += scnMng_.GetDeltaTime();
+	stringAlpha_ = easing_->EaseFunc(0, 255, blendCnt_ / BLEND_TIME, Easing::EASING_TYPE::LERP_COMEBACK);
+	blendCnt_> BLEND_TIME?blendCnt_=0: blendCnt_ += scnMng_.GetDeltaTime();
 
 	if (inputMngS_.IsTrgDown(INPUT_EVENT::OK))
 	{
@@ -56,8 +57,8 @@ void StartScene::NormalDraw(void)
 {
 	DrawBox(0, 0, Application::SCREEN_SIZE_X, Application::SCREEN_SIZE_Y, 0xff0000, true);
 
-	//SetDrawBlendMode(DX_BLENDMODE_ALPHA, (int)stringAlpha_);
-	////UtilityDraw::DrawStringCenter(Application::SCREEN_HALF_X, Application::SCREEN_HALF_Y, UtilityCommon::WHITE, buttonFontHandle_, L"Push To Click");
-	//SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+	SetDrawBlendMode(DX_BLENDMODE_ALPHA, (int)stringAlpha_);
+	UtilityDraw::DrawStringCenter(Application::SCREEN_HALF_X, Application::SCREEN_HALF_Y, UtilityCommon::WHITE, buttonFontHandle_, L"Push To Click");
+	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 
 }

@@ -2,10 +2,12 @@
 #include "../Manager/Resource/SoundManager.h"
 #include "../Common/Vector2.h"
 #include "../Common/Easing.h"
+#include "../Utility/UtilityCommon.h"
 
 class InputManager;
 class InputManagerS;
 class SoundManager;
+class FontController;
 class Easing;
 class MenuController
 {
@@ -100,6 +102,11 @@ public:
 	/// @param  
 	void DrawCenter(void);
 
+	/// @brief 書式付き文字列の描画
+	/// @param
+	template<typename T>
+	void DrawFormat(std::vector<T> _format);
+
 	/// @brief はいいいえの描画
 	/// @param _questionStr 質問内容
 	void YesNoDraw(const std::wstring _questionStr);
@@ -121,6 +128,21 @@ public:
 	/// @return 
 	const int GetSelectMenuNum(void) { return selectMenuNum_; }
 
+	/// @brief メニューリストの取得
+	/// @param  
+	/// @return メニューリストの情報
+	const std::unordered_map<int, BTN_INFO>&GetMenuList(void)const { return menuList_; }
+
+	/// @brief 書式付き文字列かどうか
+	/// @param _str 調べたい文字列
+	/// @return true:書式付き文字列である
+	const bool IsHasFormat(const std::wstring _str)const;
+
+	/// @brief 文字列の中心座標の取得
+	/// @param _str 調べたい文字列
+	/// @return 
+	const Vector2 GetMenuCenterPos(const std::wstring _str)const;
+
 private:
 
 	//通常メニューのイージング時間
@@ -139,6 +161,12 @@ private:
 
 	//はい/いいえの選択肢の数
 	static constexpr int YES_NO_NUM = 2;
+
+	//選択中の文字の色
+	static constexpr unsigned int SELECT_COL = UtilityCommon::RED;
+
+	//選択していない文字の色
+	static constexpr unsigned int UNSELECT_COL = UtilityCommon::WHITE;
 
 	//デフォルトのフォントサイズ
 	int defaultFontSize_;
@@ -189,13 +217,43 @@ private:
 	//入力
 	InputManager& ins_;
 	InputManagerS& insS_;
+
+	//フォントマネージャ
+	std::unique_ptr<FontController> fontController_;
+
 	//サウンド
 	SoundManager& soundMng_;
-	//中央座標で描画
-	void DrawFromCenter(const int _arrayNum, const unsigned int _color, const int _fontHandle);
 
+	/// @brief 選択中のカラーを決める
+	/// @param _unselectCol 
+	/// @param _selectCol 
+	unsigned int DecideColor(const int btnNum);
 
 
 
 };
 
+template<typename T>
+void MenuController::DrawFormat(std::vector<T> _format)
+{
+	unsigned int color = UtilityCommon::WHITE;
+	int i = 0;
+	for (auto& menu : menuList_)
+	{
+
+		//選択中のメニューはサイズイージングして赤色で描画
+		color = DecideColor(menu.first);
+		if (IsHasFormat(menu.second.btnStr))
+		{
+			DrawFormatStringToHandle(
+				menu.second.curPos.x, menu.second.curPos.y, color, fontHandle_, menu.second.btnStr.c_str(), _format[i]);
+			i++;
+		}
+		else
+		{
+			DrawStringToHandle(
+				menu.second.curPos.x, menu.second.curPos.y, menu.second.btnStr.c_str(), color, fontHandle_);
+		}
+
+	}
+}

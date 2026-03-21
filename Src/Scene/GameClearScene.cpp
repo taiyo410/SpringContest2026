@@ -32,7 +32,7 @@ void GameClearScene::Load(void)
 {
 	imgGameClear_ = ResourceManager::GetInstance().Load(ResourceManager::SRC::GAME_CLEAR_IMG).handleId_;
 	//ƒtƒHƒ“ƒg‚Ì“o˜^
-	buttonFontHandle_ = CreateFontToHandle(FontManager::FONT_APRIL_GOTHIC.c_str(), FONT_SIZE, 0);
+	buttonFontHandle_ = CreateFontToHandle(FontManager::FONT_APRIL_GOTHIC, FONT_SIZE, 0);
 }
 
 void GameClearScene::Init(void)

@@ -25,7 +25,7 @@ GameOverScene::~GameOverScene(void)
 void GameOverScene::Load(void)
 {
 	//フォントの登録
-	buttonFontHandle_ = CreateFontToHandle(FontManager::FONT_APRIL_GOTHIC.c_str(), FONT_SIZE, 0);
+	buttonFontHandle_ = CreateFontToHandle(FontManager::FONT_APRIL_GOTHIC, FONT_SIZE, 0);
 	imgGameOver_ = resMng_.GetInstance().Load(ResourceManager::SRC::GAME_OVER_IMG).handleId_;
 
 	//BGMロード

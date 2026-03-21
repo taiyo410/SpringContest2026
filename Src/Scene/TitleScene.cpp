@@ -11,6 +11,7 @@
 #include "../Manager/Generic/MenuController.h"
 #include "../Manager/Resource/ResourceManager.h"
 #include "../Manager/Resource/FontManager.h"
+#include "../Common/FontController.h"
 #include "./SettingScene.h"
 #include "../Common/Easing.h"
 #include "../Common/TextWriter.h"
@@ -36,14 +37,14 @@ TitleScene::~TitleScene(void)
 void TitleScene::Load(void)
 {
 	//フォントの登録
-	buttonFontHandle_ = CreateFontToHandle(FontManager::FONT_APRIL_GOTHIC.c_str(), FONT_SIZE, 0);
+	buttonFontHandle_ = fontController_->GetFontHandle(FontManager::FONT_APRIL_GOTHIC, FONT_SIZE, 0);
 	//タイトル画像の読み込み
 	imgTitleBack = resMng_.Load(ResourceManager::SRC::TITLE_BACK_IMG).handleId_;
 
 	//タイトルロゴの読み込み
 	imgTitleLogo = resMng_.Load(ResourceManager::SRC::TITLE_LOGO).handleId_;
 
-	menuController_->LoadFont(FontManager::FONT_APRIL_GOTHIC.c_str(), FONT_SIZE);
+	menuController_->LoadFont(FontManager::FONT_APRIL_GOTHIC, FONT_SIZE);
 	//設定シーン
 	settingScn_->Load();
 
