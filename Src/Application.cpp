@@ -1,5 +1,6 @@
 #include <DxLib.h>
 #include <EffekseerForDXLib.h>
+#include "Loader/DataRegistry.h"
 #include "Manager/Generic/SceneManager.h"
 #include "Manager/Generic/InputManager.h"
 #include "Manager/Generic/InputManagerS.h"
@@ -18,8 +19,8 @@ const std::wstring Application::PATH_SOUND_BGM = L"Data/Sound/BGM/";
 const std::wstring Application::PATH_SOUND_SE = L"Data/Sound/SE/";
 const std::wstring Application::PATH_FONT = L"Data/Font/";
 const std::wstring Application::PATH_TEXT = L"Data/Text/";
-const std::wstring Application::PATH_JSON = L"Data/JSON/";
-const std::wstring Application::PATH_CSV = L"Data/CSV/";
+const std::wstring Application::PATH_JSON = L"Data/OutSide/Json/";
+const std::wstring Application::PATH_CSV = L"Data/OutSide/CSV/";
 const std::wstring Application::PATH_SHADER = L"Data/Shader/";
 
 bool Application::Init(void)
@@ -41,6 +42,10 @@ bool Application::Init(void)
 
 	// Effekseerの初期化
 	InitEffekseer();
+
+	//外部データ管理の初期化
+	DataRegistry::CreateInstance();
+	DataRegistry::GetInstance().CreateAll();
 
 	// キー制御初期化
 	SetUseDirectInputFlag(true);
@@ -131,6 +136,8 @@ bool Application::Release(void)
 	ResourceManager::GetInstance().Destroy();
 	SceneManager::GetInstance().Destroy();
 	SoundManager::GetInstance().Destroy();
+	DataRegistry::GetInstance().Destroy();
+
 	fontMng_->Release();
 	// Effekseerを終了する。
 	Effkseer_End();

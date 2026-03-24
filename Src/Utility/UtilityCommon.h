@@ -4,6 +4,7 @@
 #include <string>
 #include <fstream>
 #include <sstream>
+#include <cmath>
 #include "../Common/Vector2.h"
 #include "../Common/Vector2F.h"
 
@@ -108,6 +109,11 @@ public:
 	/// @param str stringオブジェクト
 	/// @return wstringオブジェクト
 	static std::wstring GetWStringFromString(const std::string& str);
+
+	/// @brief wstringオブジェクト)からstringオブジェクトに変換
+	/// @param str wstringオブジェクト
+	/// @return stringオブジェクト
+	static std::string GetStringFromWString(const std::wstring& wstr);
 
 
 

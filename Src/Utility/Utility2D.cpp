@@ -7,7 +7,17 @@ double Utility2D::Magnitude(const Vector2& v)
     return sqrt((v.x * v.x) + (v.y * v.y));
 }
 
+double Utility2D::Magnitude(const Vector2F& v)
+{
+    return sqrtf((v.x * v.x) + (v.y * v.y));
+}
+
 int Utility2D::SqrMagnitude(const Vector2& v)
+{
+    return v.x * v.x + v.y * v.y;
+}
+
+int Utility2D::SqrMagnitude(const Vector2F& v)
 {
     return v.x * v.x + v.y * v.y;
 }
@@ -15,6 +25,11 @@ int Utility2D::SqrMagnitude(const Vector2& v)
 double Utility2D::Distance(const Vector2& v1, const Vector2& v2)
 {
     return sqrt(pow(v2.x - v1.x, 2) + pow(v2.y - v1.y, 2));
+}
+
+double Utility2D::Distance(const Vector2F& v1, const Vector2F& v2)
+{
+    return sqrtf(powf(v2.x - v1.x, 2) + powf(v2.y - v1.y, 2));
 }
 
 Vector2 Utility2D::WorldToMapPos(const Vector2& worldPos, const Vector2& mapSize)

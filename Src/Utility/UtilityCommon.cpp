@@ -257,3 +257,11 @@ std::wstring UtilityCommon::GetWStringFromString(const std::string& str)
 
     return ret;
 }
+
+std::string UtilityCommon::GetStringFromWString(const std::wstring& wstr)
+{
+    int size = WideCharToMultiByte(CP_UTF8, 0, wstr.c_str(), -1, nullptr, 0, nullptr, nullptr);
+    std::string result(size, 0);
+    WideCharToMultiByte(CP_UTF8, 0, wstr.c_str(), -1, &result[0], size, nullptr, nullptr);
+    return result;
+}

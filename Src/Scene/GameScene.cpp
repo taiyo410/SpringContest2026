@@ -5,11 +5,10 @@
 #include "../Manager/Resource/FontManager.h"
 #include "../Manager/Resource/ResourceManager.h"
 #include "../Manager/Generic/SceneManager.h"
-#include "../Manager/Generic/Camera.h"
 #include "../Manager/Generic/InputManager.h"
 #include "../Manager/Generic/ButtonUIManager.h"
 #include "../Manager/Generic/UIManager.h"
-#include "../Manager/Game/CollisionManager.h"
+#include "../Manager/Game/CollisionManager2D.h"
 #include "../Manager/Game/CharacterManager.h"
 #include "../Manager/Resource/SoundManager.h"
 #include "../Manager/Generic/DataBank.h"
@@ -25,7 +24,7 @@ GameScene::GameScene(void)
 	postEffectScreen_ = MakeScreen(Application::SCREEN_SIZE_X, Application::SCREEN_SIZE_Y, true);
 
 	CharacterManager::CreateInstance();
-	CollisionManager::CreateInstance();
+	CollisionManager2D::CreateInstance();
 	UIManager::CreateInstance();
 
 }
@@ -33,7 +32,7 @@ GameScene::GameScene(void)
 GameScene::~GameScene(void)
 {
 	//インスタンスの削除
-	CollisionManager::GetInstance().Destroy();
+	CollisionManager2D::GetInstance().Destroy();
 	CharacterManager::GetInstance().Destroy();
 	SoundManager::GetInstance().Release();
 	UIManager::GetInstance().Destroy();
@@ -69,11 +68,6 @@ void GameScene::Init(void)
 
 	CharacterManager::GetInstance().Init();
 	UIManager::GetInstance().Init();
-
-	//シェイク状態を初期化
-	scnMng_.GetCamera().lock()->ChangeSub(Camera::SUB_MODE::NONE);
-	//カメラの当たり判定作成
-	scnMng_.GetCamera().lock()->MakeColliderGeometry();
 }
 
 void GameScene::NoneUpdate(void)
@@ -105,10 +99,10 @@ void GameScene::NormalUpdate(void)
 	UIManager::GetInstance().Update();
 
 	//更新はアクション中のみ
-	CollisionManager::GetInstance().Update();
+	CollisionManager2D::GetInstance().Update();
 
 	//終了した当たり判定の消去
-	CollisionManager::GetInstance().Sweep();
+	CollisionManager2D::GetInstance().Sweep();
 
 
 
@@ -122,10 +116,6 @@ void GameScene::NormalUpdate(void)
 
 void GameScene::NormalDraw(void)
 {
-	CharacterManager::GetInstance().Draw();
-
-	//UIなどの描画
-	CharacterManager::GetInstance().Draw2D();
 
 	UIManager::GetInstance().Draw();
 
@@ -134,6 +124,7 @@ void GameScene::NormalDraw(void)
 	//デバッグ処理
 	DebagDraw();
 #endif // _DEBUG
+	CharacterManager::GetInstance().Draw();
 
 }
 
@@ -163,21 +154,19 @@ void GameScene::ChangeNone(void)
 void GameScene::ChangeFade(void)
 {
 	scnMng_.StartFadeIn();
-	scnMng_.GetCamera().lock()->ChangeMode(Camera::MODE::FOLLOW);
 	updateFunc_ = [this]() {FadeUpdate(); };
 }
 
 void GameScene::ChangeNormal(void)
 {
-	CharacterManager::GetInstance().ChangeCharacterNormalUpdate();
-	scnMng_.GetCamera().lock()->ChangeSub(Camera::SUB_MODE::NONE);
+	CharacterManager::GetInstance().Update();
 	updateFunc_ = [this]() {NormalUpdate(); };
 	drawFunc_ = [this]() {NormalDraw(); };
 }
 
 void GameScene::ChangeSlow(void)
 {
-	CharacterManager::GetInstance().ChangeCharacterNormalUpdate();
+	CharacterManager::GetInstance().Update();
 	updateFunc_ = [this]() {SlowUpdate(); };
 }
 

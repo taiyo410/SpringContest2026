@@ -5,7 +5,6 @@
 #include "../Manager/Resource/SoundManager.h"
 #include "../Manager/Resource/FontManager.h"
 #include "../Manager/Generic/SceneManager.h"
-#include "../Manager/Generic/Camera.h"
 #include "GameOverScene.h"
 
 GameOverScene::GameOverScene(void):
@@ -35,8 +34,6 @@ void GameOverScene::Load(void)
 
 void GameOverScene::Init(void)
 {
-	SceneManager::GetInstance().GetCamera().lock()->ChangeMode(Camera::MODE::FIXED_POINT);
-
 	//BGMçƒê∂
 	soundMng_.GetInstance().Play(SoundManager::SRC::GAME_OVER_BGM, SoundManager::PLAYTYPE::LOOP);
 	SoundManager::GetInstance().SetSystemVolume(BGM_VOL, static_cast<int>(SoundManager::TYPE::BGM));

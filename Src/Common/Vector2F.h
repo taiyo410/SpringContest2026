@@ -1,5 +1,6 @@
 #pragma once
-#include "./Vector2.h"
+
+class Vector2;
 
 struct Vector2F
 {
@@ -30,6 +31,9 @@ struct Vector2F
 	void operator*=(const Vector2F _value);
 	const Vector2F operator/(const Vector2F _value)const;
 	void operator/=(const Vector2F _value);
+
+	//Vector2‚Ö‚Ì•ÏŠ·
+	const Vector2 ToVector2(void)const;
 
 	//ˆê‚Â‚Ì”‚Å‚Ì‰‰Z
 	template<typename T>

@@ -8,7 +8,6 @@
 #include "../Manager/Resource/ResourceManager.h"
 #include "../Manager/Resource/SoundManager.h"
 #include "../Manager/Resource/FontManager.h"
-#include "../Manager/Generic/Camera.h"
 #include "../Common/Easing.h"
 #include "GameClearScene.h"
 
@@ -37,10 +36,7 @@ void GameClearScene::Load(void)
 
 void GameClearScene::Init(void)
 {
-	SceneManager::GetInstance().GetCamera().lock()->ChangeMode(Camera::MODE::FIXED_POINT);
-
 	easing_ = std::make_unique<Easing>();
-
 }
 
 void GameClearScene::NormalUpdate(void)

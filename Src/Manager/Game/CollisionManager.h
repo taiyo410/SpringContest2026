@@ -5,7 +5,7 @@
 #include<map>
 #include<functional>
 #include"../Template/Singleton.h"
-#include"../Object/Common/Collider.h"
+#include"../Object/Common/Collider3D/Collider.h"
 
 class Geometry;
 

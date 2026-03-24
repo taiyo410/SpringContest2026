@@ -99,3 +99,13 @@ void Vector2F::operator/=(const Vector2F _value)
 	x /= _value.x;
 	y /= _value.y;
 }
+
+const Vector2 Vector2F::ToVector2(void) const
+{
+	Vector2 ret;
+
+	ret.x = static_cast<int>(x);
+	ret.y = static_cast<int>(y);
+
+	return ret;
+}
