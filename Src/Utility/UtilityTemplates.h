@@ -32,4 +32,34 @@ public:
         int ret= static_cast<int>(std::erase_if(vec, [](auto& a) {return a == nullptr; }));
         return ret;
     }
+
+    /// @brief 値を増やし、範囲内に収める
+    /// @param index 増やしたい値
+    /// @param max 上限値
+    /// @param addIndex 増やし幅(デフォルトで1)
+    /// @return 増やした後の値
+    template<typename T>
+    static void AddIndex(T& index, T max, const T addIndex = 1)
+    {
+        index += addIndex;
+        if (index >= max)
+        {
+            index = max;
+        }
+    }
+
+    /// @brief 値を減らし、範囲内に収める
+    /// @param index 減らしたい値
+    /// @param min 下限値 
+    /// @param subIndex 減らし幅
+    /// @return 減らした後の値
+    template<typename T>
+    static void SubIndex(T& index, T min, const T subIndex = 1)
+    {
+        index -= subIndex;
+        if (index <= min)
+        {
+            index = min;
+        }
+    }
 };

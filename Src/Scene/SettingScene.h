@@ -3,6 +3,7 @@
 
 class InputManager;
 class InputManagerS;
+class SoundManager;
 class MenuController;
 class DataBank;
 
@@ -17,6 +18,14 @@ public:
         SE,
         TEXT_SPD,
         EXIT_SETTING,
+        MAX
+    };
+
+    enum class VOLUME_TYPE
+    {
+        BGM,
+        SE,
+        TEXT_SPD,
         MAX
     };
 
@@ -63,7 +72,7 @@ private:
     static constexpr Vector2 BUTTON_POS = { 200,200 };
 
     //音の大きさの最大値(描画用)
-    static constexpr float VOL_MAX = 100.0f;
+    static constexpr int VOL_MAX = 100.0f;
 
     //現在の状態
     SETTING_STATE state_;
@@ -86,12 +95,14 @@ private:
     //データバンク
     DataBank& dataBank_;
 
-    //BGMの大きさ
-    int bgmVol_;
-    //SEの大きさ
-    int seVol_;
-    //テキスト速度
-    int textSpd_;
+    ////BGMの大きさ
+    //int bgmVol_;
+    ////SEの大きさ
+    //int seVol_;
+    ////テキスト速度
+    //int textSpd_;
+    //設定関連
+    int volume_[static_cast<int>(VOLUME_TYPE::MAX)];
 
     /// @brief 状態遷移
     /// @param _state 遷移したい状態
@@ -122,6 +133,9 @@ private:
     /// @param _str 調べたい文字列
     /// @return 
     const float GetVolumeFromString(const std::wstring _str)const;
+
+    //ボリューム関連の反映
+    void VolumeRefrect(void);
 };
 
 

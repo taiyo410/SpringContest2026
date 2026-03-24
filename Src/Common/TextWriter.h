@@ -26,7 +26,7 @@ public:
 	void Draw(void);
 private:
 
-	static constexpr float TEXT_SPD = 0.001f;
+	static constexpr int TEXT_SPD = 2;
 
 	//一連の流れで描画するテキスト配列
 	std::list<std::wstring>texts_;
@@ -34,8 +34,11 @@ private:
 	//現在描画中のテキスト
 	std::wstring disPlayStr_;
 
+	//テキスト速度
+	int textSpd_;
+
 	//テキスト間隔カウント
-	float disCnt_;
+	int disCnt_;
 
 	//現在描画中の文字数
 	int currentStrNum_;

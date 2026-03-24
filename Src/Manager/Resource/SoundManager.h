@@ -19,8 +19,8 @@ public:
 		//BGM
 		TITLE_BGM,					//タイトルBGM
 		GAME_BGM,					//ゲームBGM
-		GAME_CLEAR,
-		GAME_OVER,
+		GAME_CLEAR_BGM,
+		GAME_OVER_BGM,
 		//SE
 
 		//足音

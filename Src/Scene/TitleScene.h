@@ -86,7 +86,7 @@ private:
 
 
 	//メニュー座標の間隔
-	static constexpr float BUTTON_DISTANCE = 100;
+	static constexpr float BUTTON_DISTANCE = SceneBase::FONT_SIZE + 30;
 
 	//選択中ボタンのイージングで動かせる距離
 	static constexpr Vector2 SELECT_EASE_DISTANCE = { 20,0 };
@@ -104,7 +104,8 @@ private:
 
 	//メニュー始まりの座標
 	static constexpr float BUTTON_START_POS_X = 700.0f;
-	static constexpr float BUTTON_START_POS_Y = Application::SCREEN_HALF_Y - LOGO_SIZE_Y / 2.0f;
+	//static constexpr float BUTTON_START_POS_Y = Application::SCREEN_HALF_Y - LOGO_SIZE_Y / 2.0f;
+	static constexpr float BUTTON_START_POS_Y = Application::SCREEN_HALF_Y + 50.0f;
 
 
 	//ゲーム終了確認メニューの大きさ

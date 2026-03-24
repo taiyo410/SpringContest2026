@@ -6,15 +6,17 @@
 #include "../Manager/Resource/SoundManager.h"
 #include "../Manager/Resource/FontManager.h"
 #include "../Manager/Generic/DataBank.h"
+#include "../Utility/UtilityTemplates.h"
 #include "SettingScene.h"
 
 SettingScene::SettingScene(void):
 	state_(SETTING_STATE::MAX),
 	soundMng_(SoundManager::GetInstance()),
 	dataBank_(DataBank::GetInstance()),
-	bgmVol_(VOL_MAX),
-	seVol_(VOL_MAX),
-	textSpd_(VOL_MAX)
+	volume_(VOL_MAX, VOL_MAX, VOL_MAX)
+	//bgmVol_(VOL_MAX),
+	//seVol_(VOL_MAX),
+	//textSpd_(VOL_MAX)
 {
 	//更新関数のセット
 	updateFunc_ = [this]() {NormalUpdate(); };
@@ -69,7 +71,7 @@ void SettingScene::NormalUpdate(void)
 
 void SettingScene::NormalDraw(void)
 {
-	menuController_->DrawFormat(std::vector<int>{ bgmVol_, seVol_, textSpd_ });
+	menuController_->DrawFormat(std::vector<int>{ volume_[static_cast<int>(VOLUME_TYPE::BGM)], volume_[static_cast<int>(VOLUME_TYPE::SE)], volume_[static_cast<int>(VOLUME_TYPE::TEXT_SPD)] });
 	auto& menuList = menuController_->GetMenuList();
 	for (auto& menu : menuList)
 	{
@@ -118,30 +120,38 @@ void SettingScene::ChangeExitSetting(void)
 void SettingScene::UpdateSettingNormal(void)
 {
 	menuController_->SelectMenu();
+	const int selectNum = menuController_->GetSelectMenuNum();
 	if (inputMngS_.IsTrgDown(INPUT_EVENT::OK)&&menuController_->GetSelectMenuNum()==static_cast<int>(SETTING_STATE::EXIT_SETTING))
 	{
-		const int selectNum = menuController_->GetSelectMenuNum();
 		ChangeSetting(static_cast<SETTING_STATE>(selectNum));
+		return;
 	}
-	else if (inputMngS_.IsTrgDown(INPUT_EVENT::LEFT) || inputMngS_.IsTrgDown(INPUT_EVENT::RIGHT))
+	else if (inputMng_.IsKeyKeepPressed(KEY_INPUT_A,0.2f))
 	{
+		UtilityTemplates::SubIndex(volume_[static_cast<int>(selectNum)],0);
+		VolumeRefrect();
 
+	}
+	else if (inputMng_.IsKeyKeepPressed(KEY_INPUT_D, 0.2f))
+	{
+		UtilityTemplates::AddIndex(volume_[static_cast<int>(selectNum)],VOL_MAX);
+		VolumeRefrect();
 	}
 
 }
 
 void SettingScene::UpdateBGM(void)
 {
-	SetNumber(bgmVol_);
-	dataBank_.SetBGMVolume(bgmVol_ / VOL_MAX);
-	ChangeSetting(SETTING_STATE::NORMAL);
+	//SetNumber(bgmVol_);
+	//dataBank_.SetBGMVolume(bgmVol_ / VOL_MAX);
+	//ChangeSetting(SETTING_STATE::NORMAL);
 }
 
 void SettingScene::UpdateSE(void)
 {
-	SetNumber(seVol_);
-	dataBank_.SetBGMVolume(bgmVol_ / VOL_MAX);
-	ChangeSetting(SETTING_STATE::NORMAL);
+	//SetNumber(seVol_);
+	//dataBank_.SetBGMVolume(bgmVol_ / VOL_MAX);
+	//ChangeSetting(SETTING_STATE::NORMAL);
 }
 
 void SettingScene::UpdateTextSpeed(void)
@@ -171,14 +181,15 @@ void SettingScene::DrawSliderUI(Vector2F _leftTopPos, Vector2F _length, float _v
 
 	//ゲージの描画
 	Vector2F rightDownPos = _leftTopPos + _length;
+	Vector2F gaugeRightDown = _leftTopPos + (_length * _value);
 	DrawBoxAA(_leftTopPos.x, _leftTopPos.y, rightDownPos.x, rightDownPos.y, UtilityCommon::GRAY, true);
-	DrawBoxAA(_leftTopPos.x, _leftTopPos.y, rightDownPos.x*_value, rightDownPos.y, UtilityCommon::YELLOW, true);
+	DrawBoxAA(_leftTopPos.x, _leftTopPos.y, gaugeRightDown.x, rightDownPos.y, UtilityCommon::YELLOW, true);
 
 	const float CIRCLE_RADIUS = _length.y;
 	constexpr int POSNUM = 8;
 	//円の描画
 	Vector2F circlePos = { rightDownPos.x * _value , _leftTopPos.y + rightDownPos.y / 2.0f };
-	DrawCircleAA(rightDownPos.x * _value, _leftTopPos.y+_length.y/2.0f , CIRCLE_RADIUS, POSNUM, UtilityCommon::RED);
+	DrawCircleAA(gaugeRightDown.x, _leftTopPos.y+_length.y/2.0f , CIRCLE_RADIUS, POSNUM, UtilityCommon::RED);
 
 }
 
@@ -186,15 +197,34 @@ const float SettingScene::GetVolumeFromString(const std::wstring _str) const
 {
 	if (_str.find(L"BGM") != std::wstring::npos)
 	{
-		return bgmVol_;
+		return volume_[static_cast<int>(VOLUME_TYPE::BGM)];
 	}
 	else if (_str.find(L"SE") != std::wstring::npos)
 	{
-		return seVol_;
+		return volume_[static_cast<int>(VOLUME_TYPE::SE)];
 	}
 	else if (_str.find(L"テキスト速度") != std::wstring::npos)
 	{
-		return textSpd_;
+		return volume_[static_cast<int>(VOLUME_TYPE::TEXT_SPD)];
 	}
+
+	//ここには入らない
 	return 0.0f;
+}
+
+void SettingScene::VolumeRefrect(void)
+{
+	const int selectNum = menuController_->GetSelectMenuNum();
+	if (selectNum == static_cast<int>(SETTING_STATE::BGM))
+	{
+		soundMng_.SetSystemVolume(volume_[static_cast<int>(VOLUME_TYPE::BGM)], static_cast<int>(SoundManager::TYPE::BGM));
+	}
+	else if (selectNum == static_cast<int>(SETTING_STATE::SE))
+	{
+		soundMng_.SetSystemVolume(volume_[static_cast<int>(VOLUME_TYPE::SE)], static_cast<int>(SoundManager::TYPE::SE));
+	}
+	else if (selectNum == static_cast<int>(SETTING_STATE::TEXT_SPD))
+	{
+		dataBank_.SetTextSpeed(volume_[static_cast<int>(VOLUME_TYPE::TEXT_SPD)]);
+	}
 }

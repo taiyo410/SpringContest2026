@@ -96,6 +96,8 @@ public:
 	/// @param max 範囲の最大値
 	/// @return 0からN-1の範囲に補正した値
 	static int WrapIndex(int index, int max);
+
+
 	
 	/// @brief CSVファイルの読み込み
 	/// @param filePath ファイルパス

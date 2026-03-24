@@ -19,7 +19,7 @@ GameOverScene::GameOverScene(void):
 
 GameOverScene::~GameOverScene(void)
 {
-	soundMng_.Stop(SoundManager::SRC::GAME_OVER);
+	soundMng_.Stop(SoundManager::SRC::GAME_OVER_BGM);
 }
 
 void GameOverScene::Load(void)
@@ -29,7 +29,7 @@ void GameOverScene::Load(void)
 	imgGameOver_ = resMng_.GetInstance().Load(ResourceManager::SRC::GAME_OVER_IMG).handleId_;
 
 	//BGMÉçÅ[Éh
-	soundMng_.GetInstance().LoadResource(SoundManager::SRC::GAME_OVER);
+	soundMng_.GetInstance().LoadResource(SoundManager::SRC::GAME_OVER_BGM);
 
 }
 
@@ -38,7 +38,7 @@ void GameOverScene::Init(void)
 	SceneManager::GetInstance().GetCamera().lock()->ChangeMode(Camera::MODE::FIXED_POINT);
 
 	//BGMçƒê∂
-	soundMng_.GetInstance().Play(SoundManager::SRC::GAME_OVER, SoundManager::PLAYTYPE::LOOP);
+	soundMng_.GetInstance().Play(SoundManager::SRC::GAME_OVER_BGM, SoundManager::PLAYTYPE::LOOP);
 	SoundManager::GetInstance().SetSystemVolume(BGM_VOL, static_cast<int>(SoundManager::TYPE::BGM));
 
 }

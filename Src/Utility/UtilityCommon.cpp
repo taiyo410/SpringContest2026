@@ -184,7 +184,6 @@ int UtilityCommon::WrapIndex(int index, int max)
     return (index % max + max) % max;
 }
 
-
 std::vector<std::vector<int>> UtilityCommon::LoadCSVData(const std::wstring& filePath)
 {
     std::vector<std::vector<int>> csvData;

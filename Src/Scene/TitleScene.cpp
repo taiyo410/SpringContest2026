@@ -158,6 +158,11 @@ void TitleScene::NormalDraw(void)
 
 
 	textWtiter_->Draw();
+
+	if (selectState_ == TITLE_STATE::EXIT_MENU)
+	{
+		DrawExit();
+	}
 }
 
 void TitleScene::OnSceneEnter(void)
@@ -171,9 +176,13 @@ void TitleScene::UpdateEase(void)
 {
 	logoEaseCnt_ -= SceneManager::GetInstance().GetDeltaTime();
 
+	//ロゴ座標のいーじんぐ
 	logoPos_ = easing_->EaseFunc(START_POS, GOAL_POS, (LOGO_EASING_TIME - logoEaseCnt_) / LOGO_EASING_TIME, Easing::EASING_TYPE::ELASTIC_OUT);
 
-	menuController_->UpdateDirection(EASING_DIS_TIME, BUTTON_EASING_TIME, static_cast<int>(BUTTON_START_POS_X));
+	//メニューの補完
+	constexpr int OFFSET = 100;
+	menuController_->UpdateDirection(EASING_DIS_TIME, BUTTON_EASING_TIME, Application::SCREEN_HALF_X - OFFSET);
+
 	if (menuController_->IsAllDirectEaseEnd())
 	{
 		ChangeState(TITLE_STATE::MENU);
@@ -197,6 +206,7 @@ void TitleScene::UpdateMenu(void)
 	{
 		SoundManager::SRC se;
 		//ゲームスタート以外のボタンなら決定音、ゲームスタートならゲームスタート音を鳴らす
+
 		selectNum_ != static_cast<int>(TITLE_BTN::START_GAME) ? se = SoundManager::SRC::DESIDE_BTN_SE : se = SoundManager::SRC::GAME_START_SE;
 		soundMng_.Play(se, SoundManager::PLAYTYPE::BACK);
 		ChangeState(static_cast<TITLE_STATE>(selectNum_));
@@ -243,7 +253,7 @@ void TitleScene::UpdateSelectGame(void)
 	}
 
 	//ゲームシーンに遷移
-	SceneManager::GetInstance().ChangeScene(SceneManager::SCENE_ID::START);
+	SceneManager::GetInstance().ChangeScene(SceneManager::SCENE_ID::GAME);
 }
 
 void TitleScene::UpdateExitMenu(void)

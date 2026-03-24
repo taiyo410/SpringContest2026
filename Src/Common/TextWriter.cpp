@@ -4,7 +4,8 @@
 #include "TextWriter.h"
 
 TextWriter::TextWriter(void):
-	currentStrNum_()
+	currentStrNum_(),
+	textSpd_()
 {
 }
 
@@ -23,10 +24,10 @@ void TextWriter::Update(void)
 
 	if (disCnt_ > TEXT_SPD)
 	{
-		disCnt_ = 0;
+		disCnt_ = 0.0f;
 		currentStrNum_++;
 	}
-	disCnt_ > TEXT_SPD ? disCnt_ = 0 : disCnt_ += SceneManager::GetInstance().GetDeltaTime();
+	disCnt_ > TEXT_SPD ? disCnt_ = 0 : disCnt_ ++;
 }
 
 void TextWriter::Draw(void)

@@ -25,7 +25,7 @@ GameClearScene::GameClearScene(void):
 
 GameClearScene::~GameClearScene(void)
 {
-	soundMng_.Stop(SoundManager::SRC::GAME_CLEAR);
+	soundMng_.Stop(SoundManager::SRC::GAME_CLEAR_BGM);
 }
 
 void GameClearScene::Load(void)

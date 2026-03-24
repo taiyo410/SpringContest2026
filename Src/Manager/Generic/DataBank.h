@@ -35,6 +35,15 @@ public:
 	/// @return 
 	void SetBGMVolume(const int _bgmVol) { bgmVol_ = _bgmVol; }
 
+	/// @brief テキスト速度のセット
+	/// @param _textSpd セットしたいテキスト速度
+	void SetTextSpeed(const int _textSpdPer) { textSpdPer_ = _textSpdPer; }
+
+	/// @brief テキスト速度の取得
+	/// @param  
+	/// @return テキスト速度
+	const int GetTextSpeed(void)const { return textSpdPer_; }
+
 	/// @brief フルスクリーンフラグの取得
 	/// @param  
 	/// @return フルスクリーンフラグ
@@ -54,7 +63,7 @@ private:
 	int maxPlayerNum_;	//コントローラー数よりプレイヤー人数が多くならないようにする
 
 	float bgmVol_;
-
+	int textSpdPer_;
 	//フルスクリーンの設定
 	bool isFullScreen_;
 };

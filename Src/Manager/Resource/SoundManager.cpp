@@ -37,8 +37,17 @@ void SoundManager::Init(void)
 
 #pragma region BGM
     res.type = TYPE::BGM;
-    res.path = path_Bgm + L"GameTitle.mp3";
+    res.path = path_Bgm + L"TitleScene.mp3";
     resourcesMap_.emplace(SRC::TITLE_BGM, res);
+
+    res.path = path_Bgm + L"GameScene_1.mp3";
+    resourcesMap_.emplace(SRC::GAME_BGM, res);
+
+    res.path = path_Bgm + L"GameOver.mp3";
+    resourcesMap_.emplace(SRC::GAME_OVER_BGM, res);
+
+    res.path = path_Bgm + L"GameClear.mp3";
+    resourcesMap_.emplace(SRC::GAME_CLEAR_BGM, res);
 
 #pragma endregion
 
