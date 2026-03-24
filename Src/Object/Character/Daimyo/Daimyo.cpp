@@ -1,6 +1,7 @@
 #include "../pch.h"
 #include "../Utility/UtilityCommon.h"
 #include "../Utility/Utility2D.h"
+#include "../Manager/Resource/ResourceManager.h"
 #include "../Object/Common/Collider2D/Collider2D.h"
 #include "../Object/Common/Collider2D/Geometry2D/BoxGeo.h"
 #include "../Object/Character/Daimyo/DaimyoOnHit.h"
@@ -19,6 +20,10 @@ void Daimyo::Load(void)
 {
 	//初期化
 	Init();
+
+	//画像ID
+	imageId_ = ResourceManager::GetInstance().Load(ResourceManager::SRC::CASTLE).handleId_;
+	
 
 	//当たり判定
 	std::unique_ptr<Geometry2D> geo = std::make_unique<BoxGeo>(pos_, pos_, Utility2D::Distance(import_.hitBoxMin, import_.hitBoxMax), import_.hitBoxMin, import_.hitBoxMax);
@@ -46,6 +51,9 @@ void Daimyo::Draw(void)
 	}
 
 	DrawFormatString(pos_.x, pos_.y, 0xffffff, L"%ls", UtilityCommon::GetWStringFromString(import_.name).c_str());
+
+	//城画像
+	DrawExtendGraph(pos_.x + import_.hitBoxMin.x, pos_.y + import_.hitBoxMin.y, pos_.x + import_.hitBoxMax.x, pos_.y + import_.hitBoxMax.y, imageId_, true);
 }
 
 void Daimyo::Release(void)

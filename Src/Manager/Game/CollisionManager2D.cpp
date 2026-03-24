@@ -67,6 +67,12 @@ void CollisionManager2D::Update(void)
 
 void CollisionManager2D::Destroy(void)
 {
+	//コライダの全削除
+	colliders_.clear();
+
+	//自身のインスタンス削除
+	delete instance_;
+	instance_ = nullptr;
 }
 
 CollisionManager2D::CollisionManager2D(void)

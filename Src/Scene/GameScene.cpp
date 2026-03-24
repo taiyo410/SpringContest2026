@@ -54,6 +54,9 @@ void GameScene::Load(void)
 	CharacterManager::GetInstance().Load();
 
 	//UIManager::GetInstance().Load();
+
+	//画像
+	mapImage_ = ResourceManager::GetInstance().Load(ResourceManager::SRC::MAP).handleId_;
 }
 
 void GameScene::Init(void)
@@ -124,6 +127,11 @@ void GameScene::NormalDraw(void)
 	//デバッグ処理
 	DebagDraw();
 #endif // _DEBUG
+
+	//マップ画像
+	DrawExtendGraph(0, 0, Application::SCREEN_SIZE_X, Application::SCREEN_SIZE_Y, mapImage_, true);
+	
+	//キャラクター関係
 	CharacterManager::GetInstance().Draw();
 
 }

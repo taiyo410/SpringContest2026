@@ -57,6 +57,9 @@ private:
 	//ポストエフェクト用スクリーン
 	int postEffectScreen_;
 
+	//マップ
+	int mapImage_;
+
 	int frame_;
 
 	//スローカウンタ(フレーム)

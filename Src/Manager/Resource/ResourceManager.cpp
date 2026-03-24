@@ -23,9 +23,13 @@ void ResourceManager::Init(void)
 	
 
 	//âÊëúìoò^
+	res = std::make_unique<ResourceData>(ResourceData::TYPE::IMG, PATH_IMG + L"Map.png");
+	resourcesMap_.emplace(SRC::MAP, std::move(res));
+
+	res = std::make_unique<ResourceData>(ResourceData::TYPE::IMG, PATH_IMG + L"Castle.png");
+	resourcesMap_.emplace(SRC::CASTLE, std::move(res));
 
 	//ï°êîâÊëú
-
 	res = std::make_unique<ResourceData>(ResourceData::TYPE::IMGS, PATH_IMG + L"XboxControllerBotton128.png",
 		CONTROLLER_UI_NO_X, CONTROLLER_UI_NO_Y, CONTROLLER_UI_SIZE_X, CONTROLLER_UI_SIZE_Y);
 	resourcesMap_.emplace(SRC::CONTROLLER_UI_IMGS, std::move(res));
