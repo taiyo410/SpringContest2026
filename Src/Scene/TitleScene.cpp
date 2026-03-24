@@ -13,6 +13,7 @@
 #include "../Manager/Resource/ResourceManager.h"
 #include "../Manager/Resource/FontManager.h"
 #include "../Common/FontController.h"
+#include "./StartScene.h"
 #include "./SettingScene.h"
 #include "../Common/Easing.h"
 #include "../Common/TextWriter.h"
@@ -48,7 +49,6 @@ void TitleScene::Load(void)
 	menuController_->LoadFont(FontManager::FONT_APRIL_GOTHIC, FONT_SIZE);
 	//設定シーン
 	settingScn_->Load();
-
 	soundMng_.LoadResource(SoundManager::SRC::TITLE_BGM);
 	soundMng_.LoadResource(SoundManager::SRC::MOVE_BTN_SE);
 	soundMng_.LoadResource(SoundManager::SRC::DESIDE_BTN_SE);
@@ -126,44 +126,7 @@ void TitleScene::NormalUpdate(void)
 
 void TitleScene::NormalDraw(void)
 {
-	DrawExtendGraph(
-		0,
-		0,
-		Application::SCREEN_SIZE_X,
-		Application::SCREEN_SIZE_Y,
-		imgTitleBack,
-		true
-	);
-
-	//タイトルロゴ
-	DrawExtendGraphF(logoPos_.x, logoPos_.y, logoPos_.x + LOGO_SIZE_X, logoPos_.y + LOGO_SIZE_Y, imgTitleLogo, true);
-	menuController_->Draw();
-
-	//決定ボタン
-	ButtonUIManager::GetInstance().DrawFromCenter(ButtonUIManager::BTN_UI_TYPE::B_BUTTON_COL_PUSH, DICITION_BTN_POS, DICITION_BTN_SIZE);
-	Vector2F strPos = { DICITION_BTN_POS.x + DICITION_BTN_SIZE / 2.0f,DICITION_BTN_POS.y - BTN_STR_OFFSET_X };
-	DrawStringToHandle(
-		static_cast<int>(strPos.x),
-		static_cast<int>(strPos.y),
-		L"決定",
-		UtilityCommon::WHITE, buttonFontHandle_);
-
-	//戻るボタン
-	ButtonUIManager::GetInstance().DrawFromCenter(ButtonUIManager::BTN_UI_TYPE::A_BUTTON_COL_PUSH, BACK_BTN_POS, DICITION_BTN_SIZE);
-	strPos = { BACK_BTN_POS.x + DICITION_BTN_SIZE / 2.0f,BACK_BTN_POS.y - BTN_STR_OFFSET_X };
-	DrawStringToHandle(
-		static_cast<int>(strPos.x),
-		static_cast<int>(strPos.y),
-		L"戻る",
-		UtilityCommon::WHITE, buttonFontHandle_);
-
-
-	textWtiter_->Draw();
-
-	if (selectState_ == TITLE_STATE::EXIT_MENU)
-	{
-		DrawExit();
-	}
+	drawTitle_();
 }
 
 void TitleScene::OnSceneEnter(void)
@@ -238,6 +201,48 @@ void TitleScene::UpdateTutorial(void)
 	ChangeState(TITLE_STATE::MENU);
 }
 
+void TitleScene::DrawMenu(void)
+{
+	DrawExtendGraph(
+		0,
+		0,
+		Application::SCREEN_SIZE_X,
+		Application::SCREEN_SIZE_Y,
+		imgTitleBack,
+		true
+	);
+
+	//タイトルロゴ
+	DrawExtendGraphF(logoPos_.x, logoPos_.y, logoPos_.x + LOGO_SIZE_X, logoPos_.y + LOGO_SIZE_Y, imgTitleLogo, true);
+	menuController_->Draw();
+
+	//決定ボタン
+	ButtonUIManager::GetInstance().DrawFromCenter(ButtonUIManager::BTN_UI_TYPE::B_BUTTON_COL_PUSH, DICITION_BTN_POS, DICITION_BTN_SIZE);
+	Vector2F strPos = { DICITION_BTN_POS.x + DICITION_BTN_SIZE / 2.0f,DICITION_BTN_POS.y - BTN_STR_OFFSET_X };
+	DrawStringToHandle(
+		static_cast<int>(strPos.x),
+		static_cast<int>(strPos.y),
+		L"決定",
+		UtilityCommon::WHITE, buttonFontHandle_);
+
+	//戻るボタン
+	ButtonUIManager::GetInstance().DrawFromCenter(ButtonUIManager::BTN_UI_TYPE::A_BUTTON_COL_PUSH, BACK_BTN_POS, DICITION_BTN_SIZE);
+	strPos = { BACK_BTN_POS.x + DICITION_BTN_SIZE / 2.0f,BACK_BTN_POS.y - BTN_STR_OFFSET_X };
+	DrawStringToHandle(
+		static_cast<int>(strPos.x),
+		static_cast<int>(strPos.y),
+		L"戻る",
+		UtilityCommon::WHITE, buttonFontHandle_);
+
+
+	textWtiter_->Draw();
+
+	if (selectState_ == TITLE_STATE::EXIT_MENU)
+	{
+		DrawExit();
+	}
+}
+
 void TitleScene::DrawStart(void)
 {
 	DrawBox(0, 0, Application::SCREEN_SIZE_X, Application::SCREEN_SIZE_Y, 0xff0000, true);
@@ -245,6 +250,7 @@ void TitleScene::DrawStart(void)
 	SetDrawBlendMode(DX_BLENDMODE_ALPHA, (int)stringAlpha_);
 	UtilityDraw::DrawStringCenter(Application::SCREEN_HALF_X, Application::SCREEN_HALF_Y, UtilityCommon::WHITE, buttonFontHandle_, L"Push To Click");
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+
 }
 
 void TitleScene::DrawSetting(void)
@@ -293,12 +299,12 @@ void TitleScene::UpdateExitMenu(void)
 }
 void TitleScene::ChangeStart(void)
 {
-	drawFunc_ = [this]() {DrawStart(); };
+	drawTitle_ = [this]() {DrawStart(); };
 	updateTitle_ = [this](){ UpdateStart(); };
 }
 void TitleScene::ChangeEaseMenu(void)
 {
-	drawFunc_ = [this]() {NormalDraw(); };
+	drawTitle_ = [this]() {DrawMenu(); };
 	updateTitle_ = [this]() {UpdateEase(); };
 }
 void TitleScene::ChangeTitleMenu(void)

@@ -4,6 +4,7 @@
 #include "SceneBase.h"
 
 class TextWriter;
+class StartScene;
 class SettingScene;
 class SoundManager;
 class Easing;
@@ -139,13 +140,15 @@ private:
 	//各選択肢の更新
 	std::function<void(void)>updateTitle_;
 	std::unordered_map<TITLE_STATE, std::function<void(void)>> titleSelectFuncTable_;
+	std::function<void(void)>drawTitle_;
+
 	//文字列格納
 	std::unordered_map<TITLE_BTN, std::wstring>buttonStrTable_;
 	//YES,NOの文字列
 	std::unordered_map<YES_NO, std::wstring>yesNoStrTable_;
 	//メニュコントローラ
 	std::unique_ptr<MenuController>menuController_;
-	//設定
+	//設定シーン
 	std::shared_ptr<SceneBase>settingScn_;
 	//サウンド
 	SoundManager& soundMng_;
@@ -201,6 +204,7 @@ private:
 	void UpdateTutorial(void);	//チュートリアル
 
 	//描画系
+	void DrawMenu(void);
 	void DrawStart(void);
 	void DrawSetting(void);
 	void DrawExit(void);
