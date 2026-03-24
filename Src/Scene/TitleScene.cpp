@@ -101,7 +101,7 @@ void TitleScene::Init(void)
 		i++;
 	}
 
-	SoundManager::GetInstance().Play(SoundManager::SRC::TITLE_BGM, SoundManager::PLAYTYPE::LOOP);
+	soundMng_.Play(SoundManager::SRC::TITLE_BGM, SoundManager::PLAYTYPE::LOOP);
 }
 
 void TitleScene::PopSceneAfter(void)
