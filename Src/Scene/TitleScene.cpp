@@ -1,6 +1,7 @@
 #include <string>
 #include <DxLib.h>
 #include "../Application.h"
+#include "../Utility/UtilityDraw.h"
 #include "../Utility/UtilityCommon.h"
 #include "../Manager/Resource/SoundManager.h"
 #include "../Manager/Generic/SceneManager.h"
@@ -66,6 +67,7 @@ void TitleScene::Init(void)
 		{TITLE_STATE::MENU,[this]() {ChangeTitleMenu(); }},
 		{TITLE_STATE::START_GAME,[this]() {ChangeGameStart(); }},
 		//{TITLE_STATE::TUTORIAL,[this]() { UpdateTutorial(); }},
+		{TITLE_STATE::START_STATE,[this]() {ChangeStart(); }},
 		{TITLE_STATE::EXIT_MENU,[this]() {ChangeExit(); }},
 		{TITLE_STATE::SETTING,[this]() {ChangeSetting(); }},
 		{TITLE_STATE::EXIT,[this]() { Application::GetInstance().IsGameEnd(); }}
@@ -86,7 +88,7 @@ void TitleScene::Init(void)
 
 	easing_ = std::make_unique<Easing>();
 	selectState_ = TITLE_STATE::MENU;
-	ChangeState(TITLE_STATE::EASE_MENU);
+	ChangeState(TITLE_STATE::START_STATE);
 	selectNum_ = 0;
 	easeDistanceCnt_ = 0.0f;
 	logoPos_ = { -LOGO_SIZE_X,-LOGO_SIZE_Y };
@@ -118,7 +120,7 @@ void TitleScene::ChangeState(const TITLE_STATE& _state)
 
 void TitleScene::NormalUpdate(void)
 {
-	textWtiter_->Update();
+	//textWtiter_->Update();
 	updateTitle_();
 }
 
@@ -136,7 +138,6 @@ void TitleScene::NormalDraw(void)
 	//タイトルロゴ
 	DrawExtendGraphF(logoPos_.x, logoPos_.y, logoPos_.x + LOGO_SIZE_X, logoPos_.y + LOGO_SIZE_Y, imgTitleLogo, true);
 	menuController_->Draw();
-
 
 	//決定ボタン
 	ButtonUIManager::GetInstance().DrawFromCenter(ButtonUIManager::BTN_UI_TYPE::B_BUTTON_COL_PUSH, DICITION_BTN_POS, DICITION_BTN_SIZE);
@@ -170,6 +171,18 @@ void TitleScene::OnSceneEnter(void)
 	//処理変更
 	updateFunc_ = [this]() {NormalUpdate(); };
 	drawFunc_=[this]() {NormalDraw(); };
+}
+
+void TitleScene::UpdateStart(void)
+{
+	stringAlpha_ = easing_->EaseFunc(0, 255, blendCnt_ / BLEND_TIME, Easing::EASING_TYPE::LERP_COMEBACK);
+	blendCnt_ > BLEND_TIME ? blendCnt_ = 0 : blendCnt_ += scnMng_.GetDeltaTime();
+
+	if (inputMngS_.IsTrgDown(INPUT_EVENT::OK))
+	{
+		ChangeState(TITLE_STATE::EASE_MENU);
+		return;
+	}
 }
 
 void TitleScene::UpdateEase(void)
@@ -225,6 +238,15 @@ void TitleScene::UpdateTutorial(void)
 	ChangeState(TITLE_STATE::MENU);
 }
 
+void TitleScene::DrawStart(void)
+{
+	DrawBox(0, 0, Application::SCREEN_SIZE_X, Application::SCREEN_SIZE_Y, 0xff0000, true);
+
+	SetDrawBlendMode(DX_BLENDMODE_ALPHA, (int)stringAlpha_);
+	UtilityDraw::DrawStringCenter(Application::SCREEN_HALF_X, Application::SCREEN_HALF_Y, UtilityCommon::WHITE, buttonFontHandle_, L"Push To Click");
+	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+}
+
 void TitleScene::DrawSetting(void)
 {
 	std::wstring str = L"";
@@ -269,8 +291,14 @@ void TitleScene::UpdateExitMenu(void)
 		else { ChangeState(TITLE_STATE::MENU); }
 	}
 }
+void TitleScene::ChangeStart(void)
+{
+	drawFunc_ = [this]() {DrawStart(); };
+	updateTitle_ = [this](){ UpdateStart(); };
+}
 void TitleScene::ChangeEaseMenu(void)
 {
+	drawFunc_ = [this]() {NormalDraw(); };
 	updateTitle_ = [this]() {UpdateEase(); };
 }
 void TitleScene::ChangeTitleMenu(void)

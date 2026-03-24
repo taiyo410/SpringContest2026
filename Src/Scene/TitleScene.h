@@ -21,6 +21,7 @@ public:
 		EXIT_MENU,
 		SCREEN_MENU,
 		//その他
+		START_STATE,
 		EASE_MENU,
 		MENU,
 
@@ -126,6 +127,10 @@ private:
 	static constexpr Vector2F BACK_BTN_POS = { DICITION_BTN_POS.x + 150.0f, Application::SCREEN_SIZE_Y - DICITION_BTN_SIZE - 30 };
 	//ボタンの説明文字列座標オフセット
 	static constexpr float BTN_STR_OFFSET_X = 16.0f;
+
+	//ブレンド時間
+	static constexpr float BLEND_TIME = 2.0f;
+
 	//イージング
 	std::unique_ptr<Easing>easing_;
 	//テキスト
@@ -171,6 +176,11 @@ private:
 	int fontSize_;
 	int thick_;
 
+	//プッシュボタンの文字列のアルファ値
+	int stringAlpha_;
+	//アルファ値のブレンドカウント
+	float blendCnt_;
+
 	//状態遷移
 	void ChangeState(const TITLE_STATE& _state);
 
@@ -184,12 +194,14 @@ private:
 	void OnSceneEnter(void) override;
 
 	//更新系
-	void UpdateEase(void);	//初めのイージング処理
-	void UpdateMenu(void);	//メニュー処理
+	void UpdateStart(void);		//スタートシーン
+	void UpdateEase(void);		//初めのイージング処理
+	void UpdateMenu(void);		//メニュー処理
 	void UpdateSetting(void);	//スクリーンの設定
 	void UpdateTutorial(void);	//チュートリアル
 
 	//描画系
+	void DrawStart(void);
 	void DrawSetting(void);
 	void DrawExit(void);
 
@@ -200,6 +212,7 @@ private:
 	void UpdateExitMenu(void);
 
 	//状態遷移
+	void ChangeStart(void);
 	void ChangeEaseMenu(void);
 	void ChangeTitleMenu(void);
 	void ChangeSetting(void);
