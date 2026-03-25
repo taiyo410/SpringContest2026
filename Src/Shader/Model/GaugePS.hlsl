@@ -12,7 +12,6 @@ float4 main(PS_INPUT PSInput) : SV_TARGET0
 {
     float2 uv = PSInput.uv;
     float4 srcCol = tex.Sample(texSampler, uv);
-    //float4 col=
     if (srcCol.a < 0.01f)
     {
         discard;
@@ -22,8 +21,8 @@ float4 main(PS_INPUT PSInput) : SV_TARGET0
         float t = uv.x;
         srcCol.rgb = lerp(g_color_1, g_color_2, t);
         
-        //Œ³‚ÌF‚æ‚èˆÃ‚­‚·‚é
-        srcCol.rgb /= 3.0f;
+        //Œ»ÝHPˆÈã‚Ì•”•ª‚ÌF‚ÍŠDF‚É‚·‚é
+        srcCol.rgb = 0.5f;
     }
     if (uv.x < g_hp_Per)
     {

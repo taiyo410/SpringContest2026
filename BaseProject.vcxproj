@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Src\Object\UI\GaugeController.cpp" />
     <ClCompile Include="Src\Scene\DaimyoMenuScene.cpp" />
     <ClCompile Include="Src\Object\Character\Daimyo\DaimyoOnHit.cpp" />
     <ClCompile Include="Src\Object\Character\Cursor\Cursor.cpp" />
@@ -86,6 +87,7 @@
     <ClCompile Include="Src\Common\TextWriter.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Src\Object\UI\GaugeController.h" />
     <ClInclude Include="Src\Scene\DaimyoMenuScene.h" />
     <ClInclude Include="Src\Object\Character\Daimyo\DaimyoOnHit.h" />
     <ClInclude Include="Src\Object\Character\Cursor\Cursor.h" />
@@ -234,7 +236,7 @@
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
     </FxCompile>
-    <FxCompile Include="Src\Shader\Model\LineHpBarPS.hlsl">
+    <FxCompile Include="Src\Shader\Model\GaugePS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>

@@ -20,6 +20,7 @@ public:
 		//画像
 		MAP,		//マップ
 		CASTLE,		//城
+		GAUGE,
 
 		TITLE_BACK_IMG,		//タイトル背景
 		TITLE_LOGO,			//タイトルロゴ

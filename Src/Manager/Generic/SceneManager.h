@@ -2,6 +2,7 @@
 #include <memory>
 #include <chrono>
 #include <list>
+#include <unordered_map>
 #include "../../Template/Singleton.h"
 #include "../../Common/Fader.h"
 

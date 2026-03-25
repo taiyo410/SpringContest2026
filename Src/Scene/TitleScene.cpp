@@ -17,10 +17,17 @@
 #include "./SettingScene.h"
 #include "../Common/Easing.h"
 #include "../Common/TextWriter.h"
+
+#include "../Object/UI/GaugeController.h"
+
 #include "TitleScene.h"
 
 TitleScene::TitleScene(void) :
-	soundMng_(SoundManager::GetInstance())
+	soundMng_(SoundManager::GetInstance()),
+	gaugePer_(0.0f),
+	gaugeSize_({100.0f,30.0f}),
+	gaugePos_(),
+	col_({1.0f,0.0f,0.0f,0.0f})
 {
 	//更新関数のセット
 	updateFunc_ = [this]() {LoadingUpdate(); };
@@ -29,6 +36,7 @@ TitleScene::TitleScene(void) :
 	menuController_ = std::make_unique<MenuController>();
 	textWtiter_ = std::make_unique<TextWriter>();
 	settingScn_ = std::make_shared<SettingScene>();
+	gaugeCntl_ = std::make_unique<GaugeController>(ResourceManager::SRC::GAUGE, gaugePos_, gaugeSize_, gaugePer_, col_, col_);
 }
 
 TitleScene::~TitleScene(void)
@@ -56,6 +64,7 @@ void TitleScene::Load(void)
 
 	ButtonUIManager::GetInstance().Load();
 
+	gaugeCntl_->Load();
 
 	yesNoState_ = YES_NO::NO;
 }
@@ -94,6 +103,8 @@ void TitleScene::Init(void)
 	logoPos_ = { -LOGO_SIZE_X,-LOGO_SIZE_Y };
 	logoEaseCnt_ = BUTTON_EASING_TIME;
 
+	gaugeCntl_->Init();
+
 	int i = 0;
 	for (auto& button : buttonStrTable_)
 	{
@@ -121,12 +132,18 @@ void TitleScene::ChangeState(const TITLE_STATE& _state)
 void TitleScene::NormalUpdate(void)
 {
 	//textWtiter_->Update();
+	gaugePer_=easing_->EaseFunc(0.0f, 1.0f, gaugeCnt_ / 15.0f, Easing::EASING_TYPE::LERP);
+	gaugeCnt_ += scnMng_.GetDeltaTime();
+	gaugeCntl_->Update();
+
 	updateTitle_();
 }
 
 void TitleScene::NormalDraw(void)
 {
 	drawTitle_();
+	gaugeCntl_->Draw();
+
 }
 
 void TitleScene::OnSceneEnter(void)
