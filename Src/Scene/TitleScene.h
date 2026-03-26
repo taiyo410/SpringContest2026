@@ -4,7 +4,7 @@
 #include "SceneBase.h"
 
 class GaugeController;
-
+class ArrowController;
 class TextWriter;
 class StartScene;
 class SettingScene;
@@ -141,6 +141,7 @@ private:
 
 	//ゲージ
 	std::unique_ptr<GaugeController>gaugeCntl_;
+	std::unique_ptr<ArrowController>arrowCntl_;
 
 	//各選択肢の更新
 	std::function<void(void)>updateTitle_;

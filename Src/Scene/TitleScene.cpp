@@ -19,24 +19,27 @@
 #include "../Common/TextWriter.h"
 
 #include "../Object/UI/GaugeController.h"
+#include "../Object/UI/ArrowController.h"
 
 #include "TitleScene.h"
 
 TitleScene::TitleScene(void) :
 	soundMng_(SoundManager::GetInstance()),
 	gaugePer_(0.0f),
-	gaugeSize_({100.0f,30.0f}),
+	gaugeSize_({ 100.0f,30.0f }),
 	gaugePos_(),
-	col_({1.0f,0.0f,0.0f,0.0f})
+	col_({ 1.0f,0.0f,0.0f,0.0f })
 {
 	//更新関数のセット
 	updateFunc_ = [this]() {LoadingUpdate(); };
 	//描画関数のセット
-	drawFunc_=[this]() {LoadingDraw(); };
+	drawFunc_ = [this]() {LoadingDraw(); };
 	menuController_ = std::make_unique<MenuController>();
 	textWtiter_ = std::make_unique<TextWriter>();
 	settingScn_ = std::make_shared<SettingScene>();
 	gaugeCntl_ = std::make_unique<GaugeController>(ResourceManager::SRC::GAUGE, gaugePos_, gaugeSize_, gaugePer_, col_, col_);
+	arrowCntl_ = std::make_unique<ArrowController>(ResourceManager::SRC::GAUGE, gaugePos_, gaugeSize_, 100.0f, gaugePer_, col_);
+
 }
 
 TitleScene::~TitleScene(void)
@@ -65,7 +68,7 @@ void TitleScene::Load(void)
 	ButtonUIManager::GetInstance().Load();
 
 	gaugeCntl_->Load();
-
+	arrowCntl_->Load();
 	yesNoState_ = YES_NO::NO;
 }
 
@@ -104,7 +107,7 @@ void TitleScene::Init(void)
 	logoEaseCnt_ = BUTTON_EASING_TIME;
 
 	gaugeCntl_->Init();
-
+	arrowCntl_->Init();
 	int i = 0;
 	for (auto& button : buttonStrTable_)
 	{
@@ -114,7 +117,7 @@ void TitleScene::Init(void)
 		i++;
 	}
 
-	soundMng_.Play(SoundManager::SRC::TITLE_BGM, SoundManager::PLAYTYPE::LOOP);
+	//soundMng_.Play(SoundManager::SRC::TITLE_BGM, SoundManager::PLAYTYPE::LOOP);
 }
 
 void TitleScene::PopSceneAfter(void)
@@ -135,15 +138,15 @@ void TitleScene::NormalUpdate(void)
 	gaugePer_=easing_->EaseFunc(0.0f, 1.0f, gaugeCnt_ / 15.0f, Easing::EASING_TYPE::LERP);
 	gaugeCnt_ += scnMng_.GetDeltaTime();
 	gaugeCntl_->Update();
-
+	arrowCntl_->Update();
 	updateTitle_();
 }
 
 void TitleScene::NormalDraw(void)
 {
 	drawTitle_();
-	gaugeCntl_->Draw();
-
+	//gaugeCntl_->Draw();
+	arrowCntl_->Draw();
 }
 
 void TitleScene::OnSceneEnter(void)
@@ -199,7 +202,6 @@ void TitleScene::UpdateMenu(void)
 	{
 		SoundManager::SRC se;
 		//ゲームスタート以外のボタンなら決定音、ゲームスタートならゲームスタート音を鳴らす
-
 		selectNum_ != static_cast<int>(TITLE_BTN::START_GAME) ? se = SoundManager::SRC::DESIDE_BTN_SE : se = SoundManager::SRC::GAME_START_SE;
 		soundMng_.Play(se, SoundManager::PLAYTYPE::BACK);
 		ChangeState(static_cast<TITLE_STATE>(selectNum_));
@@ -262,7 +264,7 @@ void TitleScene::DrawMenu(void)
 
 void TitleScene::DrawStart(void)
 {
-	DrawBox(0, 0, Application::SCREEN_SIZE_X, Application::SCREEN_SIZE_Y, 0xff0000, true);
+	//DrawBox(0, 0, Application::SCREEN_SIZE_X, Application::SCREEN_SIZE_Y, 0xff0000, true);
 
 	SetDrawBlendMode(DX_BLENDMODE_ALPHA, (int)stringAlpha_);
 	UtilityDraw::DrawStringCenter(Application::SCREEN_HALF_X, Application::SCREEN_HALF_Y, UtilityCommon::WHITE, buttonFontHandle_, L"Push To Click");
