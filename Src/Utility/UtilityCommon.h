@@ -115,6 +115,11 @@ public:
 	/// @return stringオブジェクト
 	static std::string GetStringFromWString(const std::wstring& wstr);
 
+	/// @brief ランダムの値を取得
+	/// @param _min 最小値
+	/// @param _max 最大値
+	/// @return ランダムの値
+	static int GetRandomValue(int _min, int _max);
 
 
 };

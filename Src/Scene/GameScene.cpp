@@ -10,6 +10,7 @@
 #include "../Manager/Generic/UIManager.h"
 #include "../Manager/Game/CollisionManager2D.h"
 #include "../Manager/Game/CharacterManager.h"
+#include "../Manager/Game/MoneyManager.h"
 #include "../Manager/Resource/SoundManager.h"
 #include "../Manager/Generic/DataBank.h"
 
@@ -23,6 +24,7 @@ GameScene::GameScene(void)
 	drawFunc_ = [this]() {LoadingDraw(); };
 	postEffectScreen_ = MakeScreen(Application::SCREEN_SIZE_X, Application::SCREEN_SIZE_Y, true);
 
+	MoneyManager::CreateInstance();
 	CharacterManager::CreateInstance();
 	CollisionManager2D::CreateInstance();
 	UIManager::CreateInstance();
@@ -34,6 +36,7 @@ GameScene::~GameScene(void)
 	//インスタンスの削除
 	CollisionManager2D::GetInstance().Destroy();
 	CharacterManager::GetInstance().Destroy();
+	MoneyManager::GetInstance().Destroy();
 	SoundManager::GetInstance().Release();
 	UIManager::GetInstance().Destroy();
 }
@@ -51,6 +54,7 @@ void GameScene::Load(void)
 	UIManager::GetInstance().Load();
 	ButtonUIManager::GetInstance().Load();
 
+	MoneyManager::GetInstance().Load();
 	CharacterManager::GetInstance().Load();
 
 	//UIManager::GetInstance().Load();
@@ -69,6 +73,7 @@ void GameScene::Init(void)
 	};
 	updatePhase_ = UPDATE_PHASE::NONE;
 
+	MoneyManager::GetInstance().Init();
 	CharacterManager::GetInstance().Init();
 	UIManager::GetInstance().Init();
 }
@@ -96,6 +101,8 @@ void GameScene::NormalUpdate(void)
 		return;
 	}
 
+	MoneyManager::GetInstance().Update();
+	
 	//キャラクターの更新
 	CharacterManager::GetInstance().Update();
 
@@ -134,6 +141,8 @@ void GameScene::NormalDraw(void)
 	//キャラクター関係
 	CharacterManager::GetInstance().Draw();
 
+	//所持金の表示
+	MoneyManager::GetInstance().Draw();
 }
 
 void GameScene::DirectionDraw(void)

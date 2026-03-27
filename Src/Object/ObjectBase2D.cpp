@@ -11,6 +11,11 @@ ObjectBase2D::ObjectBase2D(void)
 
 ObjectBase2D::~ObjectBase2D(void)
 {
+	for (auto& col : colliders_)
+	{
+		col.get()->Kill();
+	}
+
 	colliders_.clear();
 }
 

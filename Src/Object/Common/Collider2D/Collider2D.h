@@ -14,6 +14,16 @@ public:
 	{
 		CURSOR,		//カーソル
 		DAIMYO,		//大名
+
+		CHOICE_ALTERNATE,	//選択肢(参勤)
+		CHOICE_ENHANCEMENT,	//選択肢(強化)
+		CHOICE_DETAILS,		//選択肢(詳細)
+
+		ALTERNATE_SAFETY,	//参勤(安全)
+		ALTERNATE_NORMAL,	//参勤(普通)
+		ALTERNATE_DENGER,	//参勤(危険)
+
+		MAX
 	};
 
 	/// <summary>

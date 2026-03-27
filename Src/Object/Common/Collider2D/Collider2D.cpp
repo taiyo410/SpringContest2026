@@ -19,6 +19,12 @@ Collider2D::~Collider2D(void)
 
 void Collider2D::OnHit(const std::weak_ptr<Collider2D> _partner)
 {
+	//“–‚½‚Á‚½”»’è
+	isHit_ = true;
+
 	//‚ ‚½‚Á‚½ˆ—
 	owner_.OnHit(_partner);
+
+	//“–‚½‚Á‚½”»’è
+	isHit_ = false;
 }

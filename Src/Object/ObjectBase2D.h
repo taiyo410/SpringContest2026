@@ -38,6 +38,9 @@ public:
 	//座標の取得
 	const Vector2F& GetPos(void) { return pos_; };
 
+	//コライダの取得
+	const std::vector<std::shared_ptr<Collider2D>>& GetColliders(void)const { return colliders_; }
+
 protected:
 
 	//画像ID

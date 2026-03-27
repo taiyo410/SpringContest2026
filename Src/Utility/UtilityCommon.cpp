@@ -1,3 +1,4 @@
+#include <random>
 #include "UtilityCommon.h"
 #include "../Manager/Generic/SceneManager.h"
 
@@ -264,4 +265,16 @@ std::string UtilityCommon::GetStringFromWString(const std::wstring& wstr)
     std::string result(size, 0);
     WideCharToMultiByte(CP_UTF8, 0, wstr.c_str(), -1, &result[0], size, nullptr, nullptr);
     return result;
+}
+
+int UtilityCommon::GetRandomValue(int _min, int _max)
+{
+    //ランダムエンジン
+    static std::mt19937 mt(std::random_device{}());
+
+    // min ～ max の範囲で一様分布
+    std::uniform_int_distribution<int> dist(_min, _max);
+
+    //ランダムの値
+    return dist(mt);
 }
