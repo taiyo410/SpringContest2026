@@ -14,6 +14,7 @@ public:
 	{
 		CURSOR,		//カーソル
 		DAIMYO,		//大名
+		TITLE_MENU,		//タイトルのメニュー
 	};
 
 	/// <summary>

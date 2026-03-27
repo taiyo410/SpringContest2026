@@ -10,6 +10,7 @@
 #include "../Manager/Generic/ButtonUIManager.h"
 #include "../Manager/Generic/DataBank.h"
 #include "../Manager/Generic/MenuManager.h"
+#include "../Manager/Game/CollisionManager2D.h"
 #include "../Manager/Resource/ResourceManager.h"
 #include "../Manager/Resource/FontManager.h"
 #include "../Common/FontController.h"
@@ -17,6 +18,7 @@
 #include "./SettingScene.h"
 #include "../Common/Easing.h"
 #include "../Common/TextWriter.h"
+#include "../Object/Character/Cursor/Cursor.h"
 
 #include "../Object/UI/GaugeController.h"
 #include "../Object/UI/ArrowController.h"
@@ -30,6 +32,8 @@ TitleScene::TitleScene(void) :
 	gaugePos_({100.0f,100.0f}),
 	col_({ 0.0f,1.0f,0.0f,0.0f })
 {
+	CollisionManager2D::CreateInstance();
+
 	//更新関数のセット
 	updateFunc_ = [this]() {LoadingUpdate(); };
 	//描画関数のセット
@@ -39,12 +43,14 @@ TitleScene::TitleScene(void) :
 	settingScn_ = std::make_shared<SettingScene>();
 	gaugeCntl_ = std::make_unique<GaugeController>(ResourceManager::SRC::GAUGE, gaugePos_, gaugeSize_, gaugePer_, col_, col_);
 	arrowCntl_ = std::make_unique<ArrowController>(ResourceManager::SRC::ARROW_GAUGE, gaugePos_, gaugeSize_, 100.0f, gaugePer_, col_);
+	cursor_ = std::make_unique<Cursor>();
 
 }
 
 TitleScene::~TitleScene(void)
 {
 	soundMng_.Stop(SoundManager::SRC::TITLE_BGM);
+	CollisionManager2D::GetInstance().Destroy();
 }
 
 void TitleScene::Load(void)
@@ -66,7 +72,7 @@ void TitleScene::Load(void)
 	soundMng_.LoadResource(SoundManager::SRC::GAME_START_SE);
 
 	ButtonUIManager::GetInstance().Load();
-
+	cursor_->Load();
 	gaugeCntl_->Load();
 	arrowCntl_->Load();
 	yesNoState_ = YES_NO::NO;
@@ -116,7 +122,7 @@ void TitleScene::Init(void)
 		menuMng_->AddMenu(static_cast<int>(button.first), button.second, pos);
 		i++;
 	}
-
+	menuMng_->Init();
 	//soundMng_.Play(SoundManager::SRC::TITLE_BGM, SoundManager::PLAYTYPE::LOOP);
 }
 
@@ -134,18 +140,30 @@ void TitleScene::ChangeState(const TITLE_STATE& _state)
 
 void TitleScene::NormalUpdate(void)
 {
-	//textWtiter_->Update();
+	//textWtiter_->Init();
+	cursor_->Update();
+	menuMng_->Update();
+
 	gaugePer_=easing_->EaseFunc(0.0f, 1.0f, gaugeCnt_ / 15.0f, Easing::EASING_TYPE::LERP);
 	gaugeCnt_ += scnMng_.GetDeltaTime();
 	gaugeCntl_->Update();
 	arrowCntl_->Update();
 	updateTitle_();
+
+	//更新はアクション中のみ
+	CollisionManager2D::GetInstance().Update();
+
+	//終了した当たり判定の消去
+	CollisionManager2D::GetInstance().Sweep();
 }
 
 void TitleScene::NormalDraw(void)
 {
 	drawTitle_();
+
+	cursor_->Draw();
 	//gaugeCntl_->Draw();
+
 	arrowCntl_->Draw();
 }
 

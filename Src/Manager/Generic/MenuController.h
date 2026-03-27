@@ -114,6 +114,9 @@ private:
 	//フォントハンドル
 	int& fontHandle_;
 
+	//Vector2F型
+	Vector2F curPosF_;
+
 	//ボタン情報
 	int menuNum_;						//メニュー番号
 	std::wstring btnStr_;				//ボタンの文字

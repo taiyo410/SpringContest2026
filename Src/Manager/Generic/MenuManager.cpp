@@ -51,8 +51,20 @@ void MenuManager::AddMenu(const int _arrayNum, const std::wstring _menu, const V
 	menuList_.emplace_back(std::move(menu));
 }
 
+void MenuManager::Init(void)
+{
+	for (auto& menu : menuList_)
+	{
+		menu->Init();
+	}
+}
+
 void MenuManager::Update(void)
 {
+	for (auto& menu : menuList_)
+	{
+		menu->Update();
+	}
 }
 
 const int MenuManager::GetSizeEasingFontHandle(const int _arrayNum, const int _startSize, const int _goalSize, const float _easeTime, Easing::EASING_TYPE _easeType)

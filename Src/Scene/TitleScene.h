@@ -11,6 +11,7 @@ class SettingScene;
 class SoundManager;
 class Easing;
 class MenuManager;
+class Cursor;
 class TitleScene : public SceneBase
 {
 
@@ -152,12 +153,16 @@ private:
 	std::unordered_map<TITLE_BTN, std::wstring>buttonStrTable_;
 	//YES,NOの文字列
 	std::unordered_map<YES_NO, std::wstring>yesNoStrTable_;
-	//メニュコントローラ
+	//メニューマネージャ
 	std::unique_ptr<MenuManager>menuMng_;
 	//設定シーン
 	std::shared_ptr<SceneBase>settingScn_;
+	//カーソル
+	std::unique_ptr<Cursor>cursor_;
 	//サウンド
 	SoundManager& soundMng_;
+
+
 
 	//タイトルロゴ座標
 	Vector2F logoPos_;

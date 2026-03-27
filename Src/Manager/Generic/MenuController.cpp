@@ -2,6 +2,9 @@
 #include "../Utility/UtilityCommon.h"
 #include "../Utility/UtilityDraw.h"
 #include "../Common/Easing.h"
+#include "../Object/Common/Collider2D/Collider2D.h"
+#include "../Object/Common/Collider2D/Geometry2D/Geometry2D.h"
+#include "../Object/Common/Collider2D/Geometry2D/BoxGeo.h"
 #include "MenuController.h"
 
 MenuController::MenuController(const int _menuNum, const std::wstring _menu, const Vector2 _pos, int& _fontHandle) :
@@ -30,10 +33,22 @@ void MenuController::Load(void)
 
 void MenuController::Init(void)
 {
+	//当たり判定
+	Vector2 size=UtilityCommon::GetStringSizeToHandle(fontHandle_, btnStr_);
+	curPosF_ = curPos_.ToVector2F();
+	std::unique_ptr<Geometry2D> geo = std::make_unique<BoxGeo>(
+		curPosF_
+		, curPosF_
+		,size.ToVector2F().x + 30.0f
+		, Vector2F(0.0f,0.0f)
+		, size.ToVector2F());
+	MakeCollider(Collider2D::TAG::TITLE_MENU, std::move(geo), { Collider2D::TAG::TITLE_MENU });
 }
 
 void MenuController::Update(void)
 {
+	curPosF_ = curPos_.ToVector2F();
+	isHit_ = false;
 }
 
 void MenuController::Draw(void)
@@ -41,6 +56,11 @@ void MenuController::Draw(void)
 	//選択中のメニューはサイズイージングして赤色で描画
 	DrawStringToHandle(
 		curPos_.x, curPos_.y, btnStr_.c_str(), color_, fontHandle_);
+
+	for (auto& col : colliders_)
+	{
+		col.get()->GetGeometry().Draw(UtilityCommon::RED);
+	}
 }
 
 void MenuController::DrawCenter(void)
@@ -92,7 +112,11 @@ void MenuController::SetEase(void)
 
 void MenuController::OnHit(const std::weak_ptr<Collider2D> _partner)
 {
-	isHit_ = true;
+	Collider2D::TAG tag = _partner.lock()->GetTag();
+	if (tag == Collider2D::TAG::CURSOR&&!isHit_)
+	{
+		isHit_ = true;
+	}
 }
 
 const bool MenuController::IsHasFormat(void) const

@@ -265,3 +265,16 @@ std::string UtilityCommon::GetStringFromWString(const std::wstring& wstr)
     WideCharToMultiByte(CP_UTF8, 0, wstr.c_str(), -1, &result[0], size, nullptr, nullptr);
     return result;
 }
+
+Vector2 UtilityCommon::GetStringSizeToHandle(const int fontHandle, const std::wstring _str)
+{
+    Vector2 size = {};
+    GetDrawStringSizeToHandle(
+        &size.x,
+        &size.y,
+        NULL,
+        _str.c_str(),
+        static_cast<int>(wcslen(_str.c_str())),
+        fontHandle);
+    return size;
+}

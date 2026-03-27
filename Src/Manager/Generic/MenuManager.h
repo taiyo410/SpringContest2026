@@ -55,7 +55,11 @@ public:
 	/// @param  
 	void AddMenu(const int _arrayNum, const std::wstring _menu, const Vector2 _pos);
 
-	/// @brief メニュー操作
+	/// @brief メニュー初期化
+	/// @param  
+	void Init(void);
+
+	/// @brief 更新
 	/// @param  
 	void Update(void);
 
