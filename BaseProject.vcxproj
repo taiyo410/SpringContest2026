@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Src\Manager\Generic\MenuManager.cpp" />
     <ClCompile Include="Src\Object\UI\ArrowController.cpp" />
     <ClCompile Include="Src\Object\UI\GaugeController.cpp" />
     <ClCompile Include="Src\Scene\DaimyoMenuScene.cpp" />
@@ -88,6 +89,7 @@
     <ClCompile Include="Src\Common\TextWriter.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Src\Manager\Generic\MenuManager.h" />
     <ClInclude Include="Src\Object\UI\ArrowController.h" />
     <ClInclude Include="Src\Object\UI\GaugeController.h" />
     <ClInclude Include="Src\Scene\DaimyoMenuScene.h" />

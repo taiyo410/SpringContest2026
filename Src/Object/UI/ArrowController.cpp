@@ -31,10 +31,11 @@ void ArrowController::Init(void)
 	material_->AddTextureBuf(arrowImg_);
 	material_->AddConstBuf(col_);
 	material_->AddConstBuf(col_);
+	material_->AddConstBuf({0.0f,0.0f,0.0f,0.0f});
 	material_->AddConstBuf({ per_,per_,0.0f,0.0f });
-	//MakeArrowGauge();
+	MakeArrowGauge();
 	//renderer_->MakeVertex(startPos_.x, startPos_.y, endPos_.x + thick_, endPos_.y + thick_);
-	renderer_->MakeVertexQuad({0.0f,0.0f},{100.0f,0.0f},{150.0f,50.0f},{50.0f,50.0f});
+	//renderer_->MakeVertexQuad({0.0f,0.0f},{100.0f,0.0f},{150.0f,50.0f},{50.0f,50.0f});
 }
 
 void ArrowController::Update(void)
@@ -67,8 +68,8 @@ void ArrowController::MakeArrowGauge(void)
 	if (length < 0.001)return;
 
 	//³‹K‰»
-	float inv = 1.0f / length;
-	Vector2F norm = dir * inv;
+	//float inv = 1.0f / length;
+	Vector2F norm = dir / length;
 
 	//‚’¼ƒxƒNƒgƒ‹‚ð‹‚ß‚é
 	Vector2F perp = { -norm.y, norm.x };
@@ -91,6 +92,6 @@ void ArrowController::MakeArrowGauge(void)
 	Vector2F v2 = { endPos_.x - perp.x * half, endPos_.y - perp.y * half };
 	Vector2F v3 = { endPos_.x + perp.x * half, endPos_.y + perp.y * half };
 
-	renderer_->MakeVertexQuad(v0, v3, v2, v1);
+	renderer_->MakeVertexQuad(v1, v2, v3, v0);
 
 }

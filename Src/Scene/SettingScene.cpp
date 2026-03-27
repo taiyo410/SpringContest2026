@@ -1,4 +1,5 @@
 #include "../pch.h"
+#include "../Manager/Generic/MenuManager.h"
 #include "../Manager/Generic/MenuController.h"
 #include "../Manager/Generic/SceneManager.h"
 #include "../Manager/Generic/InputManager.h"
@@ -38,14 +39,14 @@ SettingScene::SettingScene(void):
 		{SETTING_STATE::EXIT_SETTING,[this]() {ChangeExitSetting(); }}
 	};
 
-	menuController_ = std::make_unique<MenuController>();
+	menuMng_ = std::make_unique<MenuManager>();
 	
 	int i = 0;
 	for (auto& button : buttonStrTable_)
 	{
 		//イージング演出をするために初期位置は画面外にする
 		Vector2 pos = { BUTTON_POS.x,BUTTON_POS.y + BUTTON_OFFSET * i};
-		menuController_->AddMenu(static_cast<int>(button.first), button.second, pos);
+		menuMng_->AddMenu(static_cast<int>(button.first), button.second, pos);
 		i++;
 	}
 }
@@ -56,7 +57,7 @@ SettingScene::~SettingScene(void)
 
 void SettingScene::Load(void)
 {
-	menuController_->LoadFont(FontManager::FONT_APRIL_GOTHIC, FONT_SIZE);
+	menuMng_->LoadFont(FontManager::FONT_APRIL_GOTHIC, FONT_SIZE);
 }
 
 void SettingScene::Init(void)
@@ -71,18 +72,17 @@ void SettingScene::NormalUpdate(void)
 
 void SettingScene::NormalDraw(void)
 {
-	menuController_->DrawFormat(std::vector<int>{ volume_[static_cast<int>(VOLUME_TYPE::BGM)], volume_[static_cast<int>(VOLUME_TYPE::SE)], volume_[static_cast<int>(VOLUME_TYPE::TEXT_SPD)] });
-	auto& menuList = menuController_->GetMenuList();
+	menuMng_->DrawFormat(std::vector<int>{ volume_[static_cast<int>(VOLUME_TYPE::BGM)], volume_[static_cast<int>(VOLUME_TYPE::SE)], volume_[static_cast<int>(VOLUME_TYPE::TEXT_SPD)] });
+	auto& menuList = menuMng_->GetMenuList();
 	for (auto& menu : menuList)
 	{
-		if (!menuController_->IsHasFormat(menu.second.btnStr))continue;
+		if (!menu->IsHasFormat())continue;
 
-		Vector2 menuPos = menu.second.curPos;
-		Vector2 centerPos = menuController_->GetMenuCenterPos(menu.second.btnStr);
-		DrawSliderUI({ static_cast<float>(menuPos.x) + 300.0f,static_cast<float>(menuPos.y+(centerPos.y/2.0f))}, { 200.0f,20.0f }, GetVolumeFromString(menu.second.btnStr)/VOL_MAX);
+		Vector2 menuPos = menu->GetCurrentPos();
+		std::wstring menuStr = menu->GetMenuButtonString();
+		Vector2 centerPos = menuMng_->GetMenuCenterPos(menuStr);
+		DrawSliderUI({ static_cast<float>(menuPos.x) + 300.0f,static_cast<float>(menuPos.y+(centerPos.y/2.0f))}, { 200.0f,20.0f }, GetVolumeFromString(menuStr)/VOL_MAX);
 	}
-
-
 }
 
 void SettingScene::ChangeSetting(const SETTING_STATE _state)
@@ -119,9 +119,9 @@ void SettingScene::ChangeExitSetting(void)
 
 void SettingScene::UpdateSettingNormal(void)
 {
-	menuController_->SelectMenu();
-	const int selectNum = menuController_->GetSelectMenuNum();
-	if (inputMngS_.IsTrgDown(INPUT_EVENT::OK)&&menuController_->GetSelectMenuNum()==static_cast<int>(SETTING_STATE::EXIT_SETTING))
+	menuMng_->SelectMenu();
+	const int selectNum = menuMng_->GetSelectMenuNum();
+	if (inputMngS_.IsTrgDown(INPUT_EVENT::OK)&&menuMng_->GetSelectMenuNum()==static_cast<int>(SETTING_STATE::EXIT_SETTING))
 	{
 		ChangeSetting(static_cast<SETTING_STATE>(selectNum));
 		return;
@@ -214,7 +214,7 @@ const float SettingScene::GetVolumeFromString(const std::wstring _str) const
 
 void SettingScene::VolumeRefrect(void)
 {
-	const int selectNum = menuController_->GetSelectMenuNum();
+	const int selectNum = menuMng_->GetSelectMenuNum();
 	if (selectNum == static_cast<int>(SETTING_STATE::BGM))
 	{
 		soundMng_.SetSystemVolume(volume_[static_cast<int>(VOLUME_TYPE::BGM)], static_cast<int>(SoundManager::TYPE::BGM));

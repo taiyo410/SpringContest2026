@@ -46,13 +46,15 @@ public:
 private:
 
     //定数バッファ
-    static constexpr int GAUGE_CONST_BUF = 3;
+    static constexpr int GAUGE_CONST_BUF = 4;
     //カラー1の定数バッファ番号
     static constexpr int COLER1_BUF_NUM = 0;
     //カラー2の定数バッファ番号
     static constexpr int COLER2_BUF_NUM = 1;
+    //現在割合以上のカラーを決める定数バッファ番号
+    static constexpr int CULLENT_GAUGE_OVER_COLOR = 2;
     //ゲージ割合の定数バッファ番号
-    static constexpr int PERCENT_BUF_NUM = 2;
+    static constexpr int PERCENT_BUF_NUM = 3;
 
     //矢印に使用する素材
     ResourceManager::SRC arrowSrc_;

@@ -40,6 +40,9 @@ public:
 	/// @brief 解放
 	/// @param  
 	virtual void Release(void)override = 0;
+
+	//ヒット処理
+	virtual void OnHit(const std::weak_ptr<Collider2D> _partner) = 0;
 protected:
 	//イージング
 	std::unique_ptr<Easing>easing_;

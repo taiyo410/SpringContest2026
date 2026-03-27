@@ -24,6 +24,7 @@ void GaugeController::Init(void)
 	material_->AddTextureBuf(maskImg_);
 	material_->AddConstBuf(col1_);
 	material_->AddConstBuf(col2_);
+	material_->AddConstBuf(GAUGE_OVER_COLOR);
 	material_->AddConstBuf({ per_,per_,0.0f,0.0f });
 	renderer_->MakeSquareVertex(pos_, size_);
 }

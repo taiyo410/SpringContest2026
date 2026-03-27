@@ -10,7 +10,7 @@ class StartScene;
 class SettingScene;
 class SoundManager;
 class Easing;
-class MenuController;
+class MenuManager;
 class TitleScene : public SceneBase
 {
 
@@ -153,7 +153,7 @@ private:
 	//YES,NOの文字列
 	std::unordered_map<YES_NO, std::wstring>yesNoStrTable_;
 	//メニュコントローラ
-	std::unique_ptr<MenuController>menuController_;
+	std::unique_ptr<MenuManager>menuMng_;
 	//設定シーン
 	std::shared_ptr<SceneBase>settingScn_;
 	//サウンド

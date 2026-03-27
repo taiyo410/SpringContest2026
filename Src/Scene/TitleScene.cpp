@@ -9,7 +9,7 @@
 #include "../Manager/Generic/InputManagerS.h"
 #include "../Manager/Generic/ButtonUIManager.h"
 #include "../Manager/Generic/DataBank.h"
-#include "../Manager/Generic/MenuController.h"
+#include "../Manager/Generic/MenuManager.h"
 #include "../Manager/Resource/ResourceManager.h"
 #include "../Manager/Resource/FontManager.h"
 #include "../Common/FontController.h"
@@ -26,19 +26,19 @@
 TitleScene::TitleScene(void) :
 	soundMng_(SoundManager::GetInstance()),
 	gaugePer_(0.0f),
-	gaugeSize_({ 100.0f,30.0f }),
-	gaugePos_(),
-	col_({ 1.0f,0.0f,0.0f,0.0f })
+	gaugeSize_({ 300.0f,160.0f }),
+	gaugePos_({100.0f,100.0f}),
+	col_({ 0.0f,1.0f,0.0f,0.0f })
 {
 	//更新関数のセット
 	updateFunc_ = [this]() {LoadingUpdate(); };
 	//描画関数のセット
 	drawFunc_ = [this]() {LoadingDraw(); };
-	menuController_ = std::make_unique<MenuController>();
+	menuMng_ = std::make_unique<MenuManager>();
 	textWtiter_ = std::make_unique<TextWriter>();
 	settingScn_ = std::make_shared<SettingScene>();
 	gaugeCntl_ = std::make_unique<GaugeController>(ResourceManager::SRC::GAUGE, gaugePos_, gaugeSize_, gaugePer_, col_, col_);
-	arrowCntl_ = std::make_unique<ArrowController>(ResourceManager::SRC::GAUGE, gaugePos_, gaugeSize_, 100.0f, gaugePer_, col_);
+	arrowCntl_ = std::make_unique<ArrowController>(ResourceManager::SRC::ARROW_GAUGE, gaugePos_, gaugeSize_, 100.0f, gaugePer_, col_);
 
 }
 
@@ -57,7 +57,7 @@ void TitleScene::Load(void)
 	//タイトルロゴの読み込み
 	imgTitleLogo = resMng_.Load(ResourceManager::SRC::TITLE_LOGO).handleId_;
 
-	menuController_->LoadFont(FontManager::FONT_APRIL_GOTHIC, FONT_SIZE);
+	menuMng_->LoadFont(FontManager::FONT_APRIL_GOTHIC, FONT_SIZE);
 	//設定シーン
 	settingScn_->Load();
 	soundMng_.LoadResource(SoundManager::SRC::TITLE_BGM);
@@ -113,7 +113,7 @@ void TitleScene::Init(void)
 	{
 		//イージング演出をするために初期位置は画面外にする
 		Vector2 pos = { Application::SCREEN_SIZE_X,static_cast<int>(BUTTON_START_POS_Y + BUTTON_DISTANCE * i) };
-		menuController_->AddMenu(static_cast<int>(button.first), button.second, pos);
+		menuMng_->AddMenu(static_cast<int>(button.first), button.second, pos);
 		i++;
 	}
 
@@ -172,14 +172,14 @@ void TitleScene::UpdateEase(void)
 {
 	logoEaseCnt_ -= SceneManager::GetInstance().GetDeltaTime();
 
-	//ロゴ座標のいーじんぐ
+	//ロゴ座標のイージング
 	logoPos_ = easing_->EaseFunc(START_POS, GOAL_POS, (LOGO_EASING_TIME - logoEaseCnt_) / LOGO_EASING_TIME, Easing::EASING_TYPE::ELASTIC_OUT);
 
 	//メニューの補完
 	constexpr int OFFSET = 100;
-	menuController_->UpdateDirection(EASING_DIS_TIME, BUTTON_EASING_TIME, Application::SCREEN_HALF_X - OFFSET);
+	menuMng_->UpdateDirection(EASING_DIS_TIME, BUTTON_EASING_TIME, Application::SCREEN_HALF_X - OFFSET);
 
-	if (menuController_->IsAllDirectEaseEnd())
+	if (menuMng_->IsAllDirectEaseEnd())
 	{
 		ChangeState(TITLE_STATE::MENU);
 	}
@@ -188,14 +188,14 @@ void TitleScene::UpdateEase(void)
 void TitleScene::UpdateMenu(void)
 {
 	//選択中のボタンをイージングで動かす
-	menuController_->NormalUpdate(SELECT_EASE_DISTANCE, SELECT_EASE_TIME, Easing::EASING_TYPE::COS_BACK);
+	menuMng_->NormalUpdate(SELECT_EASE_DISTANCE, SELECT_EASE_TIME, Easing::EASING_TYPE::COS_BACK);
 
 	//// シーン遷移
 	InputManager& ins = InputManager::GetInstance();
 	InputManagerS& insS = InputManagerS::GetInstance();
 
-	menuController_->SelectMenu();
-	selectNum_ = menuController_->GetSelectMenuNum();
+	menuMng_->SelectMenu();
+	selectNum_ = menuMng_->GetSelectMenuNum();
 
 	//OKボタンが押されたら
 	if (insS.IsTrgDown(INPUT_EVENT::OK))
@@ -233,7 +233,7 @@ void TitleScene::DrawMenu(void)
 
 	//タイトルロゴ
 	DrawExtendGraphF(logoPos_.x, logoPos_.y, logoPos_.x + LOGO_SIZE_X, logoPos_.y + LOGO_SIZE_Y, imgTitleLogo, true);
-	menuController_->Draw();
+	menuMng_->Draw();
 
 	//決定ボタン
 	ButtonUIManager::GetInstance().DrawFromCenter(ButtonUIManager::BTN_UI_TYPE::B_BUTTON_COL_PUSH, DICITION_BTN_POS, DICITION_BTN_SIZE);
@@ -264,7 +264,7 @@ void TitleScene::DrawMenu(void)
 
 void TitleScene::DrawStart(void)
 {
-	//DrawBox(0, 0, Application::SCREEN_SIZE_X, Application::SCREEN_SIZE_Y, 0xff0000, true);
+	DrawBox(0, 0, Application::SCREEN_SIZE_X, Application::SCREEN_SIZE_Y, 0xff0000, true);
 
 	SetDrawBlendMode(DX_BLENDMODE_ALPHA, (int)stringAlpha_);
 	UtilityDraw::DrawStringCenter(Application::SCREEN_HALF_X, Application::SCREEN_HALF_Y, UtilityCommon::WHITE, buttonFontHandle_, L"Push To Click");
@@ -284,12 +284,12 @@ void TitleScene::DrawSetting(void)
 	{
 		str = L"フルスクリーンにしますか？";
 	}
-	menuController_->YesNoDraw(str);
+	menuMng_->YesNoDraw(str);
 }
 
 void TitleScene::DrawExit(void)
 {
-	menuController_->YesNoDraw(L"本当にゲームを終了しますか？");
+	menuMng_->YesNoDraw(L"本当にゲームを終了しますか？");
 }
 
 void TitleScene::UpdateSelectGame(void)
@@ -309,7 +309,7 @@ void TitleScene::UpdateExitMenu(void)
 	InputManagerS& insS = InputManagerS::GetInstance();
 	if (insS.IsTrgDown(INPUT_EVENT::OK))
 	{
-		if (menuController_->GetIsYes())
+		if (menuMng_->GetIsYes())
 		{
 			Application::GetInstance().IsGameEnd();
 		}
@@ -352,12 +352,12 @@ void TitleScene::UpdateYesNo(void)
 	if (insS.IsTrgDown(INPUT_EVENT::LEFT) || ins.IsTrgDown(KEY_INPUT_A))
 	{
 		soundMng_.Play(SoundManager::SRC::MOVE_BTN_SE, SoundManager::PLAYTYPE::BACK);
-		menuController_->SetYesNoUpdate(true);
+		menuMng_->SetYesNoUpdate(true);
 	}
 	else if (insS.IsTrgDown(INPUT_EVENT::RIGHT) || ins.IsTrgDown(KEY_INPUT_D))
 	{
 		soundMng_.Play(SoundManager::SRC::MOVE_BTN_SE, SoundManager::PLAYTYPE::BACK);
-		menuController_->SetYesNoUpdate(false);
+		menuMng_->SetYesNoUpdate(false);
 	}
 }
 

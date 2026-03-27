@@ -49,7 +49,8 @@ private:
 	static constexpr int COLER1_BUF_NUM = 0;
 	//カラー2の定数バッファ番号
 	static constexpr int COLER2_BUF_NUM = 1;
-
+	//現在の割合以上のゲージの色
+	static constexpr FLOAT4 GAUGE_OVER_COLOR = { 0.5f,0.5f,0.5f,1.0f };
 
 	//ゲージ割合の定数バッファ番号
 	static constexpr int PERCENT_BUF_NUM = 2;

@@ -4,7 +4,7 @@
 class InputManager;
 class InputManagerS;
 class SoundManager;
-class MenuController;
+class MenuManager;
 class DataBank;
 
 class SettingScene:
@@ -78,7 +78,7 @@ private:
     SETTING_STATE state_;
 
     //メニューコントローラー
-    std::unique_ptr<MenuController>menuController_;
+    std::unique_ptr<MenuManager>menuMng_;
 
     //文字列格納
     std::unordered_map<SETTING_BTN, std::wstring>buttonStrTable_;
