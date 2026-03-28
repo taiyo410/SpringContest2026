@@ -1,4 +1,5 @@
 #include "../pch.h"
+#include "../Manager/Game/CollisionManager2D.h"
 #include "../Manager/Generic/MenuManager.h"
 #include "../Manager/Generic/MenuController.h"
 #include "../Manager/Generic/SceneManager.h"
@@ -8,16 +9,16 @@
 #include "../Manager/Resource/FontManager.h"
 #include "../Manager/Generic/DataBank.h"
 #include "../Utility/UtilityTemplates.h"
+#include "../Object/Character/Cursor/Cursor.h"
+#include "../Manager/Generic/SliderUIManager.h"
 #include "SettingScene.h"
 
 SettingScene::SettingScene(void):
 	state_(SETTING_STATE::MAX),
 	soundMng_(SoundManager::GetInstance()),
 	dataBank_(DataBank::GetInstance()),
-	volume_(VOL_MAX, VOL_MAX, VOL_MAX)
-	//bgmVol_(VOL_MAX),
-	//seVol_(VOL_MAX),
-	//textSpd_(VOL_MAX)
+	volume_(VOL_MAX, VOL_MAX, VOL_MAX),
+	volumePer_(1.0f,1.0f,1.0f)
 {
 	//更新関数のセット
 	updateFunc_ = [this]() {NormalUpdate(); };
@@ -40,7 +41,8 @@ SettingScene::SettingScene(void):
 	};
 
 	menuMng_ = std::make_unique<MenuManager>();
-	
+	cursor_ = std::make_unique<Cursor>();
+	sliderUIMng_ = std::make_unique<SliderUIManager>();
 	int i = 0;
 	for (auto& button : buttonStrTable_)
 	{
@@ -57,22 +59,10 @@ SettingScene::~SettingScene(void)
 
 void SettingScene::Load(void)
 {
+	cursor_->Load();
+	sliderUIMng_->Load();
 	menuMng_->LoadFont(FontManager::FONT_APRIL_GOTHIC, FONT_SIZE);
-}
 
-void SettingScene::Init(void)
-{
-	ChangeSetting(SETTING_STATE::NORMAL);
-}
-
-void SettingScene::NormalUpdate(void)
-{
-	updateSetting_();
-}
-
-void SettingScene::NormalDraw(void)
-{
-	menuMng_->DrawFormat(std::vector<int>{ volume_[static_cast<int>(VOLUME_TYPE::BGM)], volume_[static_cast<int>(VOLUME_TYPE::SE)], volume_[static_cast<int>(VOLUME_TYPE::TEXT_SPD)] });
 	auto& menuList = menuMng_->GetMenuList();
 	for (auto& menu : menuList)
 	{
@@ -80,9 +70,48 @@ void SettingScene::NormalDraw(void)
 
 		Vector2 menuPos = menu->GetCurrentPos();
 		std::wstring menuStr = menu->GetMenuButtonString();
-		Vector2 centerPos = menuMng_->GetMenuCenterPos(menuStr);
-		DrawSliderUI({ static_cast<float>(menuPos.x) + 300.0f,static_cast<float>(menuPos.y+(centerPos.y/2.0f))}, { 200.0f,20.0f }, GetVolumeFromString(menuStr)/VOL_MAX);
+		Vector2 menuCenterPos = menuMng_->GetMenuCenterPos(menuStr);
+		Vector2F sliderPos = { static_cast<float>(menuPos.x) + 300.0f
+				,static_cast<float>(menuPos.y + (menuCenterPos.y / 2.0f)) };
+		Vector2F length = { 200.0f,20.0f };
+		VOLUME_TYPE type = GetVolumeFromString(menuStr);
+
+		sliderUIMng_->AddSliderUI(*cursor_, volumePer_[static_cast<int>(type)], sliderPos, length);
 	}
+}
+
+void SettingScene::Init(void)
+{
+	cursor_->Init();
+	sliderUIMng_->Init();
+	ChangeSetting(SETTING_STATE::NORMAL);
+}
+
+void SettingScene::NormalUpdate(void)
+{
+	cursor_->Update();
+	sliderUIMng_->Update();
+	updateSetting_();
+
+	//更新はアクション中のみ
+	CollisionManager2D::GetInstance().Update();
+
+	//終了した当たり判定の消去
+	CollisionManager2D::GetInstance().Sweep();
+}
+
+void SettingScene::NormalDraw(void)
+{
+	menuMng_->DrawFormat(std::vector<int>{ volume_[static_cast<int>(VOLUME_TYPE::BGM)]
+		, volume_[static_cast<int>(VOLUME_TYPE::SE)]
+		, volume_[static_cast<int>(VOLUME_TYPE::TEXT_SPD)] });
+	sliderUIMng_->Draw();
+
+	//auto& menuList = menuMng_->GetMenuList();
+	//for (auto& menu : menuList)
+	//{
+	//	if (!menu->IsHasFormat())continue;
+	//}
 }
 
 void SettingScene::ChangeSetting(const SETTING_STATE _state)
@@ -120,6 +149,13 @@ void SettingScene::ChangeExitSetting(void)
 void SettingScene::UpdateSettingNormal(void)
 {
 	menuMng_->SelectMenu();
+	sliderUIMng_->Update();
+	//割合計算
+	for (int i=0;i<static_cast<int>(VOLUME_TYPE::MAX);i++)
+	{
+		volume_[i] = volumePer_[i] * VOL_MAX;
+	}
+
 	const int selectNum = menuMng_->GetSelectMenuNum();
 	if (inputMngS_.IsTrgDown(INPUT_EVENT::OK)&&menuMng_->GetSelectMenuNum()==static_cast<int>(SETTING_STATE::EXIT_SETTING))
 	{
@@ -193,24 +229,25 @@ void SettingScene::DrawSliderUI(Vector2F _leftTopPos, Vector2F _length, float _v
 
 }
 
-const float SettingScene::GetVolumeFromString(const std::wstring _str) const
+const SettingScene::VOLUME_TYPE SettingScene::GetVolumeFromString(const std::wstring _str)const
 {
+	VOLUME_TYPE type = VOLUME_TYPE::MAX;
+
 	if (_str.find(L"BGM") != std::wstring::npos)
 	{
-		return volume_[static_cast<int>(VOLUME_TYPE::BGM)];
+		type = VOLUME_TYPE::BGM;
 	}
 	else if (_str.find(L"SE") != std::wstring::npos)
 	{
-		return volume_[static_cast<int>(VOLUME_TYPE::SE)];
+		type = VOLUME_TYPE::SE;
 	}
 	else if (_str.find(L"テキスト速度") != std::wstring::npos)
 	{
-		return volume_[static_cast<int>(VOLUME_TYPE::TEXT_SPD)];
+		type = VOLUME_TYPE::TEXT_SPD;
 	}
-
-	//ここには入らない
-	return 0.0f;
+	return type;
 }
+
 
 void SettingScene::VolumeRefrect(void)
 {

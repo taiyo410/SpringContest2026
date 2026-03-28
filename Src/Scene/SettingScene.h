@@ -5,6 +5,8 @@ class InputManager;
 class InputManagerS;
 class SoundManager;
 class MenuManager;
+class Cursor;
+class SliderUIManager;
 class DataBank;
 
 class SettingScene:
@@ -80,6 +82,12 @@ private:
     //メニューコントローラー
     std::unique_ptr<MenuManager>menuMng_;
 
+    //カーソル
+    std::unique_ptr<Cursor>cursor_;
+
+    //スライダー
+    std::unique_ptr<SliderUIManager>sliderUIMng_;
+
     //文字列格納
     std::unordered_map<SETTING_BTN, std::wstring>buttonStrTable_;
 
@@ -95,14 +103,11 @@ private:
     //データバンク
     DataBank& dataBank_;
 
-    ////BGMの大きさ
-    //int bgmVol_;
-    ////SEの大きさ
-    //int seVol_;
-    ////テキスト速度
-    //int textSpd_;
     //設定関連
+    //int volume_[static_cast<int>(VOLUME_TYPE::MAX)];
     int volume_[static_cast<int>(VOLUME_TYPE::MAX)];
+    float volumePer_[static_cast<int>(VOLUME_TYPE::MAX)];
+
 
     /// @brief 状態遷移
     /// @param _state 遷移したい状態
@@ -126,13 +131,16 @@ private:
     /// @param _num 
     void SetNumber(int& _num);
 
-    //スライダーの描画
+    /// @brief スライダーの描画
+    /// @param _leftTopPos 左上
+    /// @param _length 長さ
+    /// @param _value 割合(0~1)
     void DrawSliderUI(Vector2F _leftTopPos, Vector2F _length, float _value);
 
     /// @brief 文字列から音量をそれぞれ返す
     /// @param _str 調べたい文字列
     /// @return 
-    const float GetVolumeFromString(const std::wstring _str)const;
+    const VOLUME_TYPE GetVolumeFromString(const std::wstring _str)const;
 
     //ボリューム関連の反映
     void VolumeRefrect(void);

@@ -36,7 +36,7 @@ public:
 	void Sweep(void);
 
 	//座標の取得
-	const Vector2F& GetPos(void) { return pos_; };
+	const Vector2F& GetPos(void)const { return pos_; };
 
 protected:
 
