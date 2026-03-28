@@ -249,6 +249,12 @@ void MenuManager::SelectMenu(const SoundManager::SRC _src)
 		AddSelectMenuNum();
 	}
 
+	auto itr = std::find_if(menuList_.begin(), menuList_.end(), [](auto& menu) {return menu->GetIsHit(); });
+	if (itr != menuList_.end())
+	{
+		selectMenuNum_ = (*itr)->GetMenuNum();
+	}
+
 }
 
 void MenuManager::AddSelectMenuNum(void)

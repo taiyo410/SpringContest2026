@@ -14,11 +14,6 @@ class MenuController:public UIBase2D
 {
 public:
 
-	struct BTN_INFO
-	{
-
-	};
-
 	/// @brief 
 	/// @param  
 	MenuController(const int _menuNum, const std::wstring _menu, const Vector2 _pos, int& _fontHandle);
@@ -99,6 +94,11 @@ public:
 	/// @param  
 	/// @return 
 	const bool GetIsEase(void)const { return isEase_ || isEndDirectEase_; }
+
+	/// @brief “–‚½‚è”»’è‚ÌŽæ“¾
+	/// @param  
+	/// @return 
+	const bool GetIsHit(void)const { return isHit_; }
 
 private:
 

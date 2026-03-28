@@ -88,6 +88,10 @@ void InputManagerS::Update(void)
 			{
 				pressed = padState & input.code;
 			}
+			else if (input.type == PEIPHERAL_TYPE::MOUSE)
+			{
+				pressed = mouseState & input.code;
+			}
 			else if (input.type == PEIPHERAL_TYPE::X_ANALOG)
 			{
 				auto analogType = static_cast<ANALOG_INPUT_TYPE>(input.code);
@@ -129,6 +133,7 @@ void InputManagerS::ResetTable(void)
 	{
 		{INPUT_EVENT::OK,{
 			{PEIPHERAL_TYPE::KEYBOARD, KEY_INPUT_SPACE},
+			{PEIPHERAL_TYPE::MOUSE, MOUSE_INPUT_LEFT},
 			{PEIPHERAL_TYPE::GAMEPAD, PAD_INPUT_B},//Bƒ{ƒ^ƒ“
 			{PEIPHERAL_TYPE::X_ANALOG, (int)ANALOG_INPUT_TYPE::NONE}
 	}},

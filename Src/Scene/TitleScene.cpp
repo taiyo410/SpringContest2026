@@ -142,14 +142,14 @@ void TitleScene::NormalUpdate(void)
 {
 	//textWtiter_->Init();
 	cursor_->Update();
-	menuMng_->Update();
-
+	
 	gaugePer_=easing_->EaseFunc(0.0f, 1.0f, gaugeCnt_ / 15.0f, Easing::EASING_TYPE::LERP);
 	gaugeCnt_ += scnMng_.GetDeltaTime();
 	gaugeCntl_->Update();
 	arrowCntl_->Update();
-	updateTitle_();
 
+	updateTitle_();
+	menuMng_->Update();
 	//更新はアクション中のみ
 	CollisionManager2D::GetInstance().Update();
 
