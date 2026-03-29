@@ -266,28 +266,3 @@ std::string UtilityCommon::GetStringFromWString(const std::wstring& wstr)
     WideCharToMultiByte(CP_UTF8, 0, wstr.c_str(), -1, &result[0], size, nullptr, nullptr);
     return result;
 }
-
-int UtilityCommon::GetRandomValue(int _min, int _max)
-{
-    //ランダムエンジン
-    static std::mt19937 mt(std::random_device{}());
-
-    // min ～ max の範囲で一様分布
-    std::uniform_int_distribution<int> dist(_min, _max);
-
-    //ランダムの値
-    return dist(mt);
-}
-
-Vector2 UtilityCommon::GetStringSizeToHandle(const int fontHandle, const std::wstring _str)
-{
-    Vector2 size = {};
-    GetDrawStringSizeToHandle(
-        &size.x,
-        &size.y,
-        NULL,
-        _str.c_str(),
-        static_cast<int>(wcslen(_str.c_str())),
-        fontHandle);
-    return size;
-}
