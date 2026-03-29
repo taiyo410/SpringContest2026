@@ -163,10 +163,19 @@ void SettingScene::UpdateSettingNormal(void)
 	}
 
 	auto hitItr = sliderUIMng_->GetIsHitSlider();
-	if (hitItr != sliderUIMng_->GetSliderUIsEnd())
+	//if (hitItr != sliderUIMng_->GetSliderUIsEnd())
+	//{
+	//	menuMng_->SetSelectMenuNum((*hitItr)->GetSliderNum());
+	//}
+	if (sliderUIMng_->GetActiveSliderNum() != -1)
+	{
+		menuMng_->SetSelectMenuNum(sliderUIMng_->GetActiveSliderNum());
+	}
+	else if (hitItr != sliderUIMng_->GetSliderUIsEnd())
 	{
 		menuMng_->SetSelectMenuNum((*hitItr)->GetSliderNum());
 	}
+
 
 	sliderUIMng_->Update();
 

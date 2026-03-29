@@ -60,11 +60,27 @@ public:
 	/// @return スライダー割合
 	const std::vector<float>GetSliderPercent(void);
 
+	/// @brief スライダー番号の取得
+	/// @param  
+	/// @return 
+	const int GetActiveSliderNum(void)const;
+
+
 private:
+
+	//当たっているスライダーUI
+	SliderUIController* activeSliderUI_;
 
 	//スライダ
 	std::vector<std::unique_ptr<SliderUIController>>sliderUIs_;
 
 	int sliderNumCnt_;	//スライダー番号カウント
+
+
+	/// @brief スライダーUIの更新
+	/// @param  
+	void ActiveSliderUIUpdate(void);
+
+
 };
 

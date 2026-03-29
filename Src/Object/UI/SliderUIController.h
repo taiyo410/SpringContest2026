@@ -56,6 +56,17 @@ public:
 	/// @return 
 	const int GetSliderNum(void)const { return sliderNum_; }
 
+	/// @brief 設定中の状態の取得
+	/// @param  
+	/// @return true:設定中 false:設定してない
+	const bool GetIsSetting(void)const { return isSetting_; }
+
+	void SetIsSetting(const bool _isSetting) { isSetting_ = _isSetting; }
+
+    /// @brief 割合更新
+    /// @param  
+    void PercentReflection(void);
+
 private:
 
 	static constexpr int SLIDER_BUTTON_COLLIDER_NUM = 0;	//スライダーボタンの当たり判定情報
@@ -108,8 +119,6 @@ private:
     /// @return true:範囲外：false;範囲内
     bool IsOutOfRangePercent(void) { return per_ < 0.0f || per_ > 1.0f; }
 
-    //割合更新
-    void PercentReflection(void);
 
 
 };

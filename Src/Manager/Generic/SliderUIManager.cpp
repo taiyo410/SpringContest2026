@@ -4,12 +4,14 @@
 
 SliderUIManager::SliderUIManager(void):
 	sliderUIs_(),
-	sliderNumCnt_()
+	sliderNumCnt_(),
+	activeSliderUI_(nullptr)
 {
 }
 
 SliderUIManager::~SliderUIManager(void)
 {
+	activeSliderUI_ = nullptr;
 	sliderUIs_.clear();
 }
 
@@ -38,6 +40,8 @@ void SliderUIManager::Init(void)
 
 void SliderUIManager::Update(void)
 {
+	ActiveSliderUIUpdate();
+
 	for (auto& slider : sliderUIs_)
 	{
 		slider->Update();
@@ -77,4 +81,38 @@ const std::vector<float>SliderUIManager::GetSliderPercent(void)
 		percent.emplace_back(per);
 	}
 	return percent;
+}
+
+const int SliderUIManager::GetActiveSliderNum(void) const
+{
+	return activeSliderUI_ == nullptr ? -1 : activeSliderUI_->GetSliderNum();
+}
+
+void SliderUIManager::ActiveSliderUIUpdate(void)
+{
+	const bool isTrigger = InputManagerS::GetInstance().IsTrgDown(INPUT_EVENT::OK);
+	const bool isPressed = InputManagerS::GetInstance().IsPressed(INPUT_EVENT::OK);
+	const bool isReleased = InputManagerS::GetInstance().IsReleased(INPUT_EVENT::OK);
+
+	if (isTrigger)
+	{
+		for (auto& slider : sliderUIs_)
+		{
+			if (slider->GetIsHit())
+			{
+				activeSliderUI_ = slider.get();
+				break;
+			}
+		}
+	}
+
+	if (isPressed && activeSliderUI_)
+	{
+		activeSliderUI_->PercentReflection();
+	}
+
+	if (isReleased)
+	{
+		activeSliderUI_ = nullptr;
+	}
 }

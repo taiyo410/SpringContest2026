@@ -54,12 +54,12 @@ void SliderUIController::Update(void)
 	//}
 
 	const float rightDownPosX = GetRightDownPos().x;
-	if (per_ >= 1.0f)
+	if (per_ > 1.0f)
 	{
 		per_ = 1.0f;
 		circlePos_.x = rightDownPosX;
 	}
-	else if (per_ <= 0.0f)
+	else if (per_ < 0.0f)
 	{
 		per_ = 0.0f;
 		circlePos_.x = leftTopPos_.x;
@@ -97,19 +97,20 @@ void SliderUIController::OnHit(std::weak_ptr<Collider2D> _partner)
 	}
 	
 	isHit_ = true;
-	if (insS_.IsPressed(INPUT_EVENT::OK))
-	{
-		isSetting_ = true;
-		PercentReflection();
-	}
 }
 
 void SliderUIController::PercentReflection(void)
 {
 	float cursorPosX = cursor_.GetPos().x;
-	if (cursorPosX > GetRightDownPos().x || cursorPosX < leftTopPos_.x)return;
-	circlePos_.x = cursor_.GetPos().x;
-
 	float circleLength = circlePos_.x - leftTopPos_.x;
+	circlePos_.x = cursor_.GetPos().x;
+	if (cursorPosX > GetRightDownPos().x)
+	{
+		circlePos_.x = GetRightDownPos().x;
+	}
+	else if (cursorPosX < leftTopPos_.x)
+	{
+		circlePos_.x = leftTopPos_.x;
+	}	
 	per_ = circleLength / length_.x;
 }

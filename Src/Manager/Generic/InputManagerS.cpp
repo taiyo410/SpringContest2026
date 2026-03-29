@@ -127,6 +127,17 @@ bool InputManagerS::IsPressed(INPUT_EVENT inputEvent) const
 	return currentInput_.at(inputEvent);
 }
 
+
+
+bool InputManagerS::IsReleased(INPUT_EVENT inputEvent) const
+{
+	if (!currentInput_.contains(inputEvent))
+	{
+		return false;
+	}
+	return !currentInput_.at(inputEvent) && lastInput_.at(inputEvent);
+}
+
 void InputManagerS::ResetTable(void)
 {
 	inputTable_ = 

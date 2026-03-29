@@ -79,6 +79,11 @@ public:
 	/// @param inputEvent 入力イベント
 	/// @return 押されてる場合true, そうでない場合false
 	bool IsPressed(INPUT_EVENT inputEvent) const;
+
+	/// @brief 指定されたコードが離された瞬間か
+	/// @param inputEvent 
+	/// @return 
+	bool IsReleased(INPUT_EVENT inputEvent) const;
 	
 	/// @brief 対応表のリセット
 	/// @param  
@@ -106,6 +111,7 @@ private:
 	{
 		PEIPHERAL_TYPE type;	//デバイスの種類
 		uint32_t code;			//入力コード
+		float keyFrameCnt;		//キーが押されているフレーム数
 	};
 
 	//入力イベントと実際の入力の対応表
