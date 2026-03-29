@@ -15,9 +15,7 @@ public:
 		CURSOR,			//カーソル
 		DAIMYO,			//大名
 		TITLE_MENU,		//タイトルのメニュー
-		SLIDER_BUTTON	//スライダーのボタン
-		CURSOR,		//カーソル
-		DAIMYO,		//大名
+		SLIDER_BUTTON,	//スライダーのボタン
 
 		CHOICE_ALTERNATE,	//選択肢(参勤)
 		CHOICE_ENHANCEMENT,	//選択肢(強化)
