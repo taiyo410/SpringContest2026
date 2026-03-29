@@ -11,7 +11,7 @@ class SliderUIController :
 public:
     /// @brief コンストラクタ
     /// @param  
-    SliderUIController(const Cursor& _cursor,float& _per,Vector2F _leftTopPos,Vector2F _length);
+    SliderUIController(const Cursor& _cursor,float _per,Vector2F _leftTopPos,Vector2F _length);
 
     /// @brief デストラクタ
     /// @param  
@@ -53,7 +53,7 @@ private:
     InputManagerS& insS_;
 
     //割合
-    float& per_;
+    float per_;
 
     //ボタンの座標
     Vector2F circlePos_;

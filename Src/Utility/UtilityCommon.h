@@ -125,4 +125,10 @@ public:
 	/// @return 
 	static Vector2 GetStringSizeToHandle(const int fontHandle, const std::wstring _str);
 
+	/// @brief 書式付き文字列かどうか
+	/// @param _str 調べたい文字列
+	/// @return true:書式付き文字列、false:書式付き文字列ではない
+	static const bool IsHasFormat(const std::wstring _str);
+
+
 };

@@ -53,7 +53,13 @@ public:
 
 	/// @brief メニューの追加
 	/// @param  
-	void AddMenu(const int _arrayNum, const std::wstring _menu, const Vector2 _pos);
+	
+	/// @brief メニューの追加
+	/// @param _arrayNum メニュー番号
+	/// @param _menu メニューの文字列
+	/// @param _pos 初期座標
+	/// @param _isMakeCollider コライダを作成するか
+	void AddMenu(const int _arrayNum, const std::wstring _menu, const Vector2 _pos,bool _isMakeCollider);
 
 	/// @brief メニュー初期化
 	/// @param  

@@ -40,14 +40,10 @@ void MenuManager::LoadFont(const std::wstring _fontType, const int _size)
 
 }
 
-void MenuManager::AddMenu(const int _arrayNum, const std::wstring _menu, const Vector2 _pos)
+void MenuManager::AddMenu(const int _arrayNum, const std::wstring _menu, const Vector2 _pos, bool _isMakeCollider)
 {
 	//情報の代入
-	BTN_INFO info;
-	info.btnStr = _menu;
-	info.startPos = _pos;
-	//info.curPos = _pos;
-	std::unique_ptr menu = std::make_unique<MenuController>(_arrayNum, _menu, _pos,fontHandle_);
+	std::unique_ptr menu = std::make_unique<MenuController>(_arrayNum, _menu, _pos,fontHandle_, _isMakeCollider);
 	menuList_.emplace_back(std::move(menu));
 }
 
@@ -143,16 +139,7 @@ void MenuManager::UpdateDirection(const float _disSpawn, const float _easeTime, 
 void MenuManager::NormalUpdate(const Vector2 _localPos, const float _easeTime, const Easing::EASING_TYPE _easeType)
 {
 	for (auto& menu : menuList_)
-		{
-		//	//選択中のメニュー左右に動かす
-		//	if (menu.first == selectMenuNum_)
-		//	{
-		//		menu.second.curPos = easing_->EaseFunc(menu.second.startPos, menu.second.startPos + _localPos, sizeEaseCnt_ / _easeTime, _easeType);
-		//	}
-		//	else
-		//	{
-		//		menu.second.curPos = menu.second.startPos;
-		//	}
+	{
 		menu->SelectUpdate(selectMenuNum_, sizeEaseCnt_, _localPos, _easeTime, _easeType);
 	}
 	if (sizeEaseCnt_ >= _easeTime)

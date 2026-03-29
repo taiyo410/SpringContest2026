@@ -119,7 +119,7 @@ void TitleScene::Init(void)
 	{
 		//イージング演出をするために初期位置は画面外にする
 		Vector2 pos = { Application::SCREEN_SIZE_X,static_cast<int>(BUTTON_START_POS_Y + BUTTON_DISTANCE * i) };
-		menuMng_->AddMenu(static_cast<int>(button.first), button.second, pos);
+		menuMng_->AddMenu(static_cast<int>(button.first), button.second, pos,true);
 		i++;
 	}
 	menuMng_->Init();

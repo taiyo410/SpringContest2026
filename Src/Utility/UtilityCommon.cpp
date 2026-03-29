@@ -291,3 +291,12 @@ Vector2 UtilityCommon::GetStringSizeToHandle(const int fontHandle, const std::ws
         fontHandle);
     return size;
 }
+
+const bool UtilityCommon::IsHasFormat(const std::wstring _str)
+{
+    if (_str.find(L"%d") != std::wstring::npos || _str.find(L"%f") != std::wstring::npos)
+    {
+        return true;
+    }
+    return false;
+}

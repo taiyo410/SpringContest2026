@@ -5,7 +5,7 @@
 #include "../Object/Common/Collider2D/Geometry2D/Circle.h"
 #include "SliderUIController.h"
 
-SliderUIController::SliderUIController(const Cursor& _cursor, float& _per, Vector2F _leftTopPos, Vector2F _length):
+SliderUIController::SliderUIController(const Cursor& _cursor, float _per, Vector2F _leftTopPos, Vector2F _length):
 	cursor_(_cursor),
 	insS_(InputManagerS::GetInstance()),
 	per_(_per),
@@ -38,9 +38,6 @@ void SliderUIController::Update(void)
 	buttonColor_ = UtilityCommon::GREEN;
 
 	const float rightDownPosX = GetRightDownPos().x;
-	float circleLength = circlePos_.x - leftTopPos_.x;
-	per_ = circleLength / length_.x;
-
 	if (per_ >= 1.0f)
 	{
 		per_ = 1.0f;
@@ -81,5 +78,8 @@ void SliderUIController::OnHit(std::weak_ptr<Collider2D> _partner)
 		float cursorPosX = cursor_.GetPos().x;
 		if (cursorPosX > GetRightDownPos().x || cursorPosX < leftTopPos_.x)return;
 		circlePos_.x = cursor_.GetPos().x;
+
+		float circleLength = circlePos_.x - leftTopPos_.x;
+		per_ = circleLength / length_.x;
 	}
 }

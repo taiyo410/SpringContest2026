@@ -23,7 +23,7 @@ public:
 	/// @param _per 割合の参照
 	/// @param _leftTopPos 右上座標 
 	/// @param _length スライダーの長さ
-	void AddSliderUI(const Cursor& _cursor, float& _per, Vector2F _leftTopPos, Vector2F _length);
+	void AddSliderUI(const Cursor& _cursor, float _per, Vector2F _leftTopPos, Vector2F _length);
 
 	/// @brief ロード
 	/// @param  

@@ -12,7 +12,7 @@ SliderUIManager::~SliderUIManager(void)
 	sliderUIs_.clear();
 }
 
-void SliderUIManager::AddSliderUI(const Cursor& _cursor, float& _per, Vector2F _leftTopPos, Vector2F _length)
+void SliderUIManager::AddSliderUI(const Cursor& _cursor, float _per, Vector2F _leftTopPos, Vector2F _length)
 {
 	std::unique_ptr sliderUI = std::make_unique<SliderUIController>(_cursor, _per, _leftTopPos, _length);
 	sliderUIs_.emplace_back(std::move(sliderUI));

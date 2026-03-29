@@ -7,12 +7,13 @@
 #include "../Object/Common/Collider2D/Geometry2D/BoxGeo.h"
 #include "MenuController.h"
 
-MenuController::MenuController(const int _menuNum, const std::wstring _menu, const Vector2 _pos, int& _fontHandle) :
+MenuController::MenuController(const int _menuNum, const std::wstring _menu, const Vector2 _pos, int& _fontHandle, bool _isMakeCollider) :
 	scnMng_(SceneManager::GetInstance()),
 	fontHandle_(_fontHandle),
 	menuNum_(_menuNum),
 	btnStr_(_menu),
 	startPos_(_pos),
+	isMakeCollider_(_isMakeCollider),
 	curPos_(startPos_),
 	directionEaseCnt_(),
 	isEase_(false),
@@ -33,6 +34,9 @@ void MenuController::Load(void)
 
 void MenuController::Init(void)
 {
+	//コライダの作成フラグが立っていなければ当たり判定を作成しない
+	if (!isMakeCollider_)return;
+
 	//当たり判定
 	Vector2 size=UtilityCommon::GetStringSizeToHandle(fontHandle_, btnStr_);
 	curPosF_ = curPos_.ToVector2F();

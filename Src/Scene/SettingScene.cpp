@@ -47,8 +47,9 @@ SettingScene::SettingScene(void):
 	for (auto& button : buttonStrTable_)
 	{
 		//イージング演出をするために初期位置は画面外にする
+		bool isMakeCollider = !UtilityCommon::IsHasFormat(button.second);	//タイトルメニューへはコライダを作らない
 		Vector2 pos = { BUTTON_POS.x,BUTTON_POS.y + BUTTON_OFFSET * i};
-		menuMng_->AddMenu(static_cast<int>(button.first), button.second, pos);
+		menuMng_->AddMenu(static_cast<int>(button.first), button.second, pos, isMakeCollider);
 		i++;
 	}
 }
@@ -60,7 +61,6 @@ SettingScene::~SettingScene(void)
 void SettingScene::Load(void)
 {
 	cursor_->Load();
-	sliderUIMng_->Load();
 	menuMng_->LoadFont(FontManager::FONT_APRIL_GOTHIC, FONT_SIZE);
 
 	auto& menuList = menuMng_->GetMenuList();
@@ -78,19 +78,20 @@ void SettingScene::Load(void)
 
 		sliderUIMng_->AddSliderUI(*cursor_, volumePer_[static_cast<int>(type)], sliderPos, length);
 	}
+	sliderUIMng_->Load();
 }
 
 void SettingScene::Init(void)
 {
 	cursor_->Init();
 	sliderUIMng_->Init();
+	menuMng_->Init();
 	ChangeSetting(SETTING_STATE::NORMAL);
 }
 
 void SettingScene::NormalUpdate(void)
 {
 	cursor_->Update();
-	sliderUIMng_->Update();
 	updateSetting_();
 
 	//更新はアクション中のみ
@@ -107,11 +108,7 @@ void SettingScene::NormalDraw(void)
 		, volume_[static_cast<int>(VOLUME_TYPE::TEXT_SPD)] });
 	sliderUIMng_->Draw();
 
-	//auto& menuList = menuMng_->GetMenuList();
-	//for (auto& menu : menuList)
-	//{
-	//	if (!menu->IsHasFormat())continue;
-	//}
+	cursor_->Draw();
 }
 
 void SettingScene::ChangeSetting(const SETTING_STATE _state)
@@ -150,6 +147,9 @@ void SettingScene::UpdateSettingNormal(void)
 {
 	menuMng_->SelectMenu();
 	sliderUIMng_->Update();
+	menuMng_->Update();
+
+
 	//割合計算
 	for (int i=0;i<static_cast<int>(VOLUME_TYPE::MAX);i++)
 	{
