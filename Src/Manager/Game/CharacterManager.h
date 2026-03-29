@@ -3,7 +3,8 @@
 #include "../../Template/Singleton.h"
 #include "../Object/Character/Daimyo/DaimyoImport.h"
 
-class CharacterBase2D;
+class Cursor;
+class Daimyo;
 
 class CharacterManager :public Singleton<CharacterManager>
 {
@@ -31,10 +32,16 @@ public:
 	/// @param  
 	void Release(void);
 
+	//大名のお金が上限を超えたか
+	const bool IsMoneyMax(void);
+
 private:
 
-	//キャラクター
-	std::vector<std::unique_ptr<CharacterBase2D>> characters_;
+	//カーソル
+	std::unique_ptr<Cursor> cursor_;
+
+	//大名
+	std::vector<std::unique_ptr<Daimyo>> daimyo_;
 
 	//大名のデータ
 	std::vector<DaimyoImport> daimyoImportData_;

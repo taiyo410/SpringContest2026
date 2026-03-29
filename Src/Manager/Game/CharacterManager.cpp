@@ -24,29 +24,49 @@ void CharacterManager::Init(void)
 void CharacterManager::Update(void)
 {
 	//キャラクターの更新
-	for (auto& chara : characters_)
+	cursor_->Update();
+	cursor_->Sweep();
+
+	for (auto& daimyo : daimyo_)
 	{
-		chara->Update();
-		chara->Sweep();
+		daimyo->Update();
+		daimyo->Sweep();
 	}
 }
 
 void CharacterManager::Draw(void)
 {
 	//キャラクターの描画
-	for (auto& chara : characters_)
+	cursor_->Draw();
+	
+	for (auto& daimyo : daimyo_)
 	{
-		chara->Draw();
+		daimyo->Draw();
 	}
 }
 
 void CharacterManager::Release(void)
 {
-	//キャラクターの描画
-	for (auto& chara : characters_)
+	//キャラクターの更新
+	cursor_->Release();
+
+	for (auto& daimyo : daimyo_)
 	{
-		chara->Release();
+		daimyo->Release();
 	}
+}
+
+const bool CharacterManager::IsMoneyMax(void)
+{
+	for (auto& daimyo : daimyo_)
+	{
+		if (daimyo->IsMoneyMax())
+		{
+			return true;
+		}
+	}
+
+	return false;
 }
 
 CharacterManager::CharacterManager(void)
@@ -60,14 +80,11 @@ CharacterManager::~CharacterManager(void)
 void CharacterManager::CreateCursor(void)
 {
 	//生成
-	std::unique_ptr<Cursor> c = std::make_unique<Cursor>();
+	cursor_ = std::make_unique<Cursor>();
 
 	//読み込みと初期化
-	c->Load();
-	c->Init();
-
-	//格納
-	characters_.push_back(std::move(c));
+	cursor_->Load();
+	cursor_->Init();
 }
 
 void CharacterManager::CreateEdo(void)
@@ -88,6 +105,6 @@ void CharacterManager::CreateDaimyo(void)
 		daimyo->Init();
 
 		//格納
-		characters_.push_back(std::move(daimyo));
+		daimyo_.push_back(std::move(daimyo));
 	}
 }

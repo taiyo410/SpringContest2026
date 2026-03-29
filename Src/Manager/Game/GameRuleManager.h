@@ -3,10 +3,10 @@
 
 class FontController;
 
-class MoneyManager : public Singleton<MoneyManager>
+class GameRuleManager : public Singleton<GameRuleManager>
 {
 	// シングルトンにだけ共有する
-	friend class Singleton<MoneyManager>;
+	friend class Singleton<GameRuleManager>;
 
 public:
 
@@ -18,6 +18,9 @@ public:
 
 	//フォントサイズ
 	static constexpr int FONT_SIZE = 20;
+
+	//最大不満度
+	static constexpr int DISSATISFACTION_MAX = 100;
 
 	/// @brief ロード
 	/// @param  
@@ -51,20 +54,29 @@ public:
 	//所持金が足りているかの比較(100000単位)
 	const bool HasEnoughMoney(int _request)const { return nowMoney_ >= _request; }
 
+	//不満度を高める
+	void AddDissatisfaction(const int _value) { dissatisfaction_ += _value; }
+
+	//ゲームオーバー判定
+	const bool IsGameOver(void);
+
 private:
 
 	//現在の所持金
 	int nowMoney_;
+
+	//総不満度
+	int dissatisfaction_;
 
 	//フォント
 	std::unique_ptr<FontController>font_;
 	int moneyFont_;
 
 	//コンストラクタ
-	MoneyManager(void);
+	GameRuleManager(void);
 
 	//デストラクタ
-	~MoneyManager(void)override;
+	~GameRuleManager(void)override;
 
 };
 

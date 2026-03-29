@@ -5,7 +5,7 @@
 #include "../Manager/Generic/SceneManager.h"
 #include "../Manager/Resource/ResourceManager.h"
 #include "../Manager/Generic/InputManager.h"
-#include "../Manager/Game/MoneyManager.h"
+#include "../Manager/Game/GameRuleManager.h"
 #include "../Object/Common/Collider2D/Collider2D.h"
 #include "../Object/Common/Collider2D/Geometry2D/BoxGeo.h"
 #include "../Object/Character/Daimyo/DaimyoOnHit.h"
@@ -27,6 +27,7 @@ Daimyo::Daimyo(const DaimyoImport _import)
 	update_.emplace(STATE::NORMAL, [this](void) {UpdateNormal(); });
 	update_.emplace(STATE::SELECT, [this](void) {UpdateSelect(); });
 	update_.emplace(STATE::SELECT_ALTERNATE, [this](void) {UpdateSelectAlternate(); });
+	update_.emplace(STATE::NO_MONEY, [this](void) {UpdateNoMoney(); });
 	update_.emplace(STATE::ACTION_ALTERNATE, [this](void) {UpdateActionAlternate(); });
 	update_.emplace(STATE::RESULT_ALTERNATE, [this](void) {UpdateResultAlternate(); });
 	update_.emplace(STATE::ENHANCEMENT, [this](void) {UpdateEnhancement(); });
@@ -37,6 +38,7 @@ Daimyo::Daimyo(const DaimyoImport _import)
 	draw_.emplace(STATE::NORMAL, [this](void) {DrawNormal(); });
 	draw_.emplace(STATE::SELECT, [this](void) {DrawSelect(); });
 	draw_.emplace(STATE::SELECT_ALTERNATE, [this](void) {DrawSelectAlternate(); });
+	draw_.emplace(STATE::NO_MONEY, [this](void) {DrawNoMoney(); });
 	draw_.emplace(STATE::ACTION_ALTERNATE, [this](void) {DrawActionAlternate(); });
 	draw_.emplace(STATE::RESULT_ALTERNATE, [this](void) {DrawResultAlternate(); });
 	draw_.emplace(STATE::ENHANCEMENT, [this](void) {DrawEnhancement(); });
@@ -47,6 +49,7 @@ Daimyo::Daimyo(const DaimyoImport _import)
 	changeSetting_.emplace(STATE::NORMAL, [this](void) {CreateCastleCol(); });
 	changeSetting_.emplace(STATE::SELECT, [this](void) {CreateSelectCol(); });
 	changeSetting_.emplace(STATE::SELECT_ALTERNATE, [this](void) {CreateAlternateCol(); });
+	changeSetting_.emplace(STATE::NO_MONEY, [this](void) {DeleteAllColliders(); });
 	changeSetting_.emplace(STATE::ACTION_ALTERNATE, [this](void) {DeleteAllColliders(); });
 	changeSetting_.emplace(STATE::RESULT_ALTERNATE, [this](void) {ResultAlternate(); });
 	changeSetting_.emplace(STATE::ENHANCEMENT, [this](void) {});
@@ -203,7 +206,7 @@ void Daimyo::ResultAlternate(void)
 	int dissatisfaction = SUCCESS_DISSATISFACTION;
 
 	//大名のお金が減る
-	money_ -= MINIMUM_FUNDS;
+	money_ -= FUNDS_MIN;
 
 	//ランダムの値(%)
 	int rand = UtilityCommon::GetRandomValue(1, 100);
@@ -215,11 +218,21 @@ void Daimyo::ResultAlternate(void)
 	}
 
 	//お金を増やす
-	auto& money = MoneyManager::GetInstance();
-	money.AddMoney(income);
+	auto& gameMng = GameRuleManager::GetInstance();
+	gameMng.AddMoney(income);
 
 	//不満度を増やす
-	dissatisfaction_ = dissatisfaction;
+	dissatisfaction_ += dissatisfaction;
+
+	//不満度が上限に達したら
+	if (dissatisfaction_ >= DISSATISFACTION_MAX)
+	{
+		//全体不満度を上昇
+		gameMng.AddDissatisfaction(ADD_ALL_DISSATISFACTION);
+
+		//自分の不満度はリセット
+		dissatisfaction_ = 0;
+	}
 }
 
 void Daimyo::UpdateStandby(void)
@@ -237,6 +250,9 @@ void Daimyo::UpdateNormal(void)
 
 void Daimyo::UpdateSelect(void)
 {
+	//お金の上昇
+	UpdateNormal();
+
 	//入力
 	const auto& input = InputManager::GetInstance();
 
@@ -253,6 +269,27 @@ void Daimyo::UpdateSelect(void)
 
 void Daimyo::UpdateSelectAlternate(void)
 {
+	//お金の上昇
+	UpdateNormal();
+
+	//入力
+	const auto& input = InputManager::GetInstance();
+
+	//項目を選択せずに左クリック
+	if (isBackMenu_ && input.IsTrgMouseLeft())
+	{
+		//通常に戻る
+		ChangeState(STATE::NORMAL);
+	}
+	//クリックで戻る
+	isBackMenu_ = true;
+}
+
+void Daimyo::UpdateNoMoney(void)
+{
+	//お金の上昇
+	UpdateNormal();
+	
 	//入力
 	const auto& input = InputManager::GetInstance();
 
@@ -286,6 +323,9 @@ void Daimyo::UpdateActionAlternate(void)
 
 void Daimyo::UpdateResultAlternate(void)
 {
+	//お金の上昇
+	UpdateNormal();
+
 	//入力
 	const auto& input = InputManager::GetInstance();
 
@@ -302,6 +342,9 @@ void Daimyo::UpdateResultAlternate(void)
 
 void Daimyo::UpdateEnhancement(void)
 {
+	//お金の上昇
+	UpdateNormal();
+
 	//入力
 	const auto& input = InputManager::GetInstance();
 
@@ -318,6 +361,9 @@ void Daimyo::UpdateEnhancement(void)
 
 void Daimyo::UpdateDetails(void)
 {
+	//お金の上昇
+	UpdateNormal();
+
 	//入力
 	const auto& input = InputManager::GetInstance();
 
@@ -351,7 +397,10 @@ void Daimyo::DrawNormal(void)
 	DrawExtendGraph(pos_.x + import_.hitBoxMin.x, pos_.y + import_.hitBoxMin.y, pos_.x + import_.hitBoxMax.x, pos_.y + import_.hitBoxMax.y, imageId_, true);
 
 	//所持金
-	DrawFormatString(pos_.x, pos_.y + 50, 0xffffff, L"%.2f", money_);
+	DrawFormatString(pos_.x, pos_.y + 50, 0x00ff00, L"%.2f", money_);
+
+	//不満度
+	DrawFormatString(pos_.x, pos_.y + 66, 0xff0000, L"%d", dissatisfaction_);
 }
 
 void Daimyo::DrawSelect(void)
@@ -372,6 +421,11 @@ void Daimyo::DrawSelect(void)
 void Daimyo::DrawSelectAlternate(void)
 {
 	//通常描画
+	DrawNormal();
+}
+
+void Daimyo::DrawNoMoney(void)
+{
 	DrawNormal();
 }
 

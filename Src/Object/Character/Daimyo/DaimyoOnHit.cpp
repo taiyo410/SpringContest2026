@@ -1,5 +1,6 @@
 #include "../pch.h"
 #include "../Manager/Generic/InputManager.h"
+#include "../Manager/Game/GameRuleManager.h"
 #include "DaimyoOnHit.h"
 
 DaimyoOnHit::DaimyoOnHit(Daimyo& _parent)
@@ -45,8 +46,17 @@ void DaimyoOnHit::HitCursor(const std::weak_ptr<Collider2D> _partner)
 			}
 			else if (myCol->IsHit() && myCol->GetTag() == Collider2D::TAG::CHOICE_ALTERNATE)
 			{
-				//ó‘Ô‘JˆÚ
-				parent_.ChangeState(Daimyo::STATE::SELECT_ALTERNATE);
+				//‚¨‹à‚ª‘«‚è‚Ä‚¢‚é‚©
+				if (parent_.GetMoney() >= Daimyo::FUNDS_MIN)
+				{
+					//ó‘Ô‘JˆÚ
+					parent_.ChangeState(Daimyo::STATE::SELECT_ALTERNATE);
+				}
+				else
+				{
+					//ó‘Ô‘JˆÚ
+					parent_.ChangeState(Daimyo::STATE::NO_MONEY);
+				}
 			}
 			else if (myCol->IsHit() && myCol->GetTag() == Collider2D::TAG::CHOICE_ENHANCEMENT)
 			{

@@ -15,6 +15,7 @@ public:
 		NORMAL,				//通常
 		SELECT,				//選択
 		SELECT_ALTERNATE,	//参勤(選択)
+		NO_MONEY,			//お金が足りない
 		ACTION_ALTERNATE,	//参勤(実行中)
 		RESULT_ALTERNATE,	//参勤(結果)
 		ENHANCEMENT,		//強化
@@ -81,14 +82,20 @@ public:
 	static constexpr float CONFISCATION_DENGER = 0.0f;
 
 	//参勤交代に行ける最低資金
-	static constexpr int MINIMUM_FUNDS = 100;
+	static constexpr int FUNDS_MIN = 10;
+
+	//所持できる資金の上限
+	static constexpr int FUNDS_MAX = 50;
 
 	//不満度の最大値
-	static constexpr int DISSATISFACTION_MAX = 100;
+	static constexpr int DISSATISFACTION_MAX = 10;
 
 	//不満度上昇値
 	static constexpr int SUCCESS_DISSATISFACTION = 2;
 	static constexpr int FAILED_DISSATISFACTION = 6;
+
+	//全体の不満度上昇値
+	static constexpr int ADD_ALL_DISSATISFACTION = 8;
 
 	//コンストラクタ
 	Daimyo(const DaimyoImport _import);
@@ -122,6 +129,12 @@ public:
 
 	//項目を戻ることを禁ずる
 	void ProhibitedBack(void) { isBackMenu_ = false; }
+
+	//お金が上限に達したか
+	const bool IsMoneyMax(void)const { return money_ >= FUNDS_MAX; }
+
+	//所持金
+	const int GetMoney(void)const { return money_; }
 
 private:
 
@@ -173,6 +186,7 @@ private:
 	void UpdateNormal(void);
 	void UpdateSelect(void);
 	void UpdateSelectAlternate(void);
+	void UpdateNoMoney(void);
 	void UpdateActionAlternate(void);
 	void UpdateResultAlternate(void);
 	void UpdateEnhancement(void);
@@ -183,6 +197,7 @@ private:
 	void DrawNormal(void);
 	void DrawSelect(void);
 	void DrawSelectAlternate(void);
+	void DrawNoMoney(void);
 	void DrawActionAlternate(void);
 	void DrawResultAlternate(void);
 	void DrawEnhancement(void);
