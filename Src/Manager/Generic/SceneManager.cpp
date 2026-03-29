@@ -43,7 +43,7 @@ void SceneManager::Init(void)
 	Init3D();
 
 	// 初期シーンの設定
-	DoChangeScene(SCENE_ID::START);
+	DoChangeScene(SCENE_ID::TITLE);
 }
 
 void SceneManager::Init3D(void)
@@ -186,7 +186,7 @@ void SceneManager::ChangeScene(SCENE_ID nextId)
 	// 遷移先シーンをメンバ変数に保持
   	waitSceneId_ = nextId;
 
-	// フェードアウト(暗転)を開始する
+	//// フェードアウト(暗転)を開始する
 	fader_->SetFade(Fader::STATE::FADE_OUT);
 	isSceneChanging_ = true;
 	isEndFade_ = false;

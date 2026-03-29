@@ -12,6 +12,10 @@ public:
 	//当たり判定タグ
 	enum class TAG
 	{
+		CURSOR,			//カーソル
+		DAIMYO,			//大名
+		TITLE_MENU,		//タイトルのメニュー
+		SLIDER_BUTTON	//スライダーのボタン
 		CURSOR,		//カーソル
 		DAIMYO,		//大名
 

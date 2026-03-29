@@ -20,6 +20,11 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Src\Manager\Game\GameRuleManager.cpp" />
+    <ClCompile Include="Src\Manager\Generic\SliderUIManager.cpp" />
+    <ClCompile Include="Src\Object\UI\SliderUIController.cpp" />
+    <ClCompile Include="Src\Manager\Generic\MenuManager.cpp" />
+    <ClCompile Include="Src\Object\UI\ArrowController.cpp" />
+    <ClCompile Include="Src\Object\UI\GaugeController.cpp" />
     <ClCompile Include="Src\Scene\DaimyoMenuScene.cpp" />
     <ClCompile Include="Src\Object\Character\Daimyo\DaimyoOnHit.cpp" />
     <ClCompile Include="Src\Object\Character\Cursor\Cursor.cpp" />
@@ -88,6 +93,11 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Src\Manager\Game\GameRuleManager.h" />
+    <ClInclude Include="Src\Manager\Generic\SliderUIManager.h" />
+    <ClInclude Include="Src\Object\UI\SliderUIController.h" />
+    <ClInclude Include="Src\Manager\Generic\MenuManager.h" />
+    <ClInclude Include="Src\Object\UI\ArrowController.h" />
+    <ClInclude Include="Src\Object\UI\GaugeController.h" />
     <ClInclude Include="Src\Scene\DaimyoMenuScene.h" />
     <ClInclude Include="Src\Object\Character\Daimyo\DaimyoOnHit.h" />
     <ClInclude Include="Src\Object\Character\Cursor\Cursor.h" />
@@ -236,7 +246,7 @@
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
     </FxCompile>
-    <FxCompile Include="Src\Shader\Model\LineHpBarPS.hlsl">
+    <FxCompile Include="Src\Shader\Model\GaugePS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
@@ -299,7 +309,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v145</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>

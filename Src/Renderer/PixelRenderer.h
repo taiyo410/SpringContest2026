@@ -48,6 +48,14 @@ public:
 	/// @param eY 終端Y座標
 	void MakeVertex(float sX, float sY, float eX, float eY);
 
+	
+	/// @brief 4点を指定して矩形を作成する
+	/// @param _v1 左上
+	/// @param _v2 右上
+	/// @param _v3 左下
+	/// @param _v4 右下
+	void MakeVertexQuad(Vector2F _v0, Vector2F _v1, Vector2F _v2, Vector2F _v3);
+
 	/// @brief スクリーンサイズに合わせた頂点作成
 	/// @param  
 	void MakeScreenVertex(void);

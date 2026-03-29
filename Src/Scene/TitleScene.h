@@ -3,11 +3,15 @@
 #include "../Common/Easing.h"
 #include "SceneBase.h"
 
+class GaugeController;
+class ArrowController;
 class TextWriter;
+class StartScene;
 class SettingScene;
 class SoundManager;
 class Easing;
-class MenuController;
+class MenuManager;
+class Cursor;
 class TitleScene : public SceneBase
 {
 
@@ -21,6 +25,7 @@ public:
 		EXIT_MENU,
 		SCREEN_MENU,
 		//その他
+		START_STATE,
 		EASE_MENU,
 		MENU,
 
@@ -126,24 +131,38 @@ private:
 	static constexpr Vector2F BACK_BTN_POS = { DICITION_BTN_POS.x + 150.0f, Application::SCREEN_SIZE_Y - DICITION_BTN_SIZE - 30 };
 	//ボタンの説明文字列座標オフセット
 	static constexpr float BTN_STR_OFFSET_X = 16.0f;
+
+	//ブレンド時間
+	static constexpr float BLEND_TIME = 2.0f;
+
 	//イージング
 	std::unique_ptr<Easing>easing_;
 	//テキスト
 	std::unique_ptr<TextWriter>textWtiter_;
 
+	//ゲージ
+	std::unique_ptr<GaugeController>gaugeCntl_;
+	std::unique_ptr<ArrowController>arrowCntl_;
+
 	//各選択肢の更新
 	std::function<void(void)>updateTitle_;
 	std::unordered_map<TITLE_STATE, std::function<void(void)>> titleSelectFuncTable_;
+	std::function<void(void)>drawTitle_;
+
 	//文字列格納
 	std::unordered_map<TITLE_BTN, std::wstring>buttonStrTable_;
 	//YES,NOの文字列
 	std::unordered_map<YES_NO, std::wstring>yesNoStrTable_;
-	//メニュコントローラ
-	std::unique_ptr<MenuController>menuController_;
-	//設定
+	//メニューマネージャ
+	std::unique_ptr<MenuManager>menuMng_;
+	//設定シーン
 	std::shared_ptr<SceneBase>settingScn_;
+	//カーソル
+	std::unique_ptr<Cursor>cursor_;
 	//サウンド
 	SoundManager& soundMng_;
+
+
 
 	//タイトルロゴ座標
 	Vector2F logoPos_;
@@ -171,6 +190,17 @@ private:
 	int fontSize_;
 	int thick_;
 
+	//プッシュボタンの文字列のアルファ値
+	int stringAlpha_;
+	//アルファ値のブレンドカウント
+	float blendCnt_;
+
+	float gaugeCnt_;
+	Vector2F gaugePos_;
+	Vector2F gaugeSize_;
+	FLOAT4 col_;
+	float gaugePer_;
+
 	//状態遷移
 	void ChangeState(const TITLE_STATE& _state);
 
@@ -184,12 +214,15 @@ private:
 	void OnSceneEnter(void) override;
 
 	//更新系
-	void UpdateEase(void);	//初めのイージング処理
-	void UpdateMenu(void);	//メニュー処理
+	void UpdateStart(void);		//スタートシーン
+	void UpdateEase(void);		//初めのイージング処理
+	void UpdateMenu(void);		//メニュー処理
 	void UpdateSetting(void);	//スクリーンの設定
 	void UpdateTutorial(void);	//チュートリアル
 
 	//描画系
+	void DrawMenu(void);
+	void DrawStart(void);
 	void DrawSetting(void);
 	void DrawExit(void);
 
@@ -200,6 +233,7 @@ private:
 	void UpdateExitMenu(void);
 
 	//状態遷移
+	void ChangeStart(void);
 	void ChangeEaseMenu(void);
 	void ChangeTitleMenu(void);
 	void ChangeSetting(void);

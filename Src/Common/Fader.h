@@ -47,7 +47,7 @@ private:
 	float alpha_;
 
 	// 状態(STATE)を保ったまま終了判定を行うため、
-	// Update->DrawPlayerUI->Updateの1フレーム判定用
+	// Init->DrawPlayerUI->Updateの1フレーム判定用
 	bool isPreEnd_;
 
 	// フェード処理の終了判定

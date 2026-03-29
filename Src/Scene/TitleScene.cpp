@@ -1,6 +1,7 @@
 #include <string>
 #include <DxLib.h>
 #include "../Application.h"
+#include "../Utility/UtilityDraw.h"
 #include "../Utility/UtilityCommon.h"
 #include "../Manager/Resource/SoundManager.h"
 #include "../Manager/Generic/SceneManager.h"
@@ -8,30 +9,48 @@
 #include "../Manager/Generic/InputManagerS.h"
 #include "../Manager/Generic/ButtonUIManager.h"
 #include "../Manager/Generic/DataBank.h"
-#include "../Manager/Generic/MenuController.h"
+#include "../Manager/Generic/MenuManager.h"
+#include "../Manager/Game/CollisionManager2D.h"
 #include "../Manager/Resource/ResourceManager.h"
 #include "../Manager/Resource/FontManager.h"
 #include "../Common/FontController.h"
+#include "./StartScene.h"
 #include "./SettingScene.h"
 #include "../Common/Easing.h"
 #include "../Common/TextWriter.h"
+#include "../Object/Character/Cursor/Cursor.h"
+
+#include "../Object/UI/GaugeController.h"
+#include "../Object/UI/ArrowController.h"
+
 #include "TitleScene.h"
 
 TitleScene::TitleScene(void) :
-	soundMng_(SoundManager::GetInstance())
+	soundMng_(SoundManager::GetInstance()),
+	gaugePer_(0.0f),
+	gaugeSize_({ 300.0f,160.0f }),
+	gaugePos_({100.0f,100.0f}),
+	col_({ 0.0f,1.0f,0.0f,0.0f })
 {
+	CollisionManager2D::CreateInstance();
+
 	//更新関数のセット
 	updateFunc_ = [this]() {LoadingUpdate(); };
 	//描画関数のセット
-	drawFunc_=[this]() {LoadingDraw(); };
-	menuController_ = std::make_unique<MenuController>();
+	drawFunc_ = [this]() {LoadingDraw(); };
+	menuMng_ = std::make_unique<MenuManager>();
 	textWtiter_ = std::make_unique<TextWriter>();
 	settingScn_ = std::make_shared<SettingScene>();
+	gaugeCntl_ = std::make_unique<GaugeController>(ResourceManager::SRC::GAUGE, gaugePos_, gaugeSize_, gaugePer_, col_, col_);
+	arrowCntl_ = std::make_unique<ArrowController>(ResourceManager::SRC::ARROW_GAUGE, gaugePos_, gaugeSize_, 100.0f, gaugePer_, col_);
+	cursor_ = std::make_unique<Cursor>();
+
 }
 
 TitleScene::~TitleScene(void)
 {
 	soundMng_.Stop(SoundManager::SRC::TITLE_BGM);
+	CollisionManager2D::GetInstance().Destroy();
 }
 
 void TitleScene::Load(void)
@@ -44,18 +63,18 @@ void TitleScene::Load(void)
 	//タイトルロゴの読み込み
 	imgTitleLogo = resMng_.Load(ResourceManager::SRC::TITLE_LOGO).handleId_;
 
-	menuController_->LoadFont(FontManager::FONT_APRIL_GOTHIC, FONT_SIZE);
+	menuMng_->LoadFont(FontManager::FONT_APRIL_GOTHIC, FONT_SIZE);
 	//設定シーン
 	settingScn_->Load();
-
 	soundMng_.LoadResource(SoundManager::SRC::TITLE_BGM);
 	soundMng_.LoadResource(SoundManager::SRC::MOVE_BTN_SE);
 	soundMng_.LoadResource(SoundManager::SRC::DESIDE_BTN_SE);
 	soundMng_.LoadResource(SoundManager::SRC::GAME_START_SE);
 
 	ButtonUIManager::GetInstance().Load();
-
-
+	cursor_->Load();
+	gaugeCntl_->Load();
+	arrowCntl_->Load();
 	yesNoState_ = YES_NO::NO;
 }
 
@@ -66,6 +85,7 @@ void TitleScene::Init(void)
 		{TITLE_STATE::MENU,[this]() {ChangeTitleMenu(); }},
 		{TITLE_STATE::START_GAME,[this]() {ChangeGameStart(); }},
 		//{TITLE_STATE::TUTORIAL,[this]() { UpdateTutorial(); }},
+		{TITLE_STATE::START_STATE,[this]() {ChangeStart(); }},
 		{TITLE_STATE::EXIT_MENU,[this]() {ChangeExit(); }},
 		{TITLE_STATE::SETTING,[this]() {ChangeSetting(); }},
 		{TITLE_STATE::EXIT,[this]() { Application::GetInstance().IsGameEnd(); }}
@@ -86,22 +106,24 @@ void TitleScene::Init(void)
 
 	easing_ = std::make_unique<Easing>();
 	selectState_ = TITLE_STATE::MENU;
-	ChangeState(TITLE_STATE::EASE_MENU);
+	ChangeState(TITLE_STATE::START_STATE);
 	selectNum_ = 0;
 	easeDistanceCnt_ = 0.0f;
 	logoPos_ = { -LOGO_SIZE_X,-LOGO_SIZE_Y };
 	logoEaseCnt_ = BUTTON_EASING_TIME;
 
+	gaugeCntl_->Init();
+	arrowCntl_->Init();
 	int i = 0;
 	for (auto& button : buttonStrTable_)
 	{
 		//イージング演出をするために初期位置は画面外にする
 		Vector2 pos = { Application::SCREEN_SIZE_X,static_cast<int>(BUTTON_START_POS_Y + BUTTON_DISTANCE * i) };
-		menuController_->AddMenu(static_cast<int>(button.first), button.second, pos);
+		menuMng_->AddMenu(static_cast<int>(button.first), button.second, pos);
 		i++;
 	}
-
-	soundMng_.Play(SoundManager::SRC::TITLE_BGM, SoundManager::PLAYTYPE::LOOP);
+	menuMng_->Init();
+	//soundMng_.Play(SoundManager::SRC::TITLE_BGM, SoundManager::PLAYTYPE::LOOP);
 }
 
 void TitleScene::PopSceneAfter(void)
@@ -118,11 +140,105 @@ void TitleScene::ChangeState(const TITLE_STATE& _state)
 
 void TitleScene::NormalUpdate(void)
 {
-	textWtiter_->Update();
+	//textWtiter_->Init();
+	cursor_->Update();
+	
+	gaugePer_=easing_->EaseFunc(0.0f, 1.0f, gaugeCnt_ / 15.0f, Easing::EASING_TYPE::LERP);
+	gaugeCnt_ += scnMng_.GetDeltaTime();
+	gaugeCntl_->Update();
+	arrowCntl_->Update();
+
 	updateTitle_();
+	menuMng_->Update();
+	//更新はアクション中のみ
+	CollisionManager2D::GetInstance().Update();
+
+	//終了した当たり判定の消去
+	CollisionManager2D::GetInstance().Sweep();
 }
 
 void TitleScene::NormalDraw(void)
+{
+	drawTitle_();
+
+	cursor_->Draw();
+	//gaugeCntl_->Draw();
+
+	arrowCntl_->Draw();
+}
+
+void TitleScene::OnSceneEnter(void)
+{
+	//処理変更
+	updateFunc_ = [this]() {NormalUpdate(); };
+	drawFunc_=[this]() {NormalDraw(); };
+}
+
+void TitleScene::UpdateStart(void)
+{
+	stringAlpha_ = easing_->EaseFunc(0, 255, blendCnt_ / BLEND_TIME, Easing::EASING_TYPE::LERP_COMEBACK);
+	blendCnt_ > BLEND_TIME ? blendCnt_ = 0 : blendCnt_ += scnMng_.GetDeltaTime();
+
+	if (inputMngS_.IsTrgDown(INPUT_EVENT::OK))
+	{
+		ChangeState(TITLE_STATE::EASE_MENU);
+		return;
+	}
+}
+
+void TitleScene::UpdateEase(void)
+{
+	logoEaseCnt_ -= SceneManager::GetInstance().GetDeltaTime();
+
+	//ロゴ座標のイージング
+	logoPos_ = easing_->EaseFunc(START_POS, GOAL_POS, (LOGO_EASING_TIME - logoEaseCnt_) / LOGO_EASING_TIME, Easing::EASING_TYPE::ELASTIC_OUT);
+
+	//メニューの補完
+	constexpr int OFFSET = 100;
+	menuMng_->UpdateDirection(EASING_DIS_TIME, BUTTON_EASING_TIME, Application::SCREEN_HALF_X - OFFSET);
+
+	if (menuMng_->IsAllDirectEaseEnd())
+	{
+		ChangeState(TITLE_STATE::MENU);
+	}
+}
+
+void TitleScene::UpdateMenu(void)
+{
+	//選択中のボタンをイージングで動かす
+	menuMng_->NormalUpdate(SELECT_EASE_DISTANCE, SELECT_EASE_TIME, Easing::EASING_TYPE::COS_BACK);
+
+	//// シーン遷移
+	InputManager& ins = InputManager::GetInstance();
+	InputManagerS& insS = InputManagerS::GetInstance();
+
+	menuMng_->SelectMenu();
+	selectNum_ = menuMng_->GetSelectMenuNum();
+
+	//OKボタンが押されたら
+	if (insS.IsTrgDown(INPUT_EVENT::OK))
+	{
+		SoundManager::SRC se;
+		//ゲームスタート以外のボタンなら決定音、ゲームスタートならゲームスタート音を鳴らす
+		selectNum_ != static_cast<int>(TITLE_BTN::START_GAME) ? se = SoundManager::SRC::DESIDE_BTN_SE : se = SoundManager::SRC::GAME_START_SE;
+		soundMng_.Play(se, SoundManager::PLAYTYPE::BACK);
+		ChangeState(static_cast<TITLE_STATE>(selectNum_));
+	}
+}
+
+void TitleScene::UpdateSetting(void)
+{
+	scnMng_.PushScene(settingScn_);
+	return;
+}
+
+void TitleScene::UpdateTutorial(void)
+{
+	//まだ未実装
+	ChangeState(TITLE_STATE::MENU);
+}
+
+void TitleScene::DrawMenu(void)
 {
 	DrawExtendGraph(
 		0,
@@ -135,8 +251,7 @@ void TitleScene::NormalDraw(void)
 
 	//タイトルロゴ
 	DrawExtendGraphF(logoPos_.x, logoPos_.y, logoPos_.x + LOGO_SIZE_X, logoPos_.y + LOGO_SIZE_Y, imgTitleLogo, true);
-	menuController_->Draw();
-
+	menuMng_->Draw();
 
 	//決定ボタン
 	ButtonUIManager::GetInstance().DrawFromCenter(ButtonUIManager::BTN_UI_TYPE::B_BUTTON_COL_PUSH, DICITION_BTN_POS, DICITION_BTN_SIZE);
@@ -165,64 +280,14 @@ void TitleScene::NormalDraw(void)
 	}
 }
 
-void TitleScene::OnSceneEnter(void)
+void TitleScene::DrawStart(void)
 {
-	//処理変更
-	updateFunc_ = [this]() {NormalUpdate(); };
-	drawFunc_=[this]() {NormalDraw(); };
-}
+	DrawBox(0, 0, Application::SCREEN_SIZE_X, Application::SCREEN_SIZE_Y, 0xff0000, true);
 
-void TitleScene::UpdateEase(void)
-{
-	logoEaseCnt_ -= SceneManager::GetInstance().GetDeltaTime();
+	SetDrawBlendMode(DX_BLENDMODE_ALPHA, (int)stringAlpha_);
+	UtilityDraw::DrawStringCenter(Application::SCREEN_HALF_X, Application::SCREEN_HALF_Y, UtilityCommon::WHITE, buttonFontHandle_, L"Push To Click");
+	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 
-	//ロゴ座標のいーじんぐ
-	logoPos_ = easing_->EaseFunc(START_POS, GOAL_POS, (LOGO_EASING_TIME - logoEaseCnt_) / LOGO_EASING_TIME, Easing::EASING_TYPE::ELASTIC_OUT);
-
-	//メニューの補完
-	constexpr int OFFSET = 100;
-	menuController_->UpdateDirection(EASING_DIS_TIME, BUTTON_EASING_TIME, Application::SCREEN_HALF_X - OFFSET);
-
-	if (menuController_->IsAllDirectEaseEnd())
-	{
-		ChangeState(TITLE_STATE::MENU);
-	}
-}
-
-void TitleScene::UpdateMenu(void)
-{
-	//選択中のボタンをイージングで動かす
-	menuController_->NormalUpdate(SELECT_EASE_DISTANCE, SELECT_EASE_TIME, Easing::EASING_TYPE::COS_BACK);
-
-	//// シーン遷移
-	InputManager& ins = InputManager::GetInstance();
-	InputManagerS& insS = InputManagerS::GetInstance();
-
-	menuController_->SelectMenu();
-	selectNum_ = menuController_->GetSelectMenuNum();
-
-	//OKボタンが押されたら
-	if (insS.IsTrgDown(INPUT_EVENT::OK))
-	{
-		SoundManager::SRC se;
-		//ゲームスタート以外のボタンなら決定音、ゲームスタートならゲームスタート音を鳴らす
-
-		selectNum_ != static_cast<int>(TITLE_BTN::START_GAME) ? se = SoundManager::SRC::DESIDE_BTN_SE : se = SoundManager::SRC::GAME_START_SE;
-		soundMng_.Play(se, SoundManager::PLAYTYPE::BACK);
-		ChangeState(static_cast<TITLE_STATE>(selectNum_));
-	}
-}
-
-void TitleScene::UpdateSetting(void)
-{
-	scnMng_.PushScene(settingScn_);
-	return;
-}
-
-void TitleScene::UpdateTutorial(void)
-{
-	//まだ未実装
-	ChangeState(TITLE_STATE::MENU);
 }
 
 void TitleScene::DrawSetting(void)
@@ -237,12 +302,12 @@ void TitleScene::DrawSetting(void)
 	{
 		str = L"フルスクリーンにしますか？";
 	}
-	menuController_->YesNoDraw(str);
+	menuMng_->YesNoDraw(str);
 }
 
 void TitleScene::DrawExit(void)
 {
-	menuController_->YesNoDraw(L"本当にゲームを終了しますか？");
+	menuMng_->YesNoDraw(L"本当にゲームを終了しますか？");
 }
 
 void TitleScene::UpdateSelectGame(void)
@@ -262,15 +327,21 @@ void TitleScene::UpdateExitMenu(void)
 	InputManagerS& insS = InputManagerS::GetInstance();
 	if (insS.IsTrgDown(INPUT_EVENT::OK))
 	{
-		if (menuController_->GetIsYes())
+		if (menuMng_->GetIsYes())
 		{
 			Application::GetInstance().IsGameEnd();
 		}
 		else { ChangeState(TITLE_STATE::MENU); }
 	}
 }
+void TitleScene::ChangeStart(void)
+{
+	drawTitle_ = [this]() {DrawStart(); };
+	updateTitle_ = [this](){ UpdateStart(); };
+}
 void TitleScene::ChangeEaseMenu(void)
 {
+	drawTitle_ = [this]() {DrawMenu(); };
 	updateTitle_ = [this]() {UpdateEase(); };
 }
 void TitleScene::ChangeTitleMenu(void)
@@ -299,12 +370,12 @@ void TitleScene::UpdateYesNo(void)
 	if (insS.IsTrgDown(INPUT_EVENT::LEFT) || ins.IsTrgDown(KEY_INPUT_A))
 	{
 		soundMng_.Play(SoundManager::SRC::MOVE_BTN_SE, SoundManager::PLAYTYPE::BACK);
-		menuController_->SetYesNoUpdate(true);
+		menuMng_->SetYesNoUpdate(true);
 	}
 	else if (insS.IsTrgDown(INPUT_EVENT::RIGHT) || ins.IsTrgDown(KEY_INPUT_D))
 	{
 		soundMng_.Play(SoundManager::SRC::MOVE_BTN_SE, SoundManager::PLAYTYPE::BACK);
-		menuController_->SetYesNoUpdate(false);
+		menuMng_->SetYesNoUpdate(false);
 	}
 }
 

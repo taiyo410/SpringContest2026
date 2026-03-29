@@ -278,3 +278,16 @@ int UtilityCommon::GetRandomValue(int _min, int _max)
     //ƒ‰ƒ“ƒ_ƒ€‚Ì’l
     return dist(mt);
 }
+
+Vector2 UtilityCommon::GetStringSizeToHandle(const int fontHandle, const std::wstring _str)
+{
+    Vector2 size = {};
+    GetDrawStringSizeToHandle(
+        &size.x,
+        &size.y,
+        NULL,
+        _str.c_str(),
+        static_cast<int>(wcslen(_str.c_str())),
+        fontHandle);
+    return size;
+}

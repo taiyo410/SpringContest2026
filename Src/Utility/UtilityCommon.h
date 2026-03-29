@@ -98,8 +98,6 @@ public:
 	/// @return 0からN-1の範囲に補正した値
 	static int WrapIndex(int index, int max);
 
-
-	
 	/// @brief CSVファイルの読み込み
 	/// @param filePath ファイルパス
 	/// @return 読み込んだデータ
@@ -121,5 +119,10 @@ public:
 	/// @return ランダムの値
 	static int GetRandomValue(int _min, int _max);
 
+	/// @brief フォントを使用した文字列のサイズを取る
+	/// @param fontHandle フォントハンドル
+	/// @param _str 調べたい文字列
+	/// @return 
+	static Vector2 GetStringSizeToHandle(const int fontHandle, const std::wstring _str);
 
 };
