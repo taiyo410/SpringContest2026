@@ -11,6 +11,7 @@
 #include "../Utility/UtilityTemplates.h"
 #include "../Object/Character/Cursor/Cursor.h"
 #include "../Manager/Generic/SliderUIManager.h"
+#include "../Object/UI/SliderUIController.h"
 #include "SettingScene.h"
 
 SettingScene::SettingScene(void):
@@ -47,9 +48,10 @@ SettingScene::SettingScene(void):
 	for (auto& button : buttonStrTable_)
 	{
 		//イージング演出をするために初期位置は画面外にする
-		bool isMakeCollider = !UtilityCommon::IsHasFormat(button.second);	//タイトルメニューへはコライダを作らない
+		//bool isMakeCollider = !UtilityCommon::IsHasFormat(button.second);	//タイトルメニューへはコライダを作らない
 		Vector2 pos = { BUTTON_POS.x,BUTTON_POS.y + BUTTON_OFFSET * i};
-		menuMng_->AddMenu(static_cast<int>(button.first), button.second, pos, isMakeCollider);
+		//menuMng_->AddMenu(static_cast<int>(button.first), button.second, pos, isMakeCollider);
+		menuMng_->AddMenu(static_cast<int>(button.first), button.second, pos, true);
 		i++;
 	}
 }
@@ -103,6 +105,8 @@ void SettingScene::NormalUpdate(void)
 
 void SettingScene::NormalDraw(void)
 {
+	DrawBox(100, 100, Application::SCREEN_SIZE_X-100, Application::SCREEN_SIZE_Y - 100, UtilityCommon::PINK, true);
+
 	menuMng_->DrawFormat(std::vector<int>{ volume_[static_cast<int>(VOLUME_TYPE::BGM)]
 		, volume_[static_cast<int>(VOLUME_TYPE::SE)]
 		, volume_[static_cast<int>(VOLUME_TYPE::TEXT_SPD)] });
@@ -145,16 +149,26 @@ void SettingScene::ChangeExitSetting(void)
 
 void SettingScene::UpdateSettingNormal(void)
 {
+	//選択中のボタンをイージングで動かす
+	menuMng_->NormalUpdate(SELECT_EASE_DISTANCE, SELECT_EASE_TIME, Easing::EASING_TYPE::COS_BACK);
 	menuMng_->SelectMenu();
-	sliderUIMng_->Update();
 	menuMng_->Update();
 
 
 	//割合計算
 	for (int i=0;i<static_cast<int>(VOLUME_TYPE::MAX);i++)
 	{
+		volumePer_[i] = sliderUIMng_->GetSliderPercent()[i];
 		volume_[i] = volumePer_[i] * VOL_MAX;
 	}
+
+	auto hitItr = sliderUIMng_->GetIsHitSlider();
+	if (hitItr != sliderUIMng_->GetSliderUIsEnd())
+	{
+		menuMng_->SetSelectMenuNum((*hitItr)->GetSliderNum());
+	}
+
+	sliderUIMng_->Update();
 
 	const int selectNum = menuMng_->GetSelectMenuNum();
 	if (inputMngS_.IsTrgDown(INPUT_EVENT::OK)&&menuMng_->GetSelectMenuNum()==static_cast<int>(SETTING_STATE::EXIT_SETTING))
@@ -162,17 +176,17 @@ void SettingScene::UpdateSettingNormal(void)
 		ChangeSetting(static_cast<SETTING_STATE>(selectNum));
 		return;
 	}
-	else if (inputMng_.IsKeyKeepPressed(KEY_INPUT_A,0.2f))
-	{
-		UtilityTemplates::SubIndex(volume_[static_cast<int>(selectNum)],0);
-		VolumeRefrect();
+	//else if (inputMng_.IsKeyKeepPressed(KEY_INPUT_A,0.2f))
+	//{
+	//	UtilityTemplates::SubIndex(volumePer_[static_cast<int>(selectNum)],0.0f,0.01f);
+	//	VolumeRefrect();
 
-	}
-	else if (inputMng_.IsKeyKeepPressed(KEY_INPUT_D, 0.2f))
-	{
-		UtilityTemplates::AddIndex(volume_[static_cast<int>(selectNum)],VOL_MAX);
-		VolumeRefrect();
-	}
+	//}
+	//else if (inputMng_.IsKeyKeepPressed(KEY_INPUT_D, 0.2f))
+	//{
+	//	UtilityTemplates::AddIndex(volumePer_[static_cast<int>(selectNum)],1.0f,0.01f);
+	//	VolumeRefrect();
+	//}
 
 }
 

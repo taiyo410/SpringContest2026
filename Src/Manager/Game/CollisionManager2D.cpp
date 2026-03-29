@@ -129,3 +129,5 @@ bool CollisionManager2D::IsCollision(const std::weak_ptr<Collider2D> _col1, cons
 	//“–‚½‚è”»’è
 	return ret;
 }
+
+

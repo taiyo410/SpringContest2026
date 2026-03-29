@@ -288,6 +288,7 @@ const Vector2 MenuManager::GetMenuCenterPos(const std::wstring _str)const
 	return { centerX,centerY };
 }
 
+
 unsigned int MenuManager::DecideColor(const int btnNum)
 {
 	if (btnNum == selectMenuNum_)

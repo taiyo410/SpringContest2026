@@ -54,5 +54,6 @@ private:
 
 	//–{“–‚½‚è”»’è
 	bool IsCollision(const std::weak_ptr<Collider2D> _col1, const std::weak_ptr<Collider2D> _col2);
+
 };
 

@@ -45,9 +45,26 @@ public:
 	/// @param  
 	void Release(void);
 
+	/// @brief 当たり判定がヒットしているUIのイテレータの取得
+	/// @param  
+	/// @return 当たり判定がヒットしているUIのイテレータ
+	std::vector<std::unique_ptr<SliderUIController>>::const_iterator GetIsHitSlider(void)const;
+
+	/// @brief スライダーUIのイテレータの終端位置の取得(当たり判定で何も取得できなかった時に使用する)
+	/// @param  
+	/// @return スライダーUIのイテレータの終端位置
+	std::vector<std::unique_ptr<SliderUIController>>::const_iterator GetSliderUIsEnd(void)const { return sliderUIs_.end(); }
+	
+	/// @brief スライダー割合の取得
+	/// @param  
+	/// @return スライダー割合
+	const std::vector<float>GetSliderPercent(void);
+
 private:
 
 	//スライダ
 	std::vector<std::unique_ptr<SliderUIController>>sliderUIs_;
+
+	int sliderNumCnt_;	//スライダー番号カウント
 };
 

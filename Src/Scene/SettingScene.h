@@ -67,6 +67,12 @@ public:
 
 private:
 
+    //選択中ボタンのイージングで動かせる距離
+    static constexpr Vector2 SELECT_EASE_DISTANCE = { 20,0 };
+
+    //選択中ボタンのイージング時間
+    static constexpr float SELECT_EASE_TIME = 0.5f;
+
     //ボタン間の間隔
     static constexpr int BUTTON_OFFSET = 100;
 

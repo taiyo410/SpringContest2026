@@ -127,6 +127,10 @@ public:
 	/// @param _src 選択時のボタン
 	void SelectMenu(const SoundManager::SRC _src = SoundManager::SRC::NONE);
 
+	/// @brief 選択中のメニュー番号のセット
+	/// @param _num セットしたい番号
+	void SetSelectMenuNum(const int _num) { selectMenuNum_ = _num; }
+
 	/// @brief 選択中のメニュー番号の加算
 	/// @param  
 	void AddSelectMenuNum(void);
