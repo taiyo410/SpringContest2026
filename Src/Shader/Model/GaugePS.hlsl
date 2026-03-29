@@ -4,32 +4,37 @@ cbuffer cbParam : register(b4)
 {
     float4 g_color_1;
     float4 g_color_2;
+    float4 g_over_hp_color;
     float g_hp_Per;
-    float g_hp_lerp; 
+    float g_hp_lerp;
     float2 dummy;
 }
 float4 main(PS_INPUT PSInput) : SV_TARGET0
 {
     float2 uv = PSInput.uv;
     float4 srcCol = tex.Sample(texSampler, uv);
-    //float4 col=
     if (srcCol.a < 0.01f)
     {
         discard;
     }
+    //ÉQÅ[ÉWÇÃògÇï`âÊ
+    else if (all(srcCol.rgb < 0.95f))
+    {
+        return srcCol;
+    }
     else if (uv.x > g_hp_lerp)
     {
-        float t = uv.x;
-        srcCol.rgb = lerp(g_color_1, g_color_2, t);
-        
-        //å≥ÇÃêFÇÊÇËà√Ç≠Ç∑ÇÈ
-        srcCol.rgb /= 3.0f;
+        if (g_over_hp_color.a<0.01f)
+        {
+            discard;
+        }
+        //åªç›HPà»è„ÇÃïîï™ÇÃêFÇìhÇÈ
+        srcCol.rgba = g_over_hp_color;
     }
     if (uv.x < g_hp_Per)
     {
         float t = uv.x;
         srcCol.rgb = lerp(g_color_1, g_color_2, t);
-        //srcCol.rgb = float3(1.0 * (1.0f - g_hp_Per), 1.0f, 0.0f);
     }
     else if (uv.x < g_hp_lerp)
     {

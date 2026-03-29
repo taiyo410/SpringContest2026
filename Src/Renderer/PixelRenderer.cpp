@@ -20,7 +20,14 @@ void PixelRenderer::MakeSquareVertex(Vector2F pos, Vector2F size)
 	float eX = pos.x + size.x;
 	float eY = pos.y + size.y;
 
+	//Vector2F pos1 = pos;
+	//Vector2F pos2 = {pos.x+size.x,pos.y};
+	//Vector2F pos3 = pos + size;
+	//Vector2F pos4 = { pos.x,pos.y + size.y };
+
+
 	MakeVertex(sX, sY, eX, eY);
+	//MakeVertexQuad(pos1, pos2, pos3, pos4);
 }
 
 void PixelRenderer::MakeSquareVertexFromCenter(Vector2F centerPos, Vector2F size)
@@ -109,6 +116,81 @@ void PixelRenderer::MakeVertex(float sX, float sY, float eX, float eY)
 void PixelRenderer::MakeSquareVertex(void)
 {
 	MakeSquareVertex(pos_, size_);
+}
+
+void PixelRenderer::MakeVertexQuad(Vector2F _v0, Vector2F _v1, Vector2F _v2, Vector2F _v3)
+{
+	// ÇSí∏ì_ÇÃèâä˙âª
+	for (int i = 0; i < 4; i++)
+	{
+		vertexs_[i].rhw = 1.0f;
+		vertexs_[i].dif = GetColorU8(255, 255, 255, 255);
+		vertexs_[i].spc = GetColorU8(255, 255, 255, 255);
+		vertexs_[i].su = 0.0f;
+		vertexs_[i].sv = 0.0f;
+	}
+
+	int cnt = 0;
+	// ç∂è„
+	vertexs_[cnt].pos = VGet(_v0.x, _v0.y, 0.0f);
+	vertexs_[cnt].u = 0.0f;
+	vertexs_[cnt].v = 0.0f;
+	vertexs_[cnt].su = 0.0f;
+	vertexs_[cnt].sv = 0.0f;
+	cnt++;
+
+	// âEè„
+	vertexs_[cnt].pos = VGet(_v1.x, _v1.y, 0.0f);
+	vertexs_[cnt].u = 1.0f;
+	vertexs_[cnt].v = 0.0f;
+	vertexs_[cnt].su = 1.0f;
+	vertexs_[cnt].sv = 0.0f;
+	cnt++;
+
+	// âEâ∫
+	vertexs_[cnt].pos = VGet(_v2.x, _v2.y, 0.0f);
+	vertexs_[cnt].u = 1.0f;
+	vertexs_[cnt].v = 1.0f;
+	vertexs_[cnt].su = 1.0f;
+	vertexs_[cnt].sv = 1.0f;
+	cnt++;
+
+	// ç∂â∫
+	vertexs_[cnt].pos = VGet(_v3.x, _v3.y, 0.0f);
+	vertexs_[cnt].u = 0.0f;
+	vertexs_[cnt].v = 1.0f;
+	vertexs_[cnt].su = 0.0f;
+	vertexs_[cnt].sv = 1.0f;
+
+	/*
+	Å@Å`Å`Å`Å`Å`Å`
+		0-----1
+		|     |
+		|     |
+		3-----2
+	Å@Å`Å`Å`Å`Å`Å`
+		0-----1
+		|  Å^
+		|Å^
+		3
+	Å@Å`Å`Å`Å`Å`Å`
+			  1
+		   Å^ |
+		 Å^   |
+		3-----2
+	Å@Å`Å`Å`Å`Å`Å`
+	*/
+
+
+	// í∏ì_ÉCÉìÉfÉbÉNÉX
+	cnt = 0;
+	indexes_[cnt++] = 0;
+	indexes_[cnt++] = 1;
+	indexes_[cnt++] = 3;
+
+	indexes_[cnt++] = 1;
+	indexes_[cnt++] = 2;
+	indexes_[cnt++] = 3;
 }
 
 void PixelRenderer::MakeScreenVertex(void)

@@ -11,9 +11,9 @@
 StartScene::StartScene(void)
 {
 	//更新関数のセット
-	updateFunc_ = [this]() {LoadingUpdate(); };
+	updateFunc_ = [this]() {NormalUpdate(); };
 	//描画関数のセット
-	drawFunc_ = [this]() {LoadingDraw(); };
+	drawFunc_ = [this]() {NormalDraw(); };
 
 	easing_ = std::make_unique<Easing>();
 }

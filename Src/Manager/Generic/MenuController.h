@@ -4,163 +4,103 @@
 #include "../Common/Easing.h"
 #include "../Utility/UtilityCommon.h"
 
-class InputManager;
-class InputManagerS;
-class SoundManager;
+#include "../Object/Character/Base/UIBase2D.h"
+
 class FontController;
+class SceneManager;
 class Easing;
-class MenuController
+
+class MenuController:public UIBase2D
 {
 public:
 
-	enum class MENU_STATE
-	{
-		DIRECTION,		//メニューが出てくる演出
-		NORMAL,			//通常
-	};
-
-	//yes/noの選択肢
-	enum class YES_NO
-	{
-		YES,
-		NO,
-		MAX
-	};
-
-	struct BTN_INFO
-	{
-		std::wstring btnStr;				//ボタンの文字
-		//TITLE_BTN btnType;				//何のボタンか
-		Vector2 startPos;					//イージング前の座標
-		Vector2 curPos = startPos;			//現在座標
-		float directionEaseCnt=0.0f;					//イージング時間
-		bool isEase = false;				//イージング中か
-		bool isEndDirectEase = false;		//演出イージングが終わったか
-	};
-
-	/// @brief コンストラクタ
+	/// @brief 
 	/// @param  
-	MenuController(void);
-
-	/// @brief デストラクタ
-	/// @param  
+	MenuController(const int _menuNum, const std::wstring _menu, const Vector2 _pos, int& _fontHandle);
 	~MenuController(void);
 
-	/// @brief フォントのロード
-	/// @param
-	void LoadFont(const std::wstring _fontType,const int _size);
-
-	/// @brief メニューの追加
+	/// @brief ロード
 	/// @param  
-	void AddMenu(const int _arrayNum,const std::wstring _menu,const Vector2 _pos);
+	void Load(void)override;
 
-	/// @brief メニュー操作
+	/// @brief 初期化
 	/// @param  
-	void Update(void);
+	void Init(void)override;
 
-	/// @brief サイズイージングのフォントハンドルの取得(サイズを変えるためにはフォントを作り直す必要があるため)
-	/// @param _arrayNum 配列番号
-	/// @param _startSize1 初期サイズ　
-	/// @param _goalSize1 最終的なサイズ
-	/// @param _easeTime イージング時間
-	/// @param _easeType イージング種類
-	/// @return サイズ変更後のフォントハンドル
-	const int GetSizeEasingFontHandle(const int _arrayNum,const int _startSize, const int _goalSize, const float _easeTime,Easing::EASING_TYPE _easeType);
-	
-	/// @brief メニュー演出の更新
-	/// @param _disSpawn 出てくる間隔時間
-	/// @param _easeTime イージング時間
-	/// @param _goalPosX 最終的なX座標
-	/// @return true:演出終了	false:演出中
-	void UpdateDirection(const float _disSpawn,const float _easeTime,const int _goalPosX);
-
-	/// @brief 通常更新
+	/// @brief 更新
 	/// @param  
-	void NormalUpdate(const Vector2 _localPos,const float _easeTime,const Easing::EASING_TYPE _easeType);
+	void Update(void)override;
 
-	/// @brief はい/いいえのメニュー演出の更新
+	/// @brief 描画
+	/// @param  
+	void Draw(void)override;
+
+	/// @brief 中心座標をもとに描画
+	/// @param  
+	void DrawCenter(void);
+	template<typename T>
+	void DrawFormat(const T _format);
+
+	/// @brief 解放
+	/// @param  
+	void Release(void)override;
+
+	/// @brief 演出更新
+	/// @param _goalPosX 終端座標X
+	/// @param _easeTime 補完時間
+	void UpdateDirection(const float _goalPosX, const float _easeTime);
+
+	/// @brief 選択時の更新(選択中のみイージングで動かす)
+	/// @param _currentCnt 
 	/// @param _localPos 
 	/// @param _easeTime 
 	/// @param _easeType 
-	void SetYesNoUpdate(const bool _isYes);
+	void SelectUpdate(const float _selectNum,const float _currentCnt, const Vector2 _localPos, const float _easeTime, const Easing::EASING_TYPE _easeType);
 
-	/// @brief すべてのメニューの演出イージングが終わっているかの取得
+	/// @brief 演出を終了させる
 	/// @param  
-	/// @return 
-	const bool IsAllDirectEaseEnd(void) { return isAllDirectEaseEnd_; }
+	void SetEase(void);
 
-	/// @brief はいフラグの取得
-	/// @param  
-	/// @return 
-	const bool GetIsYes(void) { return yesNoState_==YES_NO::YES; }
-
-	/// @brief メニューの描画
-	/// @param  
-	void Draw(void);
-
-	/// @brief 中心座標で描画
-	/// @param  
-	void DrawCenter(void);
-
-	/// @brief 書式付き文字列の描画
-	/// @param
-	template<typename T>
-	void DrawFormat(std::vector<T> _format);
-
-	/// @brief はいいいえの描画
-	/// @param _questionStr 質問内容
-	void YesNoDraw(const std::wstring _questionStr);
-
-	
-	/// @brief メニューの選択
-	/// @param _src 選択時のボタン
-	void SelectMenu(const SoundManager::SRC _src= SoundManager::SRC::NONE);
-
-	/// @brief 選択中のメニュー番号の加算
-	/// @param  
-	void AddSelectMenuNum(void);
-	/// @brief 選択中のメニュー番号の加算
-	/// @param  
-	void SubSelectMenuNum(void);
-
-	/// @brief 選択中のメニュー番号の取得
-	/// @param  
-	/// @return 
-	const int GetSelectMenuNum(void) { return selectMenuNum_; }
-
-	/// @brief メニューリストの取得
-	/// @param  
-	/// @return メニューリストの情報
-	const std::unordered_map<int, BTN_INFO>&GetMenuList(void)const { return menuList_; }
+	/// @brief 当たった時の処理
+	/// @param _partner パートナー
+	void OnHit(const std::weak_ptr<Collider2D> _partner)override;
 
 	/// @brief 書式付き文字列かどうか
 	/// @param _str 調べたい文字列
 	/// @return true:書式付き文字列である
-	const bool IsHasFormat(const std::wstring _str)const;
+	const bool IsHasFormat(void)const;
 
-	/// @brief 文字列の中心座標の取得
-	/// @param _str 調べたい文字列
+	/// @brief メニュー番号の取得
+	/// @param  
 	/// @return 
-	const Vector2 GetMenuCenterPos(const std::wstring _str)const;
+	const int GetMenuNum(void)const { return menuNum_; }
+
+	/// @brief 演出状態が終了したか
+	/// @param  
+	/// @return 
+	const bool GetIsEndDirectionEase(void)const { return isEndDirectEase_; }
+
+	/// @brief メニューの文字列の取得
+	/// @param  
+	/// @return 
+	const std::wstring& GetMenuButtonString(void)const { return btnStr_; }
+
+	/// @brief 現在の座標を取得
+	/// @param  
+	/// @return 
+	const Vector2& GetCurrentPos(void)const { return curPos_; }
+
+	/// @brief イージング中の取得
+	/// @param  
+	/// @return 
+	const bool GetIsEase(void)const { return isEase_ || isEndDirectEase_; }
+
+	/// @brief 当たり判定の取得
+	/// @param  
+	/// @return 
+	const bool GetIsHit(void)const { return isHit_; }
 
 private:
-
-	//通常メニューのイージング時間
-	static constexpr float SELECT_EASING_TIME = 0.5f;
-
-	//ゲーム終了確認メニューの大きさ
-	static constexpr int CHECK_EXIT_MENU_SIZE_X = 600;
-	static constexpr int CHECK_EXIT_MENU_SIZE_Y = 200;
-
-	//はい、いいえの文字間隔
-	static constexpr int YES_NO_DISTANCE_X = 70;
-	static constexpr int YES_NO_DISTANCE_Y = 100;
-
-	//終了するかの文字の確認メニューとの間隔
-	static constexpr int QUESTION_OFFSET = 30;
-
-	//はい/いいえの選択肢の数
-	static constexpr int YES_NO_NUM = 2;
 
 	//選択中の文字の色
 	static constexpr unsigned int SELECT_COL = UtilityCommon::RED;
@@ -168,92 +108,30 @@ private:
 	//選択していない文字の色
 	static constexpr unsigned int UNSELECT_COL = UtilityCommon::WHITE;
 
-	//デフォルトのフォントサイズ
-	int defaultFontSize_;
+	//シーンマネージャ
+	SceneManager& scnMng_;
 
 	//フォントハンドル
-	std::wstring defaultFontHandle_;
+	int& fontHandle_;
 
-	//イージング
-	std::unique_ptr<Easing>easing_;
+	//Vector2F型
+	Vector2F curPosF_;
 
-	//メニューのフォントハンドル
-	int fontHandle_;
-
-	//サイズイージングの時間カウント
-	float sizeEaseCnt_;
-
-	//演出でメニューが出てくるときの間隔カウント
-	float disSpawnCnt_;
-
-	//状態遷移
-	std::unordered_map<MENU_STATE, std::function<void(void)>>changeState_;
-
-	//はい/いいえの文字列
-	std::wstring yesNoStrTable_[YES_NO_NUM];
-
-	//現在の状態
-	MENU_STATE currentState_;
-
-	//更新関数
-	std::function<void(void)>updateFunc_;
-
-	//メニュー表
-	std::unordered_map<int, BTN_INFO> menuList_;
-
-	//サイズイージングのフォントハンドルのテーブル
-	std::unordered_map<int, int> sizeEasingFontHandleTable_;
-
-	//全体の演出が終わったか
-	bool isAllDirectEaseEnd_;
-
-	//選択中のメニュー
-	int selectMenuNum_;
-
-	//はい/いいえ状態
-	//bool isYes_;
-	YES_NO yesNoState_;
-
-	//入力
-	InputManager& ins_;
-	InputManagerS& insS_;
-
-	//フォントマネージャ
-	std::unique_ptr<FontController> fontController_;
-
-	//サウンド
-	SoundManager& soundMng_;
-
-	/// @brief 選択中のカラーを決める
-	/// @param _unselectCol 
-	/// @param _selectCol 
-	unsigned int DecideColor(const int btnNum);
-
-
-
+	//ボタン情報
+	int menuNum_;						//メニュー番号
+	std::wstring btnStr_;				//ボタンの文字
+	Vector2 startPos_;					//イージング前の座標
+	Vector2 curPos_ ;					//現在座標
+	float directionEaseCnt_;			//イージング時間
+	bool isEase_;						//イージング中か
+	bool isEndDirectEase_;				//演出イージングが終わったか
+	unsigned int color_;				//カラー
+	bool isHit_;						//当たり判定
 };
 
 template<typename T>
-void MenuController::DrawFormat(std::vector<T> _format)
+inline void MenuController::DrawFormat(const T _format)
 {
-	unsigned int color = UtilityCommon::WHITE;
-	int i = 0;
-	for (auto& menu : menuList_)
-	{
-
-		//選択中のメニューはサイズイージングして赤色で描画
-		color = DecideColor(menu.first);
-		if (IsHasFormat(menu.second.btnStr))
-		{
-			DrawFormatStringToHandle(
-				menu.second.curPos.x, menu.second.curPos.y, color, fontHandle_, menu.second.btnStr.c_str(), _format[i]);
-			i++;
-		}
-		else
-		{
-			DrawStringToHandle(
-				menu.second.curPos.x, menu.second.curPos.y, menu.second.btnStr.c_str(), color, fontHandle_);
-		}
-
-	}
+	DrawFormatStringToHandle(
+		curPos_.x, curPos_.y, color_, fontHandle_, btnStr_.c_str(), _format);
 }

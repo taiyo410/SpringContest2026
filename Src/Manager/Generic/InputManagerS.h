@@ -31,7 +31,7 @@ enum class PEIPHERAL_TYPE
 {
 	KEYBOARD,	//キーボード
 	GAMEPAD,	//ゲームパッド
-	//MOUSE,		//マウス
+	MOUSE,		//マウス
 	X_ANALOG,	//XBOXアナログスティック
 	MAX
 };

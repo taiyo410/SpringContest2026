@@ -237,6 +237,21 @@
     <ClCompile Include="Src\Common\FontController.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
+    <ClCompile Include="Src\Object\UI\GaugeController.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Object\UI\ArrowController.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Manager\Generic\MenuManager.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Object\UI\SliderUIController.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Manager\Generic\SliderUIManager.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
     <ClCompile Include="Src\Manager\Game\GameRuleManager.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
@@ -581,9 +596,6 @@
     <ClInclude Include="Src\Common\FontController.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Src\Manager\Game\GameRuleManager.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Src\Shader\Common\Pixel\PixelShader2DHeader.hlsli" />
@@ -600,7 +612,7 @@
     <FxCompile Include="Src\Shader\Model\CardVS.hlsl" />
     <FxCompile Include="Src\Shader\Model\CardNormalPS.hlsl" />
     <FxCompile Include="Src\Shader\Model\CardReloadPS.hlsl" />
-    <FxCompile Include="Src\Shader\Model\LineHpBarPS.hlsl" />
+    <FxCompile Include="Src\Shader\Model\GaugePS.hlsl" />
     <FxCompile Include="Src\Shader\Model\ArcHpBarPS.hlsl" />
     <FxCompile Include="Src\Shader\Model\SelectCardPS.hlsl" />
     <FxCompile Include="Src\Shader\Model\IntensivePS.hlsl" />
