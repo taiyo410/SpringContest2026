@@ -41,7 +41,7 @@ void GameClearScene::Init(void)
 
 void GameClearScene::NormalUpdate(void)
 {
-	// シーン遷移
+	//シーン遷移
 	InputManager& ins = InputManager::GetInstance();
 	InputManagerS& insS = InputManagerS::GetInstance();
 	if (ins.IsTrgDown(KEY_INPUT_SPACE))
