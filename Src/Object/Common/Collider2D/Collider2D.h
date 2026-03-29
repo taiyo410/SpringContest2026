@@ -25,6 +25,10 @@ public:
 		ALTERNATE_NORMAL,	//ŽQ‹Î(•’Ê)
 		ALTERNATE_DENGER,	//ŽQ‹Î(ŠëŒ¯)
 
+		ENHANCEMENT_TIME,			//‹­‰»(ŽžŠÔ)
+		ENHANCEMENT_PROBABILITY,	//‹­‰»(Šm—¦)
+		ENHANCEMENT_INCOME,			//‹­‰»(Žû“ü)
+
 		MAX
 	};
 

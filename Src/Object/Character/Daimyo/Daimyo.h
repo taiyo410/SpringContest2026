@@ -38,6 +38,14 @@ public:
 		DENGER,		//危険
 	};
 
+	//強化の種類
+	enum class ENHANCEMENT_TYPE
+	{
+		TIME,			//時間
+		PROBABILITY,	//成功率
+		INCOME			//収入
+	};
+
 	//参勤の情報
 	struct AlternateInfo
 	{
@@ -72,14 +80,19 @@ public:
 	static constexpr int SUCCESS_DENGER = 50;
 
 	//難易度ごとの収入(100000単位)
-	static constexpr int INCOME_SAFETY = 30;
-	static constexpr int INCOME_NORMAL = 50;
-	static constexpr int INCOME_DENGER = 80;
+	static constexpr int INCOME_SAFETY = 3;
+	static constexpr int INCOME_NORMAL = 5;
+	static constexpr int INCOME_DENGER = 8;
 
 	//難易度ごとの失敗の没収割合
 	static constexpr float CONFISCATION_SAFETY = 0.5f;
 	static constexpr float CONFISCATION_NORMAL = 0.5f;
 	static constexpr float CONFISCATION_DENGER = 0.0f;
+
+	//各項目の強化値
+	static constexpr int SUCCESS_ENHANCE = 5;
+	static constexpr int INCOME_ENHANCE = 1;
+	static constexpr int TIME_ENHANCE = 2;
 
 	//参勤交代に行ける最低資金
 	static constexpr int FUNDS_MIN = 10;
@@ -136,6 +149,9 @@ public:
 	//所持金
 	const int GetMoney(void)const { return money_; }
 
+	//強化
+	void Enhancement(ENHANCEMENT_TYPE _type);
+
 private:
 
 	//状態
@@ -157,8 +173,14 @@ private:
 	//参勤の情報
 	AlternateInfo alternateInfo_;
 
+	//強化回数
+	std::unordered_map<ENHANCEMENT_TYPE, int> enhancementCnt_;
+
 	//参勤交代の時間
 	float cnt_;
+
+	//参勤交代の成否
+	bool isSuccess_;
 
 	//選択肢座標
 	std::unordered_map<SELECT,Vector2F> selectPos_;
@@ -211,6 +233,9 @@ private:
 
 	//参勤項目コライダの生成
 	void CreateAlternateCol(void);
+
+	//強化項目コライダの生成
+	void CreateEnhancementCol(void);
 
 	//難易度ごとの設定
 	void SettingSafety(void);

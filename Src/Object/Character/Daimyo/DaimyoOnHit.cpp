@@ -14,6 +14,9 @@ DaimyoOnHit::DaimyoOnHit(Daimyo& _parent)
 	hit_.emplace(Collider2D::TAG::ALTERNATE_SAFETY, [](const std::weak_ptr<Collider2D> _partner) {});
 	hit_.emplace(Collider2D::TAG::ALTERNATE_NORMAL, [](const std::weak_ptr<Collider2D> _partner) {});
 	hit_.emplace(Collider2D::TAG::ALTERNATE_DENGER, [](const std::weak_ptr<Collider2D> _partner) {});
+	hit_.emplace(Collider2D::TAG::ENHANCEMENT_TIME, [](const std::weak_ptr<Collider2D> _partner) {});
+	hit_.emplace(Collider2D::TAG::ENHANCEMENT_PROBABILITY, [](const std::weak_ptr<Collider2D> _partner) {});
+	hit_.emplace(Collider2D::TAG::ENHANCEMENT_INCOME, [](const std::weak_ptr<Collider2D> _partner) {});
 }
 
 DaimyoOnHit::~DaimyoOnHit(void)
@@ -61,7 +64,7 @@ void DaimyoOnHit::HitCursor(const std::weak_ptr<Collider2D> _partner)
 			else if (myCol->IsHit() && myCol->GetTag() == Collider2D::TAG::CHOICE_ENHANCEMENT)
 			{
 				//èÛë‘ëJà⁄
-				parent_.ChangeState(Daimyo::STATE::SELECT);
+				parent_.ChangeState(Daimyo::STATE::ENHANCEMENT);
 			}
 			else if (myCol->IsHit() && myCol->GetTag() == Collider2D::TAG::CHOICE_DETAILS)
 			{
@@ -91,6 +94,30 @@ void DaimyoOnHit::HitCursor(const std::weak_ptr<Collider2D> _partner)
 
 				//èÛë‘ëJà⁄
 				parent_.ChangeState(Daimyo::STATE::ACTION_ALTERNATE);
+			}
+			else if (myCol->IsHit() && myCol->GetTag() == Collider2D::TAG::ENHANCEMENT_TIME)
+			{
+				//èÛë‘ëJà⁄
+				parent_.ChangeState(Daimyo::STATE::NORMAL);
+
+				//ã≠âª
+				parent_.Enhancement(Daimyo::ENHANCEMENT_TYPE::TIME);
+			}
+			else if (myCol->IsHit() && myCol->GetTag() == Collider2D::TAG::ENHANCEMENT_PROBABILITY)
+			{
+				//èÛë‘ëJà⁄
+				parent_.ChangeState(Daimyo::STATE::NORMAL);
+
+				//ã≠âª
+				parent_.Enhancement(Daimyo::ENHANCEMENT_TYPE::PROBABILITY);
+			}
+			else if (myCol->IsHit() && myCol->GetTag() == Collider2D::TAG::ENHANCEMENT_INCOME)
+			{
+				//èÛë‘ëJà⁄
+				parent_.ChangeState(Daimyo::STATE::NORMAL);
+
+				//ã≠âª
+				parent_.Enhancement(Daimyo::ENHANCEMENT_TYPE::INCOME);
 			}
 		}
 

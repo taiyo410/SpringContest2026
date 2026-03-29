@@ -92,6 +92,7 @@
     <ClCompile Include="Src\Common\TextWriter.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Src\Manager\Game\GameRuleManager.h" />
     <ClInclude Include="Src\Scene\DaimyoMenuScene.h" />
     <ClInclude Include="Src\Object\Character\Daimyo\DaimyoOnHit.h" />
     <ClInclude Include="Src\Object\Character\Cursor\Cursor.h" />

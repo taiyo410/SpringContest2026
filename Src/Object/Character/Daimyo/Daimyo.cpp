@@ -20,7 +20,12 @@ Daimyo::Daimyo(const DaimyoImport _import)
 	dissatisfaction_ = 0;
 	alternateInfo_ = {};
 	cnt_ = 0.0;
+	isSuccess_ = false;
 	isBackMenu_ = false;
+
+	enhancementCnt_[ENHANCEMENT_TYPE::TIME] = 0;
+	enhancementCnt_[ENHANCEMENT_TYPE::PROBABILITY] = 0;
+	enhancementCnt_[ENHANCEMENT_TYPE::INCOME] = 0;
 
 	//更新
 	update_.emplace(STATE::STANDBY, [this](void) {UpdateStandby(); });
@@ -52,7 +57,7 @@ Daimyo::Daimyo(const DaimyoImport _import)
 	changeSetting_.emplace(STATE::NO_MONEY, [this](void) {DeleteAllColliders(); });
 	changeSetting_.emplace(STATE::ACTION_ALTERNATE, [this](void) {DeleteAllColliders(); });
 	changeSetting_.emplace(STATE::RESULT_ALTERNATE, [this](void) {ResultAlternate(); });
-	changeSetting_.emplace(STATE::ENHANCEMENT, [this](void) {});
+	changeSetting_.emplace(STATE::ENHANCEMENT, [this](void) {CreateEnhancementCol(); });
 	changeSetting_.emplace(STATE::DETAILS, [this](void) {});
 
 	//難易度設定
@@ -99,6 +104,10 @@ void Daimyo::Init(void)
 	alternateInfo_ = {};
 	cnt_ = 0.0f;
 	isBackMenu_ = false;
+
+	enhancementCnt_[ENHANCEMENT_TYPE::TIME] = 0;
+	enhancementCnt_[ENHANCEMENT_TYPE::PROBABILITY] = 0;
+	enhancementCnt_[ENHANCEMENT_TYPE::INCOME] = 0;
 }
 
 void Daimyo::Update(void)
@@ -131,6 +140,12 @@ void Daimyo::ChangeState(const STATE _state)
 void Daimyo::SetAlternateDiff(const ALTERNATE_DIFF _diff)
 {
 	settingDiff_[_diff]();
+}
+
+void Daimyo::Enhancement(ENHANCEMENT_TYPE _type)
+{
+	//強化カウントの上昇
+	enhancementCnt_[_type]++;
 }
 
 void Daimyo::CreateCastleCol(void)
@@ -175,26 +190,42 @@ void Daimyo::CreateAlternateCol(void)
 	MakeCollider(Collider2D::TAG::ALTERNATE_DENGER, std::move(geo), { Collider2D::TAG::DAIMYO,Collider2D::TAG::ALTERNATE_SAFETY,Collider2D::TAG::ALTERNATE_NORMAL,Collider2D::TAG::ALTERNATE_DENGER });
 }
 
+void Daimyo::CreateEnhancementCol(void)
+{
+	//コライダの初期化
+	DeleteAllColliders();
+
+	//当たり判定
+	std::unique_ptr<Geometry2D> geo = std::make_unique<BoxGeo>(alternateMenuPos_[ALTERNATE_DIFF::SAFETY], alternateMenuPos_[ALTERNATE_DIFF::SAFETY], ALTERNATE_PRE_RADIUS, ALTERNATE_MENU_MIN, ALTERNATE_MENU_MAX);
+	MakeCollider(Collider2D::TAG::ENHANCEMENT_TIME, std::move(geo), { Collider2D::TAG::DAIMYO,Collider2D::TAG::ALTERNATE_SAFETY,Collider2D::TAG::ALTERNATE_NORMAL,Collider2D::TAG::ALTERNATE_DENGER });
+
+	geo = std::make_unique<BoxGeo>(alternateMenuPos_[ALTERNATE_DIFF::NORMAL], alternateMenuPos_[ALTERNATE_DIFF::NORMAL], ALTERNATE_PRE_RADIUS, ALTERNATE_MENU_MIN, ALTERNATE_MENU_MAX);
+	MakeCollider(Collider2D::TAG::ENHANCEMENT_PROBABILITY, std::move(geo), { Collider2D::TAG::DAIMYO,Collider2D::TAG::ALTERNATE_SAFETY,Collider2D::TAG::ALTERNATE_NORMAL,Collider2D::TAG::ALTERNATE_DENGER });
+
+	geo = std::make_unique<BoxGeo>(alternateMenuPos_[ALTERNATE_DIFF::DENGER], alternateMenuPos_[ALTERNATE_DIFF::DENGER], ALTERNATE_PRE_RADIUS, ALTERNATE_MENU_MIN, ALTERNATE_MENU_MAX);
+	MakeCollider(Collider2D::TAG::ENHANCEMENT_INCOME, std::move(geo), { Collider2D::TAG::DAIMYO,Collider2D::TAG::ALTERNATE_SAFETY,Collider2D::TAG::ALTERNATE_NORMAL,Collider2D::TAG::ALTERNATE_DENGER });
+}
+
 void Daimyo::SettingSafety(void)
 {
-	alternateInfo_.probability = SUCCESS_SAFETY;
-	alternateInfo_.income = INCOME_SAFETY;
+	alternateInfo_.probability = SUCCESS_SAFETY + SUCCESS_ENHANCE * enhancementCnt_[ENHANCEMENT_TYPE::PROBABILITY];
+	alternateInfo_.income = INCOME_SAFETY + INCOME_ENHANCE * enhancementCnt_[ENHANCEMENT_TYPE::INCOME];
 	alternateInfo_.confiscation = CONFISCATION_SAFETY;
 	alternateInfo_.requiredTime = REQUIRED_TIME_SAFETY;
 }
 
 void Daimyo::SettingNormal(void)
 {
-	alternateInfo_.probability = SUCCESS_NORMAL;
-	alternateInfo_.income = INCOME_NORMAL;
+	alternateInfo_.probability = SUCCESS_NORMAL + SUCCESS_ENHANCE * enhancementCnt_[ENHANCEMENT_TYPE::PROBABILITY];
+	alternateInfo_.income = INCOME_NORMAL + INCOME_ENHANCE * enhancementCnt_[ENHANCEMENT_TYPE::INCOME];
 	alternateInfo_.confiscation = CONFISCATION_NORMAL;
 	alternateInfo_.requiredTime = REQUIRED_TIME_NORMAL;
 }
 
 void Daimyo::SettingDenger(void)
 {
-	alternateInfo_.probability = SUCCESS_DENGER;
-	alternateInfo_.income = INCOME_DENGER;
+	alternateInfo_.probability = SUCCESS_DENGER + SUCCESS_ENHANCE * enhancementCnt_[ENHANCEMENT_TYPE::PROBABILITY];
+	alternateInfo_.income = INCOME_DENGER + INCOME_ENHANCE * enhancementCnt_[ENHANCEMENT_TYPE::INCOME];
 	alternateInfo_.confiscation = CONFISCATION_DENGER;
 	alternateInfo_.requiredTime = REQUIRED_TIME_DENGER;
 }
@@ -204,6 +235,7 @@ void Daimyo::ResultAlternate(void)
 	//収益
 	int income = alternateInfo_.income;
 	int dissatisfaction = SUCCESS_DISSATISFACTION;
+	isSuccess_ = true;
 
 	//大名のお金が減る
 	money_ -= FUNDS_MIN;
@@ -215,6 +247,7 @@ void Daimyo::ResultAlternate(void)
 		//失敗
 		income *= alternateInfo_.confiscation;
 		dissatisfaction = FAILED_DISSATISFACTION;
+		isSuccess_ = false;
 	}
 
 	//お金を増やす
@@ -305,7 +338,7 @@ void Daimyo::UpdateNoMoney(void)
 
 void Daimyo::UpdateActionAlternate(void)
 {
-	if (alternateInfo_.requiredTime < cnt_)
+	if (alternateInfo_.requiredTime - TIME_ENHANCE * enhancementCnt_[ENHANCEMENT_TYPE::TIME] < cnt_)
 	{
 		//結果
 		ChangeState(STATE::RESULT_ALTERNATE);
@@ -426,7 +459,10 @@ void Daimyo::DrawSelectAlternate(void)
 
 void Daimyo::DrawNoMoney(void)
 {
+	//通常描画
 	DrawNormal();
+
+	DrawString(pos_.x + 50, pos_.y, L"NoMoney", 0xffffff);
 }
 
 void Daimyo::DrawActionAlternate(void)
@@ -441,6 +477,8 @@ void Daimyo::DrawResultAlternate(void)
 {
 	//通常描画
 	DrawNormal();
+
+	DrawString(pos_.x + 50, pos_.y, isSuccess_ ? L"Success" : L"Failure", 0xffffff);
 }
 
 void Daimyo::DrawEnhancement(void)
