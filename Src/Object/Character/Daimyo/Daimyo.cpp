@@ -11,6 +11,8 @@
 #include "../Object/Common/Collider2D/Collider2D.h"
 #include "../Object/Common/Collider2D/Geometry2D/BoxGeo.h"
 #include "../Object/Character/Daimyo/DaimyoOnHit.h"
+#include "../Object/UI/ArrowController.h"
+#include "../Object/UI/GaugeController.h"
 #include "Daimyo.h"
 
 Daimyo::Daimyo(const DaimyoImport _import)
@@ -23,8 +25,28 @@ Daimyo::Daimyo(const DaimyoImport _import)
 	alternateInfo_ = {};
 	cnt_ = 0.0;
 	isBackMenu_ = false;
-
+	alternatePer_ = 0.0f;
+	edoPos_ = EDO_POS;
+	arrowPos_ = import_.pos;
+	alternateColor_ = import_.color;
+	dissatisfactionPer_ = 0.0f;
 	easing_ = std::make_unique<Easing>();
+	arrow_ = std::make_unique<ArrowController>(ResourceManager::SRC::ARROW_GAUGE
+		, arrowPos_, edoPos_
+		, ARROW_THICK, alternatePer_
+		, alternateColor_,EDO_COL,Vector2F(20.0f,5.0f),Vector2F(-50.0f, -5.0f));
+
+	float gaugeX = import_.pos.x + import_.hitBoxMin.x;
+	float gaugeY = import_.pos.y - import_.hitBoxMin.y+10.0f;
+	moneyGaugePos_ = { gaugeX ,gaugeY };
+	moneyGaugeSize_ = Vector2F(100.0f, 20.0f);
+	moneyGaugeCol_ = {1.0f,1.0f,0.0f,1.0f};
+	moneyPer_ = 0.0f;
+	moneyGauge_ = std::make_unique<GaugeController>(ResourceManager::SRC::GAUGE, moneyGaugePos_, moneyGaugeSize_, moneyPer_, moneyGaugeCol_, moneyGaugeCol_);
+	dissatisfactionGaugeCol_ = { 1.0f,0.0f,0.0f,1.0f };
+	dissatisfactionGaugePos_ = { gaugeX ,gaugeY + moneyGaugeSize_.y + 5.0f };
+	dissatisfactionGauge_ = std::make_unique<GaugeController>(ResourceManager::SRC::GAUGE, dissatisfactionGaugePos_, moneyGaugeSize_, dissatisfactionPer_, dissatisfactionGaugeCol_, dissatisfactionGaugeCol_);
+
 	//更新
 	update_.emplace(STATE::STANDBY, [this](void) {UpdateStandby(); });
 	update_.emplace(STATE::NORMAL, [this](void) {UpdateNormal(); });
@@ -76,14 +98,14 @@ Daimyo::~Daimyo(void)
 
 void Daimyo::Load(void)
 {
-	//初期化
-	Init();
+	arrow_->Load();
 
+	moneyGauge_->Load();
+
+	dissatisfactionGauge_->Load();
 	//画像ID
 	imageId_ = ResourceManager::GetInstance().Load(ResourceManager::SRC::CASTLE).handleId_;
-	
-	//城の当たり判定生成
-	CreateCastleCol();
+
 }
 
 void Daimyo::Init(void)
@@ -91,6 +113,9 @@ void Daimyo::Init(void)
 	//当たり判定
 	onHit_ = std::make_unique<DaimyoOnHit>(*this);
 
+	arrow_->Init();
+	moneyGauge_->Init();
+	dissatisfactionGauge_->Init();
 	//初期化
 	pos_ = import_.pos;
 	selectPos_.emplace(SELECT::SELECT_ALTERNATE, pos_ + ALTERNATE_LOCAL_POS);
@@ -112,6 +137,8 @@ void Daimyo::Init(void)
 
 void Daimyo::Update(void)
 {
+	moneyGauge_->Update();
+	dissatisfactionGauge_->Update();
 	//状態ごとの更新
 	update_[state_]();
 }
@@ -120,6 +147,9 @@ void Daimyo::Draw(void)
 {
 	//状態ごとの描画
 	draw_[state_]();
+
+	moneyGauge_->Draw();
+	dissatisfactionGauge_->Draw();
 }
 
 void Daimyo::Release(void)
@@ -235,6 +265,8 @@ void Daimyo::CreateAlternateCol(void)
 	//コライダの初期化
 	DeleteAllColliders();
 
+	alternateColor_ = import_.color;
+
 	//当たり判定
 	std::unique_ptr<Geometry2D> geo = std::make_unique<BoxGeo>(alternateMenuPos_[ALTERNATE_DIFF::SAFETY], alternateMenuPos_[ALTERNATE_DIFF::SAFETY], ALTERNATE_PRE_RADIUS, ALTERNATE_MENU_MIN, ALTERNATE_MENU_MAX);
 	MakeCollider(Collider2D::TAG::ALTERNATE_SAFETY, std::move(geo), { Collider2D::TAG::DAIMYO,Collider2D::TAG::ALTERNATE_SAFETY,Collider2D::TAG::ALTERNATE_NORMAL,Collider2D::TAG::ALTERNATE_DENGER });
@@ -294,6 +326,8 @@ void Daimyo::ResultAlternate(void)
 
 	//不満度を増やす
 	dissatisfaction_ += dissatisfaction;
+	//不満度の割合を計算
+	dissatisfactionPer_ = static_cast<float>(dissatisfaction_) / static_cast<float>(DISSATISFACTION_MAX);
 
 	//不満度が上限に達したら
 	if (dissatisfaction_ >= DISSATISFACTION_MAX)
@@ -317,6 +351,7 @@ void Daimyo::UpdateNormal(void)
 {
 	//お金を増やす
 	money_ += SceneManager::GetInstance().GetDeltaTime() * import_.accumulationSpeed_;
+	moneyPer_ = money_ / static_cast<float>(FUNDS_MAX);
 }
 
 void Daimyo::UpdateSelectDirection(void)
@@ -409,6 +444,9 @@ void Daimyo::UpdateActionAlternate(void)
 		//参勤交代終了
 		return;
 	}
+	alternatePer_ = cnt_ / alternateInfo_.requiredTime;
+
+	arrow_->Update();
 
 	//カウンタ
 	cnt_ += SceneManager::GetInstance().GetDeltaTime();
@@ -480,9 +518,10 @@ void Daimyo::DrawNormal(void)
 {
 	for (auto& col : colliders_)
 	{
-		col.get()->GetGeometry().Draw(import_.color);
+		col.get()->GetGeometry().Draw();
 	}
 
+	
 	//名前
 	DrawFormatString(pos_.x, pos_.y, 0xffffff, L"%ls", UtilityCommon::GetWStringFromString(import_.name).c_str());
 
@@ -554,6 +593,8 @@ void Daimyo::DrawActionAlternate(void)
 	DrawNormal();
 
 	DrawFormatString(0, 0, 0xffffff, L"%.2f", cnt_);
+
+	arrow_->Draw();
 }
 
 void Daimyo::DrawResultAlternate(void)

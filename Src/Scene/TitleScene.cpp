@@ -26,11 +26,7 @@
 #include "TitleScene.h"
 
 TitleScene::TitleScene(void) :
-	soundMng_(SoundManager::GetInstance()),
-	gaugePer_(0.0f),
-	gaugeSize_({ 300.0f,160.0f }),
-	gaugePos_({100.0f,100.0f}),
-	col_({ 0.0f,1.0f,0.0f,0.0f })
+	soundMng_(SoundManager::GetInstance())
 {
 	CollisionManager2D::CreateInstance();
 
@@ -41,8 +37,6 @@ TitleScene::TitleScene(void) :
 	menuMng_ = std::make_unique<MenuManager>();
 	textWtiter_ = std::make_unique<TextWriter>();
 	settingScn_ = std::make_shared<SettingScene>();
-	gaugeCntl_ = std::make_unique<GaugeController>(ResourceManager::SRC::GAUGE, gaugePos_, gaugeSize_, gaugePer_, col_, col_);
-	arrowCntl_ = std::make_unique<ArrowController>(ResourceManager::SRC::ARROW_GAUGE, gaugePos_, gaugeSize_, 100.0f, gaugePer_, col_);
 	cursor_ = std::make_unique<Cursor>();
 
 }
@@ -73,8 +67,6 @@ void TitleScene::Load(void)
 
 	ButtonUIManager::GetInstance().Load();
 	cursor_->Load();
-	gaugeCntl_->Load();
-	arrowCntl_->Load();
 	yesNoState_ = YES_NO::NO;
 }
 
@@ -112,8 +104,6 @@ void TitleScene::Init(void)
 	logoPos_ = { -LOGO_SIZE_X,-LOGO_SIZE_Y };
 	logoEaseCnt_ = BUTTON_EASING_TIME;
 
-	gaugeCntl_->Init();
-	arrowCntl_->Init();
 	int i = 0;
 	for (auto& button : buttonStrTable_)
 	{
@@ -142,11 +132,6 @@ void TitleScene::NormalUpdate(void)
 {
 	//textWtiter_->Init();
 	cursor_->Update();
-	
-	gaugePer_=easing_->EaseFunc(0.0f, 1.0f, gaugeCnt_ / 15.0f, Easing::EASING_TYPE::LERP);
-	gaugeCnt_ += scnMng_.GetDeltaTime();
-	gaugeCntl_->Update();
-	arrowCntl_->Update();
 
 	updateTitle_();
 	menuMng_->Update();
@@ -163,8 +148,6 @@ void TitleScene::NormalDraw(void)
 
 	cursor_->Draw();
 	//gaugeCntl_->Draw();
-
-	arrowCntl_->Draw();
 }
 
 void TitleScene::OnSceneEnter(void)

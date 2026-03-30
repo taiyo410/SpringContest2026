@@ -13,7 +13,11 @@ public:
     /// @param _endPos 終点
     /// @param _thick 太さ
     /// @param _col 色
-    ArrowController(ResourceManager::SRC _arrowSrc,Vector2F& _startPos,Vector2F& _endPos,float _thick,float& _per,FLOAT4& _col);
+    ArrowController(ResourceManager::SRC _arrowSrc
+        , const Vector2F& _startPos,const Vector2F& _endPos
+        ,float _thick,float& _per
+        ,FLOAT4 _col1,FLOAT4 col2= INIT_OVER_COLOR
+        ,Vector2F startLocalPos={}, Vector2F endLocalPos={});
 
     /// @brief デストラクタ
     /// @param  
@@ -45,6 +49,9 @@ public:
 
 private:
 
+	//初期化用の定数
+	static constexpr FLOAT4 INIT_OVER_COLOR = { -1.0f,-1.0f,-1.0f,-1.0f };
+
     //定数バッファ
     static constexpr int GAUGE_CONST_BUF = 4;
     //カラー1の定数バッファ番号
@@ -63,13 +70,20 @@ private:
     int arrowImg_;
 
     //始点
-    Vector2F& startPos_;
+    Vector2F startPos_;
     //終点
-    Vector2F& endPos_;
+    Vector2F endPos_;
+	//始点のローカル座標
+	Vector2F startLocalPos_;
+	//終点のローカル座標
+	Vector2F endLocalPos_;
+
     //太さ
     float thick_;
     //色
-    FLOAT4 col_;
+    FLOAT4 col1_;
+    FLOAT4 col2_;
+
     //割合(ゲージを作る場合)
     float& per_;
 

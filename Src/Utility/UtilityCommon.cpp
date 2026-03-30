@@ -300,3 +300,12 @@ const bool UtilityCommon::IsHasFormat(const std::wstring _str)
     }
     return false;
 }
+
+const bool UtilityCommon::EqualFloat4(const FLOAT4& _value1, const FLOAT4& _value2)
+{
+    if (_value1.x == _value2.x && _value1.y == _value2.y && _value1.z == _value2.z && _value1.w == _value2.w)
+    {
+        return true;
+    }
+	return false;
+}

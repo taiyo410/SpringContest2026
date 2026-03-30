@@ -2,6 +2,8 @@
 #include "../Base/CharacterBase2D.h"
 #include "DaimyoImport.h"
 
+class ArrowController;
+class GaugeController;
 class DaimyoOnHit;
 class Easing;
 
@@ -143,6 +145,12 @@ private:
 
 	static constexpr float EASEING_TIME = 0.2f;
 
+	static constexpr Vector2F EDO_POS = { 784.0f,359.0f };
+	//江戸の色
+	static constexpr FLOAT4 EDO_COL = { 1.0f, 0.647f, 0.0f, 1.0f };
+
+	static constexpr float ARROW_THICK = 100.0f;
+
 	//状態
 	STATE state_;
 	STATE nextState_;
@@ -152,6 +160,8 @@ private:
 
 	//インポート情報
 	DaimyoImport import_;
+
+	Vector2F edoPos_;
 
 	//所持金
 	float money_;
@@ -165,10 +175,13 @@ private:
 
 	//参勤交代の時間
 	float cnt_;
-
+	float alternatePer_;
+	FLOAT4 alternateColor_;
 	//イージング
 	std::unique_ptr<Easing> easing_;
 
+	////矢印ゲージ
+	std::unique_ptr<ArrowController>arrow_;
 	//イージングカウント
 	float easingCnt_;
 	//アルファ値
@@ -176,6 +189,18 @@ private:
 	int startAlpha_;
 	int goalAlpha_;
 
+	//お金ゲージ
+	std::unique_ptr<GaugeController>moneyGauge_;
+	//不満度ゲージ
+	std::unique_ptr<GaugeController>dissatisfactionGauge_;
+	Vector2F moneyGaugePos_;
+	Vector2F moneyGaugeSize_;
+	float moneyPer_;
+	FLOAT4 moneyGaugeCol_;
+	//不満度割合
+	float dissatisfactionPer_;
+	FLOAT4 dissatisfactionGaugeCol_;
+	Vector2F dissatisfactionGaugePos_;
 	//選択肢座標
 	std::unordered_map<SELECT,Vector2F> selectPos_;
 	std::unordered_map<SELECT,Vector2F> selectGoalPos_;

@@ -136,5 +136,10 @@ public:
 	/// @return true:書式付き文字列、false:書式付き文字列ではない
 	static const bool IsHasFormat(const std::wstring _str);
 
+	/// @brief FLOAT4同士の値が等しいか比較
+	/// @param _value1 FLOAT4値1
+	/// @param _value1 FLOAT4値2
+	static const bool EqualFloat4(const FLOAT4& _value1, const FLOAT4& _value2);
+
 
 };
