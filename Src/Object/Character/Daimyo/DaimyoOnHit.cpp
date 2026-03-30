@@ -42,7 +42,7 @@ void DaimyoOnHit::HitCursor(const std::weak_ptr<Collider2D> _partner)
 			if (myCol->IsHit() && myCol->GetTag() == Collider2D::TAG::DAIMYO)
 			{
 				//ó‘Ô‘JˆÚ
-				parent_.ChangeState(Daimyo::STATE::SELECT);
+				parent_.ChangeState(Daimyo::STATE::SELECT_DIRECTION);
 			}
 			else if (myCol->IsHit() && myCol->GetTag() == Collider2D::TAG::CHOICE_ALTERNATE)
 			{

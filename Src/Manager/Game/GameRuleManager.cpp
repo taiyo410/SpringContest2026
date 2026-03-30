@@ -37,7 +37,7 @@ void GameRuleManager::Draw(void)
 	std::wstring str = L"Money : ";
 	str += std::to_wstring(nowMoney_ * UNITS);
 	str += L"Yen";
-	UtilityDraw::DrawStringCenter(moneyPos.x, moneyPos.y, 0xffffff, moneyFont_, str);
+	UtilityDraw::DrawStringCenterToFontHandle(moneyPos.x, moneyPos.y, 0xffffff, moneyFont_, str);
 
 	//不満度
 	Vector2 disPos = { 60, 300 };

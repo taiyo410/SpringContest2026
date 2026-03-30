@@ -37,6 +37,12 @@ public:
 	static constexpr float PERCENT_MAX_F = 1.0f;
 	static constexpr int PERCENT_MAX = 100;
 
+	//アルファ値最大
+	static constexpr int ALPHA_MAX = 255;
+
+	//アルファ値最小
+	static constexpr int ALPHA_MIN = 0;
+
 	/// @brief 四捨五入
 	/// @param v ベクトル
 	/// @return 

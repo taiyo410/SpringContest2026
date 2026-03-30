@@ -3,6 +3,7 @@
 #include "DaimyoImport.h"
 
 class DaimyoOnHit;
+class Easing;
 
 class Daimyo : public CharacterBase2D
 {
@@ -13,6 +14,8 @@ public:
 	{
 		STANDBY,			//遷移待機
 		NORMAL,				//通常
+		SELECT_DIRECTION,	//演出
+		DELETE_SELECT_DIRECTION,	//演出
 		SELECT,				//選択
 		SELECT_ALTERNATE,	//参勤(選択)
 		NO_MONEY,			//お金が足りない
@@ -138,6 +141,8 @@ public:
 
 private:
 
+	static constexpr float EASEING_TIME = 0.2f;
+
 	//状態
 	STATE state_;
 	STATE nextState_;
@@ -154,14 +159,27 @@ private:
 	//不満度
 	int dissatisfaction_;
 
+
 	//参勤の情報
 	AlternateInfo alternateInfo_;
 
 	//参勤交代の時間
 	float cnt_;
 
+	//イージング
+	std::unique_ptr<Easing> easing_;
+
+	//イージングカウント
+	float easingCnt_;
+	//アルファ値
+	int blendAlpha_;
+	int startAlpha_;
+	int goalAlpha_;
+
 	//選択肢座標
 	std::unordered_map<SELECT,Vector2F> selectPos_;
+	std::unordered_map<SELECT,Vector2F> selectGoalPos_;
+	std::unordered_map<SELECT,Vector2F> selectStartPos_;
 
 	//参勤難易度
 	std::unordered_map<ALTERNATE_DIFF,Vector2F> alternateMenuPos_;
@@ -184,6 +202,8 @@ private:
 	//更新
 	void UpdateStandby(void);
 	void UpdateNormal(void);
+	void UpdateSelectDirection(void);
+	void UpdateDeleteSelectDirection(void);
 	void UpdateSelect(void);
 	void UpdateSelectAlternate(void);
 	void UpdateNoMoney(void);
@@ -196,6 +216,7 @@ private:
 	void DrawStandby(void);
 	void DrawNormal(void);
 	void DrawSelect(void);
+	void DrawSelectDirection(void);
 	void DrawSelectAlternate(void);
 	void DrawNoMoney(void);
 	void DrawActionAlternate(void);
@@ -205,6 +226,15 @@ private:
 
 	//城コライダの生成
 	void CreateCastleCol(void);
+
+	//選択肢の出てくる演出の初期化
+	void InitSelectDirection(void);
+
+	//選択肢を消す時の演出の初期化
+	void DeleteSelectDirection(void);
+
+	//選択肢についてのイージング
+	void EasingSelectDirection(void);
 
 	//項目コライダの生成
 	void CreateSelectCol(void);

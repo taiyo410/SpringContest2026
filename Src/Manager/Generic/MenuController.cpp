@@ -69,7 +69,7 @@ void MenuController::Draw(void)
 
 void MenuController::DrawCenter(void)
 {
-	UtilityDraw::DrawStringCenter(curPos_.x, curPos_.y, color_, fontHandle_, btnStr_.c_str());
+	UtilityDraw::DrawStringCenterToFontHandle(curPos_.x, curPos_.y, color_, fontHandle_, btnStr_.c_str());
 }
 
 void MenuController::Release(void)

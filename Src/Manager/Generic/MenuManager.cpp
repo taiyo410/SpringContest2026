@@ -175,7 +175,7 @@ void MenuManager::DrawCenter(void)
 	{
 		////選択中のメニューはサイズイージングして赤色で描画
 		//color = DecideColor(menu.first);
-		//UtilityDraw::DrawStringCenter(menu.second.curPos.x, menu.second.curPos.y, color, fontHandle_, menu.second.btnStr.c_str());
+		//UtilityDraw::DrawStringCenterToFontHandle(menu.second.curPos.x, menu.second.curPos.y, color, fontHandle_, menu.second.btnStr.c_str());
 		menu->DrawCenter();
 	}
 }

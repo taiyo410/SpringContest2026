@@ -65,7 +65,7 @@ void UtilityDraw::DrawPointLine3D(const VECTOR sPos, const VECTOR ePos, int colo
     }
 }
 
-void UtilityDraw::DrawStringCenter(const int _centerX, const int _centerY, unsigned int color, const int fontHandle,const std::wstring _str )
+void UtilityDraw::DrawStringCenterToFontHandle(const int _centerX, const int _centerY, unsigned int color, const int fontHandle,const std::wstring _str )
 {
     int w, h;
     GetDrawStringSizeToHandle(
@@ -78,4 +78,32 @@ void UtilityDraw::DrawStringCenter(const int _centerX, const int _centerY, unsig
     int x = _centerX - (w / 2);
     int y = _centerY - (h / 2);
     DrawStringToHandle(x, y, _str.c_str(), color, fontHandle);
+}
+
+void UtilityDraw::DrawStringCenter(const int _centerX, const int _centerY, unsigned int color, const std::wstring _str)
+{
+    int w, h;
+    GetDrawStringSize(
+        &w,
+        &h,
+        NULL,
+        _str.c_str(),
+        static_cast<int>(wcslen(_str.c_str())));
+    int x = _centerX - (w / 2);
+    int y = _centerY - (h / 2);
+    DrawString(x, y, _str.c_str(), color);
+}
+
+void UtilityDraw::DrawStringCenter(const float _centerX, const float _centerY, unsigned int color, const std::wstring _str)
+{
+    int w, h;
+    GetDrawStringSize(
+        &w,
+        &h,
+        NULL,
+        _str.c_str(),
+        static_cast<int>(wcslen(_str.c_str())));
+    int x = _centerX - (w / 2);
+    int y = _centerY - (h / 2);
+    DrawStringF(static_cast<float>(x), static_cast<float>(y), _str.c_str(), color);
 }

@@ -284,8 +284,8 @@ void TitleScene::DrawStart(void)
 {
 	DrawBox(0, 0, Application::SCREEN_SIZE_X, Application::SCREEN_SIZE_Y, 0xff0000, true);
 
-	SetDrawBlendMode(DX_BLENDMODE_ALPHA, (int)stringAlpha_);
-	UtilityDraw::DrawStringCenter(Application::SCREEN_HALF_X, Application::SCREEN_HALF_Y, UtilityCommon::WHITE, buttonFontHandle_, L"Push To Click");
+	SetDrawBlendMode(DX_BLENDMODE_ALPHA, stringAlpha_);
+	UtilityDraw::DrawStringCenterToFontHandle(Application::SCREEN_HALF_X, Application::SCREEN_HALF_Y, UtilityCommon::WHITE, buttonFontHandle_, L"Push To Click");
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 
 }

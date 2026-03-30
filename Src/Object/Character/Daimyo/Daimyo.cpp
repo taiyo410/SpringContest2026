@@ -1,7 +1,9 @@
 #include "../pch.h"
 #include "../Application.h"
 #include "../Utility/UtilityCommon.h"
+#include "../Utility/UtilityDraw.h"
 #include "../Utility/Utility2D.h"
+#include "../Common/Easing.h"
 #include "../Manager/Generic/SceneManager.h"
 #include "../Manager/Resource/ResourceManager.h"
 #include "../Manager/Generic/InputManager.h"
@@ -22,9 +24,12 @@ Daimyo::Daimyo(const DaimyoImport _import)
 	cnt_ = 0.0;
 	isBackMenu_ = false;
 
+	easing_ = std::make_unique<Easing>();
 	//更新
 	update_.emplace(STATE::STANDBY, [this](void) {UpdateStandby(); });
 	update_.emplace(STATE::NORMAL, [this](void) {UpdateNormal(); });
+	update_.emplace(STATE::SELECT_DIRECTION, [this](void) {UpdateSelectDirection(); });
+	update_.emplace(STATE::DELETE_SELECT_DIRECTION, [this](void) {UpdateDeleteSelectDirection(); });
 	update_.emplace(STATE::SELECT, [this](void) {UpdateSelect(); });
 	update_.emplace(STATE::SELECT_ALTERNATE, [this](void) {UpdateSelectAlternate(); });
 	update_.emplace(STATE::NO_MONEY, [this](void) {UpdateNoMoney(); });
@@ -36,6 +41,8 @@ Daimyo::Daimyo(const DaimyoImport _import)
 	//描画
 	draw_.emplace(STATE::STANDBY, [this](void) {DrawStandby(); });
 	draw_.emplace(STATE::NORMAL, [this](void) {DrawNormal(); });
+	draw_.emplace(STATE::SELECT_DIRECTION, [this](void) {DrawSelectDirection(); });
+	draw_.emplace(STATE::DELETE_SELECT_DIRECTION, [this](void) {DrawSelectDirection(); });
 	draw_.emplace(STATE::SELECT, [this](void) {DrawSelect(); });
 	draw_.emplace(STATE::SELECT_ALTERNATE, [this](void) {DrawSelectAlternate(); });
 	draw_.emplace(STATE::NO_MONEY, [this](void) {DrawNoMoney(); });
@@ -47,6 +54,8 @@ Daimyo::Daimyo(const DaimyoImport _import)
 	//コライダ生成
 	changeSetting_.emplace(STATE::STANDBY, [this](void) {});
 	changeSetting_.emplace(STATE::NORMAL, [this](void) {CreateCastleCol(); });
+	changeSetting_.emplace(STATE::SELECT_DIRECTION, [this](void) {InitSelectDirection(); });
+	changeSetting_.emplace(STATE::DELETE_SELECT_DIRECTION, [this](void) {DeleteSelectDirection(); });
 	changeSetting_.emplace(STATE::SELECT, [this](void) {CreateSelectCol(); });
 	changeSetting_.emplace(STATE::SELECT_ALTERNATE, [this](void) {CreateAlternateCol(); });
 	changeSetting_.emplace(STATE::NO_MONEY, [this](void) {DeleteAllColliders(); });
@@ -141,6 +150,68 @@ void Daimyo::CreateCastleCol(void)
 	//当たり判定
 	std::unique_ptr<Geometry2D> geo = std::make_unique<BoxGeo>(pos_, pos_, Utility2D::Distance(import_.hitBoxMin, import_.hitBoxMax), import_.hitBoxMin, import_.hitBoxMax);
 	MakeCollider(Collider2D::TAG::DAIMYO, std::move(geo), { Collider2D::TAG::DAIMYO,Collider2D::TAG::CHOICE_ALTERNATE,Collider2D::TAG::CHOICE_ENHANCEMENT,Collider2D::TAG::CHOICE_DETAILS });
+}
+
+void Daimyo::InitSelectDirection(void)
+{
+	easingCnt_ = 0.0f;
+	blendAlpha_ = UtilityCommon::ALPHA_MIN;
+	startAlpha_ = UtilityCommon::ALPHA_MIN;
+	goalAlpha_ = UtilityCommon::ALPHA_MAX;
+	selectGoalPos_[SELECT::SELECT_ALTERNATE] = pos_ + ALTERNATE_LOCAL_POS;
+	selectGoalPos_[SELECT::ENHANCEMENT] = pos_ + ENHANCEMENT_LOCAL_POS;
+	selectGoalPos_[SELECT::DETAILS] = pos_ + DETAILS_LOCAL_POS;
+	for (auto& select : selectPos_)
+	{
+		//選択肢の座標を城の座標に初期化
+		select.second = pos_;
+		selectStartPos_[select.first] = pos_;
+	}
+}
+
+void Daimyo::DeleteSelectDirection(void)
+{
+	//コライダの初期化
+	DeleteAllColliders();
+	//選択肢の座標を城の座標に初期化
+	easingCnt_ = 0.0f;
+	startAlpha_ = UtilityCommon::ALPHA_MAX;
+	goalAlpha_ = UtilityCommon::ALPHA_MIN;
+	for (auto& selectGoal : selectGoalPos_)
+	{
+		selectStartPos_[selectGoal.first] = selectPos_[selectGoal.first];
+		selectGoal.second = pos_;
+	}
+}
+
+void Daimyo::EasingSelectDirection(void)
+{
+	Vector2F alternate = pos_ + ALTERNATE_LOCAL_POS;
+	Vector2F enhancement = pos_ + ENHANCEMENT_LOCAL_POS;
+	Vector2F details = pos_ + DETAILS_LOCAL_POS;
+
+	////選択肢の座標をイージングで動かす
+	//selectPos_[SELECT::SELECT_ALTERNATE] = easing_->EaseFunc(pos_, selectGoalPos_[SELECT::SELECT_ALTERNATE], easingCnt_ / EASEING_TIME, Easing::EASING_TYPE::LERP);
+	//selectPos_[SELECT::ENHANCEMENT] = easing_->EaseFunc(pos_, selectGoalPos_[SELECT::ENHANCEMENT], easingCnt_/ EASEING_TIME, Easing::EASING_TYPE::LERP);
+	//selectPos_[SELECT::DETAILS] = easing_->EaseFunc(pos_, selectGoalPos_[SELECT::DETAILS], easingCnt_/ EASEING_TIME, Easing::EASING_TYPE::LERP);
+
+	for (auto& pos : selectPos_)
+	{
+		pos.second = easing_->EaseFunc(selectStartPos_[pos.first], selectGoalPos_[pos.first], easingCnt_ / EASEING_TIME, Easing::EASING_TYPE::QUAD_OUT);
+	}
+
+	Easing::EASING_TYPE type = startAlpha_ ==UtilityCommon::ALPHA_MIN ? Easing::EASING_TYPE::QUAD_IN : Easing::EASING_TYPE::QUAD_OUT;
+	blendAlpha_ = easing_->EaseFunc(startAlpha_, goalAlpha_, easingCnt_ / EASEING_TIME, type);
+	easingCnt_ += SceneManager::GetInstance().GetDeltaTime();
+	if (easingCnt_ >= EASEING_TIME)
+	{
+		blendAlpha_ = goalAlpha_;
+		//選択肢の座標を目的の座標にする
+		for (auto& pos : selectPos_)
+		{
+			pos.second = selectGoalPos_[pos.first];
+		}
+	}
 }
 
 void Daimyo::CreateSelectCol(void)
@@ -248,6 +319,28 @@ void Daimyo::UpdateNormal(void)
 	money_ += SceneManager::GetInstance().GetDeltaTime() * import_.accumulationSpeed_;
 }
 
+void Daimyo::UpdateSelectDirection(void)
+{
+	EasingSelectDirection();
+	//イージングが終わったら
+	if (easingCnt_ >= EASEING_TIME)
+	{
+		//選択状態に移行
+		ChangeState(STATE::SELECT);
+	}
+}
+
+void Daimyo::UpdateDeleteSelectDirection(void)
+{
+	EasingSelectDirection();
+	//イージングが終わったら
+	if (easingCnt_ >= EASEING_TIME)
+	{
+		//選択状態に移行
+		ChangeState(STATE::NORMAL);
+	}
+}
+
 void Daimyo::UpdateSelect(void)
 {
 	//お金の上昇
@@ -260,7 +353,7 @@ void Daimyo::UpdateSelect(void)
 	if (isBackMenu_ && input.IsTrgMouseLeft())
 	{
 		//通常に戻る
-		ChangeState(STATE::NORMAL);
+		ChangeState(STATE::DELETE_SELECT_DIRECTION);
 	}
 
 	//クリックで戻る
@@ -412,10 +505,36 @@ void Daimyo::DrawSelect(void)
 	Vector2F enhancement = pos_ + ENHANCEMENT_LOCAL_POS;
 	Vector2F details = pos_ + DETAILS_LOCAL_POS;
 
-	//名前
-	DrawStringF(alternate.x, alternate.y, L"alternate", 0x0);
-	DrawStringF(enhancement.x, enhancement.y, L"enhancement", 0x0);
-	DrawStringF(details.x, details.y, L"details", 0x0);
+	////名前
+	//DrawStringF(alternate.x, alternate.y, L"alternate", 0x0);
+	//DrawStringF(enhancement.x, enhancement.y, L"enhancement", 0x0);
+	//DrawStringF(details.x, details.y, L"details", 0x0);
+	UtilityDraw::DrawStringCenter(selectPos_[SELECT::SELECT_ALTERNATE].x, selectPos_[SELECT::SELECT_ALTERNATE].y, 0x0, L"alternate");
+	UtilityDraw::DrawStringCenter(selectPos_[SELECT::ENHANCEMENT].x, selectPos_[SELECT::ENHANCEMENT].y, 0x0, L"enhancement");
+	UtilityDraw::DrawStringCenter(selectPos_[SELECT::DETAILS].x, selectPos_[SELECT::DETAILS].y, 0x0,L"details");
+
+
+}
+
+void Daimyo::DrawSelectDirection(void)
+{
+	//通常描画
+	DrawNormal();
+	Vector2F alternate = pos_ + ALTERNATE_LOCAL_POS;
+	Vector2F enhancement = pos_ + ENHANCEMENT_LOCAL_POS;
+	Vector2F details = pos_ + DETAILS_LOCAL_POS;
+	////名前
+	//DrawStringF(alternate.x, alternate.y, L"alternate", 0x0);
+	//DrawStringF(enhancement.x, enhancement.y, L"enhancement", 0x0);
+	//DrawStringF(details.x, details.y, L"details", 0x0);
+
+	SetDrawBlendMode(DX_BLENDMODE_ALPHA, blendAlpha_);
+	UtilityDraw::DrawStringCenter(selectPos_[SELECT::SELECT_ALTERNATE].x, selectPos_[SELECT::SELECT_ALTERNATE].y, 0x0, L"alternate");
+	UtilityDraw::DrawStringCenter(selectPos_[SELECT::ENHANCEMENT].x, selectPos_[SELECT::ENHANCEMENT].y, 0x0, L"enhancement");
+	UtilityDraw::DrawStringCenter(selectPos_[SELECT::DETAILS].x, selectPos_[SELECT::DETAILS].y, 0x0, L"details");
+	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+
+
 }
 
 void Daimyo::DrawSelectAlternate(void)
