@@ -61,10 +61,10 @@ void MenuController::Draw(void)
 	DrawStringToHandle(
 		curPos_.x, curPos_.y, btnStr_.c_str(), color_, fontHandle_);
 
-	for (auto& col : colliders_)
-	{
-		col.get()->GetGeometry().Draw(UtilityCommon::RED);
-	}
+	//for (auto& col : colliders_)
+	//{
+	//	col.get()->GetGeometry().Draw(UtilityCommon::RED);
+	//}
 }
 
 void MenuController::DrawCenter(void)
