@@ -29,6 +29,8 @@ public:
 		ENHANCEMENT_PROBABILITY,	//‹­‰»(Šm—¦)
 		ENHANCEMENT_INCOME,			//‹­‰»(Žû“ü)
 
+		DISSATISFACTION_RECOVERY,	//•s–ž“x‰ñ•œ
+
 		MAX
 	};
 

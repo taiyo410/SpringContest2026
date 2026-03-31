@@ -99,7 +99,7 @@ void CharacterManager::CreateDaimyo(void)
 	//êlêîï™
 	for (auto& daimyoImport : daimyoImportData_)
 	{
-		if (a >= 1)break;
+		if (a >= 3)break;
 
 		//ê∂ê¨
 		std::unique_ptr<Daimyo> daimyo = std::make_unique<Daimyo>(daimyoImport);

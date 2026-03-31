@@ -72,14 +72,8 @@ Daimyo::~Daimyo(void)
 
 void Daimyo::Load(void)
 {
-	//初期化
-	Init();
-
 	//画像ID
 	imageId_ = ResourceManager::GetInstance().Load(ResourceManager::SRC::CASTLE).handleId_;
-	
-	//城の当たり判定生成
-	CreateCastleCol();
 }
 
 void Daimyo::Init(void)
