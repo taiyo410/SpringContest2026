@@ -30,7 +30,18 @@ void TextWriter::Update(void)
 	disCnt_ > TEXT_SPD ? disCnt_ = 0 : disCnt_ ++;
 }
 
-void TextWriter::Draw(void)
+void TextWriter::Draw(int _x, int _y, int _fontHandle)
 {
-	DrawFormatString(0, 0, UtilityCommon::WHITE, texts_.front().substr(0, currentStrNum_).c_str());
+	if (texts_.empty()) return;
+
+	// フォントハンドルが指定されている場合は、ハンドルを使って描画
+	if (_fontHandle != -1)
+	{
+		DrawFormatStringToHandle(_x, _y, UtilityCommon::WHITE, _fontHandle, texts_.front().substr(0, currentStrNum_).c_str());
+	}
+	else
+	{
+		// 指定がない場合はデフォルトの描画
+		DrawFormatString(_x, _y, UtilityCommon::WHITE, texts_.front().substr(0, currentStrNum_).c_str());
+	}
 }

@@ -1,6 +1,12 @@
 #pragma once
+#include <string>
+#include <memory>
 #include "../Common/Vector2.h"
 #include "SceneBase.h"
+
+class FontContrroeller;
+class TextWriter;
+
 class GameOverScene :
     public SceneBase
 {
@@ -32,6 +38,16 @@ private:
 
 	//サウンド
 	SoundManager& soundMng_;
+
+	// フォントコントローラー
+	std::unique_ptr<FontController> fontController_;
+
+	// フォントハンドル
+	int buttonFontHandle_;
+	int messageFontHandle_;
+
+	// テキストライター
+	std::unique_ptr<TextWriter> textWriter_;
 
 	//更新関数
 	void NormalUpdate(void) override;

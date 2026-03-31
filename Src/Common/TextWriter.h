@@ -23,7 +23,7 @@ public:
 
 	/// @brief •`‰æ
 	/// @param  
-	void Draw(void);
+	void Draw(int _x = 0, int _y = 0, int _fontHandle = -1);
 private:
 
 	static constexpr int TEXT_SPD = 2;
