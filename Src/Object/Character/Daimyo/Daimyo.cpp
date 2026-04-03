@@ -369,20 +369,23 @@ void Daimyo::ResultAlternate(void)
 	//お金を増やす
 	gameMng.AddMoney(income);
 
-	//不満度を増やす
-	dissatisfaction_ += dissatisfaction;
-	//不満度の割合を計算
-	dissatisfactionPer_ = static_cast<float>(dissatisfaction_) / static_cast<float>(DISSATISFACTION_MAX);
 
-	//不満度が上限に達したら
-	if (dissatisfaction_ >= DISSATISFACTION_MAX)
-	{
-		//全体不満度を上昇
-		gameMng.AddDissatisfaction(ADD_ALL_DISSATISFACTION);
 
-		//自分の不満度はリセット
-		dissatisfaction_ = 0;
-	}
+
+	////不満度を増やす
+	//dissatisfaction_ += dissatisfaction;
+	////不満度の割合を計算
+	//dissatisfactionPer_ = static_cast<float>(dissatisfaction_) / static_cast<float>(DISSATISFACTION_MAX);
+
+	////不満度が上限に達したら
+	//if (dissatisfaction_ >= DISSATISFACTION_MAX)
+	//{
+	//	//全体不満度を上昇
+	//	gameMng.AddDissatisfaction(ADD_ALL_DISSATISFACTION);
+
+	//	//自分の不満度はリセット
+	//	dissatisfaction_ = 0;
+	//}
 }
 
 void Daimyo::UpdateStandby(void)

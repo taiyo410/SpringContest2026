@@ -179,6 +179,8 @@ private:
 	//不満度
 	int dissatisfaction_;
 
+	//参勤の成功失敗
+	bool isSuccess_;
 
 	//参勤の情報
 	AlternateInfo alternateInfo_;
