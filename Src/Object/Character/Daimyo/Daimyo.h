@@ -149,7 +149,7 @@ public:
 	const float GetMoney(void) const { return money_; }
 	
 	//難易度設定
-	void SetAlternateDiff(ALTERNATE_DIFF _diff) { /* 一旦空実装 */ }
+	void SetAlternateDiff(ALTERNATE_DIFF _diff);
 
 	//強化
 	void Enhancement(ENHANCEMENT_TYPE _type);

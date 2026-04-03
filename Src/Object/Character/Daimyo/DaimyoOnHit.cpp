@@ -126,7 +126,10 @@ void DaimyoOnHit::HitCursor(const std::weak_ptr<Collider2D> _partner)
 				parent_.Enhancement(Daimyo::ENHANCEMENT_TYPE::INCOME);
 			}
 		}
+
+		//一年経過
 		GameRuleManager::GetInstance().AddYear(1);
+	
 		//クリックで戻さない
 		parent_.ProhibitedBack();
 
