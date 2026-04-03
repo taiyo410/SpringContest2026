@@ -67,7 +67,7 @@ const int GameRuleManager::GetDissatisfaction(void) const
 const bool GameRuleManager::IsGameOver(void)const
 {
 	//不満度が溜まった　又は　大名のお金が溜まったか
-	return dissatifactionBar_->IsDissatisfactionMax() && CharacterManager::GetInstance().IsMoneyMax();
+	return dissatifactionBar_->IsDissatisfactionMax() || CharacterManager::GetInstance().IsMoneyMax();
 }
 GameRuleManager::GameRuleManager(void)
 {
