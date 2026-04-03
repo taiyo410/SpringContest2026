@@ -37,6 +37,12 @@ public:
 	static constexpr float PERCENT_MAX_F = 1.0f;
 	static constexpr int PERCENT_MAX = 100;
 
+	//アルファ値最大
+	static constexpr int ALPHA_MAX = 255;
+
+	//アルファ値最小
+	static constexpr int ALPHA_MIN = 0;
+
 	/// @brief 四捨五入
 	/// @param v ベクトル
 	/// @return 
@@ -124,5 +130,16 @@ public:
 	/// @param _str 調べたい文字列
 	/// @return 
 	static Vector2 GetStringSizeToHandle(const int fontHandle, const std::wstring _str);
+
+	/// @brief 書式付き文字列かどうか
+	/// @param _str 調べたい文字列
+	/// @return true:書式付き文字列、false:書式付き文字列ではない
+	static const bool IsHasFormat(const std::wstring _str);
+
+	/// @brief FLOAT4同士の値が等しいか比較
+	/// @param _value1 FLOAT4値1
+	/// @param _value1 FLOAT4値2
+	static const bool EqualFloat4(const FLOAT4& _value1, const FLOAT4& _value2);
+
 
 };

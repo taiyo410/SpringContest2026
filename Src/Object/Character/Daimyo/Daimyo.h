@@ -2,7 +2,10 @@
 #include "../Base/CharacterBase2D.h"
 #include "DaimyoImport.h"
 
+class ArrowController;
+class GaugeController;
 class DaimyoOnHit;
+class Easing;
 
 class Daimyo : public CharacterBase2D
 {
@@ -13,6 +16,8 @@ public:
 	{
 		STANDBY,			//遷移待機
 		NORMAL,				//通常
+		SELECT_DIRECTION,	//演出
+		DELETE_SELECT_DIRECTION,	//演出
 		SELECT,				//選択
 		SELECT_ALTERNATE,	//参勤(選択)
 		NO_MONEY,			//お金が足りない
@@ -148,6 +153,14 @@ public:
 
 private:
 
+	static constexpr float EASEING_TIME = 0.2f;
+
+	static constexpr Vector2F EDO_POS = { 784.0f,359.0f };
+	//江戸の色
+	static constexpr FLOAT4 EDO_COL = { 1.0f, 0.647f, 0.0f, 1.0f };
+
+	static constexpr float ARROW_THICK = 100.0f;
+
 	//状態
 	STATE state_;
 	STATE nextState_;
@@ -158,8 +171,14 @@ private:
 	//インポート情報
 	DaimyoImport import_;
 
+	Vector2F edoPos_;
+
 	//所持金
 	float money_;
+
+	//不満度
+	int dissatisfaction_;
+
 
 	//参勤の情報
 	AlternateInfo alternateInfo_;
@@ -169,12 +188,36 @@ private:
 
 	//参勤交代の時間
 	float cnt_;
+	float alternatePer_;
+	FLOAT4 alternateColor_;
+	//イージング
+	std::unique_ptr<Easing> easing_;
 
-	//参勤交代の成否
-	bool isSuccess_;
+	////矢印ゲージ
+	std::unique_ptr<ArrowController>arrow_;
+	//イージングカウント
+	float easingCnt_;
+	//アルファ値
+	int blendAlpha_;
+	int startAlpha_;
+	int goalAlpha_;
 
+	//お金ゲージ
+	std::unique_ptr<GaugeController>moneyGauge_;
+	//不満度ゲージ
+	std::unique_ptr<GaugeController>dissatisfactionGauge_;
+	Vector2F moneyGaugePos_;
+	Vector2F moneyGaugeSize_;
+	float moneyPer_;
+	FLOAT4 moneyGaugeCol_;
+	//不満度割合
+	float dissatisfactionPer_;
+	FLOAT4 dissatisfactionGaugeCol_;
+	Vector2F dissatisfactionGaugePos_;
 	//選択肢座標
 	std::unordered_map<SELECT,Vector2F> selectPos_;
+	std::unordered_map<SELECT,Vector2F> selectGoalPos_;
+	std::unordered_map<SELECT,Vector2F> selectStartPos_;
 
 	//参勤難易度
 	std::unordered_map<ALTERNATE_DIFF,Vector2F> alternateMenuPos_;
@@ -197,6 +240,8 @@ private:
 	//更新
 	void UpdateStandby(void);
 	void UpdateNormal(void);
+	void UpdateSelectDirection(void);
+	void UpdateDeleteSelectDirection(void);
 	void UpdateSelect(void);
 	void UpdateSelectAlternate(void);
 	void UpdateNoMoney(void);
@@ -209,6 +254,7 @@ private:
 	void DrawStandby(void);
 	void DrawNormal(void);
 	void DrawSelect(void);
+	void DrawSelectDirection(void);
 	void DrawSelectAlternate(void);
 	void DrawNoMoney(void);
 	void DrawActionAlternate(void);
@@ -218,6 +264,15 @@ private:
 
 	//城コライダの生成
 	void CreateCastleCol(void);
+
+	//選択肢の出てくる演出の初期化
+	void InitSelectDirection(void);
+
+	//選択肢を消す時の演出の初期化
+	void DeleteSelectDirection(void);
+
+	//選択肢についてのイージング
+	void EasingSelectDirection(void);
 
 	//項目コライダの生成
 	void CreateSelectCol(void);

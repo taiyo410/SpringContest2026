@@ -48,6 +48,7 @@ protected:
 
 	//座標
 	Vector2F pos_;
+	Vector2F arrowPos_;
 
 	//コライダ
 	std::vector<std::shared_ptr<Collider2D>> colliders_;

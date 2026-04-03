@@ -53,7 +53,13 @@ public:
 
 	/// @brief メニューの追加
 	/// @param  
-	void AddMenu(const int _arrayNum, const std::wstring _menu, const Vector2 _pos);
+	
+	/// @brief メニューの追加
+	/// @param _arrayNum メニュー番号
+	/// @param _menu メニューの文字列
+	/// @param _pos 初期座標
+	/// @param _isMakeCollider コライダを作成するか
+	void AddMenu(const int _arrayNum, const std::wstring _menu, const Vector2 _pos,bool _isMakeCollider);
 
 	/// @brief メニュー初期化
 	/// @param  
@@ -120,6 +126,10 @@ public:
 	/// @brief メニューの選択
 	/// @param _src 選択時のボタン
 	void SelectMenu(const SoundManager::SRC _src = SoundManager::SRC::NONE);
+
+	/// @brief 選択中のメニュー番号のセット
+	/// @param _num セットしたい番号
+	void SetSelectMenuNum(const int _num) { selectMenuNum_ = _num; }
 
 	/// @brief 選択中のメニュー番号の加算
 	/// @param  

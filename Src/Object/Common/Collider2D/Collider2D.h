@@ -16,6 +16,7 @@ public:
 		DAIMYO,			//大名
 		TITLE_MENU,		//タイトルのメニュー
 		SLIDER_BUTTON,	//スライダーのボタン
+		SLIDER_BAR,		//スライダーのバー
 
 		CHOICE_ALTERNATE,	//選択肢(参勤)
 		CHOICE_ENHANCEMENT,	//選択肢(強化)

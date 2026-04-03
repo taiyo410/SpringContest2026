@@ -20,14 +20,7 @@ void PixelRenderer::MakeSquareVertex(Vector2F pos, Vector2F size)
 	float eX = pos.x + size.x;
 	float eY = pos.y + size.y;
 
-	//Vector2F pos1 = pos;
-	//Vector2F pos2 = {pos.x+size.x,pos.y};
-	//Vector2F pos3 = pos + size;
-	//Vector2F pos4 = { pos.x,pos.y + size.y };
-
-
 	MakeVertex(sX, sY, eX, eY);
-	//MakeVertexQuad(pos1, pos2, pos3, pos4);
 }
 
 void PixelRenderer::MakeSquareVertexFromCenter(Vector2F centerPos, Vector2F size)
