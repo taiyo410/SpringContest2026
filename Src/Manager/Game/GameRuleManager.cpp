@@ -26,7 +26,6 @@ void GameRuleManager::Init(void)
 {
 	//初期化
 	nowMoney_ = INITIAL_FUNDS;
-	dissatisfaction_ = 0;
 	elapsedYear_ = 0; // 経過年数の初期化
 }
 
@@ -60,10 +59,15 @@ void GameRuleManager::AddDissatisfaction(const int _value)
 	dissatifactionBar_->AddDissatisfaction(_value);
 }
 
+const int GameRuleManager::GetDissatisfaction(void) const
+{
+	return dissatifactionBar_->GetDissatisfaction();
+}
+
 const bool GameRuleManager::IsGameOver(void)const
 {
-	//不満度
-	return dissatifactionBar_->IsDissatisfactionMax();
+	//不満度が溜まった　又は　大名のお金が溜まったか
+	return dissatifactionBar_->IsDissatisfactionMax() && CharacterManager::GetInstance().IsMoneyMax();
 }
 GameRuleManager::GameRuleManager(void)
 {

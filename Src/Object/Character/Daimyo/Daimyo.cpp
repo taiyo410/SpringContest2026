@@ -178,6 +178,12 @@ void Daimyo::ChangeState(const STATE _nextState)
 	state_ = STATE::STANDBY;
 }
 
+void Daimyo::SetAlternateDiff(ALTERNATE_DIFF _diff)
+{
+	//難易度設定
+	settingDiff_[_diff]();
+}
+
 void Daimyo::Enhancement(ENHANCEMENT_TYPE _type)
 {
 	//強化カウントの上昇

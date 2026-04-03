@@ -64,11 +64,8 @@ public:
 	//不満度を高める
 	void AddDissatisfaction(const int _value);
 
-	//不満度を減らす
-	void SubDissatisfaction(const int _value) { dissatisfaction_ -= _value; }
-
 	//不満度の取得
-	const int GetDissatisfaction(void)const { return dissatisfaction_; }
+	const int GetDissatisfaction(void)const;
 
 	// === 年数管理機能 (追加) ===
 	//経過年数を取得
@@ -90,9 +87,6 @@ private:
 
 	//所持金
 	int nowMoney_;
-
-	//不満度
-	int dissatisfaction_;
 
 	//経過年数 (追加)
 	int elapsedYear_;

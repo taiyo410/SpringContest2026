@@ -7,6 +7,7 @@
 
 DissatisfactionBar::DissatisfactionBar(void)
 {
+	dissatisfaction_ = 0;
 }
 
 DissatisfactionBar::~DissatisfactionBar(void)
@@ -22,6 +23,7 @@ void DissatisfactionBar::Load(void)
 
 void DissatisfactionBar::Init(void)
 {
+	dissatisfaction_ = 0;
 }
 
 void DissatisfactionBar::Update(void)
