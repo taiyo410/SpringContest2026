@@ -60,13 +60,15 @@ void GameRuleManager::AddDissatisfaction(const int _value)
 	dissatifactionBar_->AddDissatisfaction(_value);
 }
 
-const bool GameRuleManager::IsGameOver(void)
+const bool GameRuleManager::IsGameOver(void)const
 {
 	//不満度
 	if (dissatifactionBar_->IsDissatisfactionMax())
 	{
 		return true;
 	}
+	return false;
+}
 GameRuleManager::GameRuleManager(void)
 {
 }

@@ -80,25 +80,22 @@ public:
 	//ゲームクリア条件を満たしているか
 	const bool IsGameClear(void)const { return elapsedYear_ >= CLEAR_YEAR_LIMIT; }
 
+	//ゲームオーバー条件を満たしているか
+	const bool IsGameOver(void)const;
+
 private:
 
 	//フォント
 	std::unique_ptr<FontController>font_;
 
-	int moneyFont_;
-
 	//所持金
 	int nowMoney_;
 
-	//フォント
-	std::unique_ptr<FontController>font_;
-	int moneyFont_;
 	//不満度
 	int dissatisfaction_;
 
 	//経過年数 (追加)
 	int elapsedYear_;
-	int moneyFont_;
 	int moneyFont_;
 
 	//不満度コライダ

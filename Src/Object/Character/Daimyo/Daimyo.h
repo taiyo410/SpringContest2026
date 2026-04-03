@@ -143,7 +143,7 @@ public:
 	const STATE GetState(void) const { return state_; }
 	
 	//状態遷移
-	void ChangeState(STATE _nextState) { nextState_ = _nextState; }
+	void ChangeState(const STATE _nextState);
 	
 	//所持金
 	const float GetMoney(void) const { return money_; }

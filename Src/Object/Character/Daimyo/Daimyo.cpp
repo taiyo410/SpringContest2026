@@ -171,6 +171,12 @@ void Daimyo::OnHit(const std::weak_ptr<Collider2D> _partner)
 }
 
 
+void Daimyo::ChangeState(const STATE _nextState)
+{
+	nextState_ = _nextState;
+	state_ = STATE::STANDBY;
+}
+
 void Daimyo::Enhancement(ENHANCEMENT_TYPE _type)
 {
 	//強化カウントの上昇

@@ -228,7 +228,7 @@ void GameOverScene::NormalDraw(void)
 
 	if (isAnimationEnd_)
 	{
-		UtilityDraw::DrawStringCenter(Application::SCREEN_HALF_X, Application::SCREEN_SIZE_Y * 3 / 10, UtilityCommon::WHITE, gameOverFontHandle_, L"GameOver");
+		UtilityDraw::DrawStringCenterToFontHandle(Application::SCREEN_HALF_X, Application::SCREEN_SIZE_Y * 3 / 10, UtilityCommon::WHITE, gameOverFontHandle_, L"GameOver");
 
 		for (int i = 0; i < static_cast<int>(menuBtns_.size()); ++i)
 		{

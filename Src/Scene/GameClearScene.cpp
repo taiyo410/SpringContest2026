@@ -218,7 +218,7 @@ void GameClearScene::NormalDraw(void)
 
 	if (isAnimationEnd_)
 	{
-		UtilityDraw::DrawStringCenter(Application::SCREEN_HALF_X, Application::SCREEN_SIZE_Y * 3 / 10, UtilityCommon::WHITE, gameClearFontHandle_, L"GameClear");
+		UtilityDraw::DrawStringCenterToFontHandle(Application::SCREEN_HALF_X, Application::SCREEN_SIZE_Y * 3 / 10, UtilityCommon::WHITE, gameClearFontHandle_, L"GameClear");
 
 		int textStartX = Application::SCREEN_HALF_X - 220;
 		int statsPosY = Application::SCREEN_HALF_Y - 30;

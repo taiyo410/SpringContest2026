@@ -126,13 +126,11 @@ void DaimyoOnHit::HitCursor(const std::weak_ptr<Collider2D> _partner)
 				parent_.Enhancement(Daimyo::ENHANCEMENT_TYPE::INCOME);
 			}
 		}
-				GameRuleManager::GetInstance().AddYear(1);
-			}
-		}
-	}
-}
-
+		GameRuleManager::GetInstance().AddYear(1);
 		//ƒNƒŠƒbƒN‚Å–ß‚³‚È‚¢
 		parent_.ProhibitedBack();
+
 	}
+
 }
+
