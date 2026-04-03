@@ -91,6 +91,11 @@ void GameScene::NormalUpdate(void)
 	// === ƒNƒŠƒA”»’è‚ÌŠÄŽ‹ ===
 	if (GameRuleManager::GetInstance().IsGameClear())
 	{
+		SceneManager::GetInstance().ChangeScene(SceneManager::SCENE_ID::GAME_CLEAR);
+		return;
+	}
+	else if (GameRuleManager::GetInstance().IsGameOver())
+	{
 		SceneManager::GetInstance().ChangeScene(SceneManager::SCENE_ID::GAME_OVER);
 		return;
 	}

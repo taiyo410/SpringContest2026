@@ -43,6 +43,7 @@ Daimyo::Daimyo(const DaimyoImport _import)
 	moneyGaugeCol_ = {1.0f,1.0f,0.0f,1.0f};
 	moneyPer_ = 0.0f;
 	moneyGauge_ = std::make_unique<GaugeController>(ResourceManager::SRC::GAUGE, moneyGaugePos_, moneyGaugeSize_, moneyPer_, moneyGaugeCol_, moneyGaugeCol_);
+	moneyGaugeColCnt_ = 0.0f;
 	dissatisfactionGaugeCol_ = { 1.0f,0.0f,0.0f,1.0f };
 	dissatisfactionGaugePos_ = { gaugeX ,gaugeY + moneyGaugeSize_.y + 5.0f };
 	dissatisfactionGauge_ = std::make_unique<GaugeController>(ResourceManager::SRC::GAUGE, dissatisfactionGaugePos_, moneyGaugeSize_, dissatisfactionPer_, dissatisfactionGaugeCol_, dissatisfactionGaugeCol_);
@@ -395,7 +396,20 @@ void Daimyo::UpdateNormal(void)
 {
 	//お金を増やす
 	money_ += SceneManager::GetInstance().GetDeltaTime() * import_.accumulationSpeed_;
+	if (money_ > FUNDS_MIN)
+	{
+		const FLOAT4 yellow = UtilityCommon::GetColorF(UtilityCommon::YELLOW);
+		const FLOAT4 green = UtilityCommon::GetColorF(UtilityCommon::ORANGE);
+		moneyGaugeCol_ = easing_->EaseFunc(yellow, green, moneyGaugeColCnt_ / 0.5f, Easing::EASING_TYPE::COS_BACK);
+		moneyGaugeColCnt_ += SceneManager::GetInstance().GetDeltaTime();
+		if (moneyGaugeColCnt_ > 0.5f)
+		{
+			moneyGaugeColCnt_ = 0.0f;
+		}
+	}
+
 	moneyPer_ = money_ / static_cast<float>(FUNDS_MAX);
+
 }
 
 void Daimyo::UpdateSelectDirection(void)

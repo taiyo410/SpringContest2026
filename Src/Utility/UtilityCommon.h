@@ -141,5 +141,8 @@ public:
 	/// @param _value1 FLOAT4値2
 	static const bool EqualFloat4(const FLOAT4& _value1, const FLOAT4& _value2);
 
+	/// @brief カラーコードからFLOAT4を取得
+	static const FLOAT4 GetColorF(const unsigned int color);
+
 
 };

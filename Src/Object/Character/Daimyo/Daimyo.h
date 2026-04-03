@@ -215,6 +215,8 @@ private:
 	Vector2F moneyGaugeSize_;
 	float moneyPer_;
 	FLOAT4 moneyGaugeCol_;
+	float moneyGaugeColCnt_;
+
 	//不満度割合
 	float dissatisfactionPer_;
 	FLOAT4 dissatisfactionGaugeCol_;

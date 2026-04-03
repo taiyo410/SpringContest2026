@@ -63,11 +63,7 @@ void GameRuleManager::AddDissatisfaction(const int _value)
 const bool GameRuleManager::IsGameOver(void)const
 {
 	//不満度
-	if (dissatifactionBar_->IsDissatisfactionMax())
-	{
-		return true;
-	}
-	return false;
+	return dissatifactionBar_->IsDissatisfactionMax();
 }
 GameRuleManager::GameRuleManager(void)
 {
