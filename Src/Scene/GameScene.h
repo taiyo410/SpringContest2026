@@ -1,5 +1,7 @@
 #pragma once
 #include <memory>
+#include <map>
+#include <functional>
 #include "SceneBase.h"
 
 class PauseScene;
@@ -71,7 +73,6 @@ private:
 
 	//ポーズ画面
 	std::shared_ptr<PauseScene> pauseScene_;
-
 
 	//更新関数
 	void NoneUpdate(void);				//何もしない

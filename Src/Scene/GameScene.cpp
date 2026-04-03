@@ -6,6 +6,7 @@
 #include "../Manager/Resource/ResourceManager.h"
 #include "../Manager/Generic/SceneManager.h"
 #include "../Manager/Generic/InputManager.h"
+#include "../Manager/Generic/InputManagerS.h" // 【修正】これを追加しました
 #include "../Manager/Generic/ButtonUIManager.h"
 #include "../Manager/Generic/UIManager.h"
 #include "../Manager/Game/CollisionManager2D.h"
@@ -28,7 +29,6 @@ GameScene::GameScene(void)
 	CharacterManager::CreateInstance();
 	CollisionManager2D::CreateInstance();
 	UIManager::CreateInstance();
-
 }
 
 GameScene::~GameScene(void)
@@ -36,134 +36,101 @@ GameScene::~GameScene(void)
 	//インスタンスの削除
 	CollisionManager2D::GetInstance().Destroy();
 	CharacterManager::GetInstance().Destroy();
-	GameRuleManager::GetInstance().Destroy();
 	SoundManager::GetInstance().Release();
 	UIManager::GetInstance().Destroy();
 }
 
 void GameScene::Load(void)
 {
-	//フォントの登録
-	buttonFontHandle_ = CreateFontToHandle(FontManager::FONT_APRIL_GOTHIC, FONT_SIZE, 0);
-
-
-	//ポーズ画面のリソース
-	pauseScene_ = std::make_shared<PauseScene>();
-	pauseScene_->Load();
-
-	UIManager::GetInstance().Load();
-	ButtonUIManager::GetInstance().Load();
+	ResourceManager::GetInstance().Load(ResourceManager::SRC::MAP);
 
 	GameRuleManager::GetInstance().Load();
 	CharacterManager::GetInstance().Load();
+	UIManager::GetInstance().Load();
 
-	//UIManager::GetInstance().Load();
+	//ポーズ
+	pauseScene_ = std::make_shared<PauseScene>();
+	pauseScene_->Load();
 
-	//画像
+	//マップ
 	mapImage_ = ResourceManager::GetInstance().Load(ResourceManager::SRC::MAP).handleId_;
+
+	//フェーズ遷移用
+	changeUpdate_.emplace(UPDATE_PHASE::NONE, [this]() {ChangeNone(); });
+	changeUpdate_.emplace(UPDATE_PHASE::FADE, [this]() {ChangeFade(); });
+	changeUpdate_.emplace(UPDATE_PHASE::NORMAL, [this]() {ChangeNormal(); });
+	changeUpdate_.emplace(UPDATE_PHASE::SLOW, [this]() {ChangeSlow(); });
 }
 
 void GameScene::Init(void)
 {
-	changeUpdate_ = {
-		{UPDATE_PHASE::NONE,[this]() {ChangeNone(); }},
-		{UPDATE_PHASE::FADE,[this]() {ChangeFade(); }},
-		{UPDATE_PHASE::NORMAL,[this]() {ChangeNormal(); }},
-		{UPDATE_PHASE::SLOW,[this]() {ChangeSlow(); }}
-	};
-	updatePhase_ = UPDATE_PHASE::NONE;
-
 	GameRuleManager::GetInstance().Init();
 	CharacterManager::GetInstance().Init();
+	CollisionManager2D::GetInstance().Update();
 	UIManager::GetInstance().Init();
+
+	//デバッグ用
+	frame_ = 0;
+	slowFrame_ = FRAME_PER_UPDATE;
 }
+//
+//void GameScene::LoadingUpdate(void)
+//{
+//}
 
 void GameScene::NoneUpdate(void)
 {
-	//何もしない
 }
 
 void GameScene::FadeUpdate(void)
 {
-	scnMng_.Fade();
-	if (scnMng_.GetIsEndFade())
-	{
-		ChangeUpdatePhase(UPDATE_PHASE::NORMAL);
-	}
 }
 
 void GameScene::NormalUpdate(void)
 {
-	//ポーズ画面へ遷移
-	if (inputMng_.IsTrgDown(KEY_INPUT_P))
+	// === クリア判定の監視 ===
+	if (GameRuleManager::GetInstance().IsGameClear())
 	{
-		scnMng_.PushScene(pauseScene_);
+		SceneManager::GetInstance().ChangeScene(SceneManager::SCENE_ID::GAME_OVER);
 		return;
 	}
-
-	//インスタンス取得
-	auto& gameMng = GameRuleManager::GetInstance();
-
-	//ゲームオーバー遷移
-	if (gameMng.IsGameOver())
-	{
-		scnMng_.ChangeScene(SceneManager::SCENE_ID::GAME_OVER);
-		return;
-	}
-
-	gameMng.Update();
-	
-	//キャラクターの更新
-	CharacterManager::GetInstance().Update();
-
-	UIManager::GetInstance().Update();
-
-	//更新はアクション中のみ
-	CollisionManager2D::GetInstance().Update();
-
-	//終了した当たり判定の消去
-	CollisionManager2D::GetInstance().Sweep();
-
-
 
 #ifdef _DEBUG
-	//デバッグ処理
 	DebagUpdate();
 #endif // _DEBUG
 
+	GameRuleManager::GetInstance().Update();
+	CharacterManager::GetInstance().Update();
+	UIManager::GetInstance().Update();
+	CollisionManager2D::GetInstance().Update();
+	CollisionManager2D::GetInstance().Sweep();
+
+	//ポーズ
+	InputManagerS& insS = InputManagerS::GetInstance();
+	if (insS.IsTrgDown(INPUT_EVENT::PAUSE))
+	{
+		SceneManager::GetInstance().CreateScene(pauseScene_);
+	}
 
 }
+
 
 void GameScene::NormalDraw(void)
 {
-
-	UIManager::GetInstance().Draw();
-
-	//UI2DManager::GetInstance().Draw();
 #ifdef _DEBUG
-	//デバッグ処理
 	DebagDraw();
 #endif // _DEBUG
 
-	//マップ画像
 	DrawExtendGraph(0, 0, Application::SCREEN_SIZE_X, Application::SCREEN_SIZE_Y, mapImage_, true);
-	
-	//キャラクター関係
+
 	CharacterManager::GetInstance().Draw();
 
-	//所持金の表示
 	GameRuleManager::GetInstance().Draw();
-}
-
-void GameScene::DirectionDraw(void)
-{
-	CharacterManager::GetInstance().Draw();
 
 	if (updatePhase_ == UPDATE_PHASE::DIRECTION)
 	{
 		UIManager::GetInstance().DirectionDraw();
 	}
-
 }
 
 
@@ -221,37 +188,11 @@ void GameScene::DebagUpdate(void)
 	{
 		scnMng_.ChangeScene(SceneManager::SCENE_ID::GAME_CLEAR);
 	}
-	frame_++;  
+	frame_++;
 }
 
 void GameScene::DebagDraw(void)
 {
-	DrawBox(
-		0,
-		0,
-		Application::SCREEN_SIZE_X,
-		Application::SCREEN_SIZE_Y,
-		0x00ff00,
-		true
-	);
-
-	DrawFormatString(
-		0, 0,
-		0x000000,
-		L"GameScene"
-	);
-
-	constexpr float r = 40.0f;
-	float angle = DX_PI_F * 2.0f * static_cast<float>(frame_ % 360) / 60.0f;
-
-
-	//円運動を描画
-	DrawCircleAA(
-		320+cos(angle) * r, 
-		240+sin(angle) * r,
-		r, 
-		32, 
-		0xff8888, 
-		true);
+	//printfDx("GameScene\n");
 }
 #endif // _DEBUG

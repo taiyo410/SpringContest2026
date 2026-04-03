@@ -133,20 +133,23 @@ public:
 	//ヒット処理
 	void OnHit(const std::weak_ptr<Collider2D> _partner)override;
 
-	//状態遷移
-	void ChangeState(const STATE _state);
-
-	//難易度設定
-	void SetAlternateDiff(const ALTERNATE_DIFF _diff);
-
 	//項目を戻ることを禁ずる
 	void ProhibitedBack(void) { isBackMenu_ = false; }
 
 	//お金が上限に達したか
 	const bool IsMoneyMax(void)const { return money_ >= FUNDS_MAX; }
 
+	// 【修正3】DaimyoOnHit.cppから呼び出される関数の宣言を追加
+	const STATE GetState(void) const { return state_; }
+	
+	//状態遷移
+	void ChangeState(STATE _nextState) { nextState_ = _nextState; }
+	
 	//所持金
-	const int GetMoney(void)const { return money_; }
+	const float GetMoney(void) const { return money_; }
+	
+	//難易度設定
+	void SetAlternateDiff(ALTERNATE_DIFF _diff) { /* 一旦空実装 */ }
 
 	//強化
 	void Enhancement(ENHANCEMENT_TYPE _type);

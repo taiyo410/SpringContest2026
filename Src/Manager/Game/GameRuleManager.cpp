@@ -26,6 +26,8 @@ void GameRuleManager::Init(void)
 {
 	//初期化
 	nowMoney_ = INITIAL_FUNDS;
+	dissatisfaction_ = 0;
+	elapsedYear_ = 0; // 経過年数の初期化
 }
 
 void GameRuleManager::Update(void)
@@ -65,21 +67,13 @@ const bool GameRuleManager::IsGameOver(void)
 	{
 		return true;
 	}
-
-	//所持金
-	if (CharacterManager::GetInstance().IsMoneyMax())
-	{
-		return true;
-	}
-
-	return false;
-}
-
 GameRuleManager::GameRuleManager(void)
 {
-	nowMoney_ = 0;
 }
 
 GameRuleManager::~GameRuleManager(void)
-{
+{ 
 }
+
+
+

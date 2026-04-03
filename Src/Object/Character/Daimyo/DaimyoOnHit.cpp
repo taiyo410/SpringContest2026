@@ -11,7 +11,11 @@ DaimyoOnHit::DaimyoOnHit(Daimyo& _parent)
 	hit_.emplace(Collider2D::TAG::CHOICE_ALTERNATE, [](const std::weak_ptr<Collider2D> _partner) {});
 	hit_.emplace(Collider2D::TAG::CHOICE_ENHANCEMENT, [](const std::weak_ptr<Collider2D> _partner) {});
 	hit_.emplace(Collider2D::TAG::CHOICE_DETAILS, [](const std::weak_ptr<Collider2D> _partner) {});
-	hit_.emplace(Collider2D::TAG::ALTERNATE_SAFETY, [](const std::weak_ptr<Collider2D> _partner) {});
+
+	// 【修正】参勤交代を実行した際に、1年経過させる処理をラムダ式内に追加
+	hit_.emplace(Collider2D::TAG::ALTERNATE_SAFETY, [this](const std::weak_ptr<Collider2D> _partner) {
+		// ※ラムダ式の中身は OnHit() の内部処理に依存するため、ここでは空のままにして下部の OnHit で処理します
+		});
 	hit_.emplace(Collider2D::TAG::ALTERNATE_NORMAL, [](const std::weak_ptr<Collider2D> _partner) {});
 	hit_.emplace(Collider2D::TAG::ALTERNATE_DENGER, [](const std::weak_ptr<Collider2D> _partner) {});
 	hit_.emplace(Collider2D::TAG::ENHANCEMENT_TIME, [](const std::weak_ptr<Collider2D> _partner) {});
@@ -75,22 +79,24 @@ void DaimyoOnHit::HitCursor(const std::weak_ptr<Collider2D> _partner)
 			{
 				//難易度設定
 				parent_.SetAlternateDiff(Daimyo::ALTERNATE_DIFF::SAFETY);
-
-				//状態遷移
 				parent_.ChangeState(Daimyo::STATE::ACTION_ALTERNATE);
+
+				// 参勤交代を実行する度に1年経過
+				GameRuleManager::GetInstance().AddYear(1);
 			}
 			else if (myCol->IsHit() && myCol->GetTag() == Collider2D::TAG::ALTERNATE_NORMAL)
 			{
 				//難易度設定
 				parent_.SetAlternateDiff(Daimyo::ALTERNATE_DIFF::NORMAL);
-
-				//状態遷移
 				parent_.ChangeState(Daimyo::STATE::ACTION_ALTERNATE);
+
+				GameRuleManager::GetInstance().AddYear(1);
 			}
 			else if (myCol->IsHit() && myCol->GetTag() == Collider2D::TAG::ALTERNATE_DENGER)
 			{
 				//難易度設定
 				parent_.SetAlternateDiff(Daimyo::ALTERNATE_DIFF::DENGER);
+				parent_.ChangeState(Daimyo::STATE::ACTION_ALTERNATE);
 
 				//状態遷移
 				parent_.ChangeState(Daimyo::STATE::ACTION_ALTERNATE);
@@ -120,6 +126,11 @@ void DaimyoOnHit::HitCursor(const std::weak_ptr<Collider2D> _partner)
 				parent_.Enhancement(Daimyo::ENHANCEMENT_TYPE::INCOME);
 			}
 		}
+				GameRuleManager::GetInstance().AddYear(1);
+			}
+		}
+	}
+}
 
 		//クリックで戻さない
 		parent_.ProhibitedBack();
