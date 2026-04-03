@@ -1,4 +1,4 @@
-#include <DxLib.h>
+Å@#include <DxLib.h>
 #include <wingdi.h>
 #include <EffekseerForDXLib.h>
 #include <cassert>
