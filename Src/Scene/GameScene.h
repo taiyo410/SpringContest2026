@@ -1,5 +1,7 @@
 #pragma once
 #include <memory>
+#include <map>
+#include <functional>
 #include "SceneBase.h"
 
 class PauseScene;
@@ -72,6 +74,9 @@ private:
 	//ポーズ画面
 	std::shared_ptr<PauseScene> pauseScene_;
 
+	// 【修正】LoadingUpdate と LoadingDraw の宣言を追加
+	void LoadingUpdate(void) override;
+	void LoadingDraw(void) override;
 
 	//更新関数
 	void NoneUpdate(void);				//何もしない

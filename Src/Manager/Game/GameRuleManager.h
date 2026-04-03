@@ -22,6 +22,12 @@ public:
 	//最大不満度
 	static constexpr int DISSATISFACTION_MAX = 100;
 
+	//開始年数 (追加)
+	static constexpr int START_YEAR = 1682;
+
+	//クリアとなる経過年数 (追加)
+	static constexpr int CLEAR_YEAR_LIMIT = 240;
+
 	/// @brief ロード
 	/// @param  
 	void Load(void);
@@ -52,31 +58,48 @@ public:
 	const int GetNowMoney(void)const { return nowMoney_; }
 
 	//所持金が足りているかの比較(100000単位)
-	const bool HasEnoughMoney(int _request)const { return nowMoney_ >= _request; }
+	const bool HasEnoughMoney(int _requestVal)const { return nowMoney_ >= _requestVal; }
 
-	//不満度を高める
+	//不満度を増やす
 	void AddDissatisfaction(const int _value) { dissatisfaction_ += _value; }
 
-	//ゲームオーバー判定
-	const bool IsGameOver(void);
+	//不満度を減らす
+	void SubDissatisfaction(const int _value) { dissatisfaction_ -= _value; }
+
+	//不満度の取得
+	const int GetDissatisfaction(void)const { return dissatisfaction_; }
+
+	// === 年数管理機能 (追加) ===
+	//経過年数を取得
+	const int GetElapsedYear(void)const { return elapsedYear_; }
+
+	//経過年数を進める（※ゲーム内の適切なタイミングでこの関数を呼んでください）
+	void AddYear(const int _year) { elapsedYear_ += _year; }
+
+	//ゲームクリア条件を満たしているか
+	const bool IsGameClear(void)const { return elapsedYear_ >= CLEAR_YEAR_LIMIT; }
 
 private:
 
-	//現在の所持金
-	int nowMoney_;
-
-	//総不満度
-	int dissatisfaction_;
-
 	//フォント
 	std::unique_ptr<FontController>font_;
+
 	int moneyFont_;
 
+	//所持金
+	int nowMoney_;
+
+	//不満度
+	int dissatisfaction_;
+
+	//経過年数 (追加)
+	int elapsedYear_;
+
 	//コンストラクタ
-	GameRuleManager(void);
+	GameRuleManager(void) = default;
 
 	//デストラクタ
-	~GameRuleManager(void)override;
+	~GameRuleManager(void)override = default;
 
 };
 

@@ -122,16 +122,6 @@ void Daimyo::OnHit(const std::weak_ptr<Collider2D> _partner)
 	onHit_->OnHit(_partner);
 }
 
-void Daimyo::ChangeState(const STATE _state)
-{
-	nextState_ = _state;
-	state_ = STATE::STANDBY;
-}
-
-void Daimyo::SetAlternateDiff(const ALTERNATE_DIFF _diff)
-{
-	settingDiff_[_diff]();
-}
 
 void Daimyo::CreateCastleCol(void)
 {

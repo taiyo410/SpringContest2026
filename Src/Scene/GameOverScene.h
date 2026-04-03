@@ -3,10 +3,8 @@
 #include <memory>
 #include <vector>
 #include "../Common/Vector2.h"
-#include "../Common/Vector2F.h"
 #include "SceneBase.h"
 
-class FontContrroeller;
 class TextWriter;
 class MenuManager; // 追加: MenuManagerの前方宣言
 class Cursor;      // 追加: Cursorの前方宣言
@@ -57,13 +55,9 @@ private:
 	//サウンド
 	SoundManager& soundMng_;
 
-	// フォントコントローラー
-	std::unique_ptr<FontController> fontController_;
-
 	std::unique_ptr<Easing> easing_; // アニメーション用
 
 	// フォントハンドル
-	int buttonFontHandle_;
 	int gameOverFontHandle_;
 	int messageFontHandle_;
 	int menuFontHandle_;

@@ -21,6 +21,8 @@ void GameRuleManager::Init(void)
 {
 	//初期化
 	nowMoney_ = INITIAL_FUNDS;
+	dissatisfaction_ = 0;
+	elapsedYear_ = 0; // 経過年数の初期化
 }
 
 void GameRuleManager::Update(void)
@@ -32,7 +34,7 @@ void GameRuleManager::Draw(void)
 	//所持金
 	Vector2 moneyPos = { Application::SCREEN_SIZE_X - 200, 100 };
 
-	DrawBox(moneyPos.x - 150, moneyPos.y - 30, moneyPos.x + 150, moneyPos.y + 30, 0xff0000,true);
+	DrawBox(moneyPos.x - 150, moneyPos.y - 30, moneyPos.x + 150, moneyPos.y + 30, 0xff0000, true);
 
 	std::wstring str = L"Money : ";
 	str += std::to_wstring(nowMoney_ * UNITS);
@@ -42,38 +44,11 @@ void GameRuleManager::Draw(void)
 	//不満度
 	Vector2 disPos = { 60, 300 };
 
-	DrawBox(disPos.x - 40, disPos.y - 200, disPos.x + 40, disPos.y + 200,0x666666, true);
-	if(dissatisfaction_ > 0)
-		DrawBox(disPos.x - 40, disPos.y + 200, disPos.x + 40, disPos.y + 200 - 400 * (static_cast<float>(dissatisfaction_) / static_cast<float>(DISSATISFACTION_MAX)),0xff00ff, true);
-	DrawBox(disPos.x - 40, disPos.y - 200, disPos.x + 40, disPos.y + 200,0x0, false);
+	DrawBox(disPos.x - 40, disPos.y - 200, disPos.x + 40, disPos.y + 200, 0x666666, true);
+	if (dissatisfaction_ > 0)
+		DrawBox(disPos.x - 40, disPos.y + 200 - (dissatisfaction_ * 4), disPos.x + 40, disPos.y + 200, 0x0000ff, true);
 }
 
 void GameRuleManager::Release(void)
-{
-}
-
-const bool GameRuleManager::IsGameOver(void)
-{
-	//不満度
-	if (dissatisfaction_ >= DISSATISFACTION_MAX)
-	{
-		return true;
-	}
-
-	//所持金
-	if (CharacterManager::GetInstance().IsMoneyMax())
-	{
-		return true;
-	}
-
-	return false;
-}
-
-GameRuleManager::GameRuleManager(void)
-{
-	nowMoney_ = 0;
-}
-
-GameRuleManager::~GameRuleManager(void)
 {
 }
