@@ -100,15 +100,9 @@ public:
 	//所持できる資金の上限
 	static constexpr int FUNDS_MAX = 50;
 
-	//不満度の最大値
-	static constexpr int DISSATISFACTION_MAX = 10;
-
 	//不満度上昇値
 	static constexpr int SUCCESS_DISSATISFACTION = 2;
 	static constexpr int FAILED_DISSATISFACTION = 6;
-
-	//全体の不満度上昇値
-	static constexpr int ADD_ALL_DISSATISFACTION = 8;
 
 	//コンストラクタ
 	Daimyo(const DaimyoImport _import);
@@ -166,9 +160,6 @@ private:
 
 	//所持金
 	float money_;
-
-	//不満度
-	int dissatisfaction_;
 
 	//参勤の情報
 	AlternateInfo alternateInfo_;

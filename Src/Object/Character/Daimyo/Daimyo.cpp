@@ -17,7 +17,6 @@ Daimyo::Daimyo(const DaimyoImport _import)
 	state_ = STATE::STANDBY;
 	nextState_ = STATE::STANDBY;
 	money_ = 0.0f;
-	dissatisfaction_ = 0;
 	alternateInfo_ = {};
 	cnt_ = 0.0;
 	isSuccess_ = false;
@@ -94,7 +93,6 @@ void Daimyo::Init(void)
 	state_ = STATE::STANDBY;
 	nextState_ = STATE::NORMAL;
 	money_ = 0.0f;
-	dissatisfaction_ = 0;
 	alternateInfo_ = {};
 	cnt_ = 0.0f;
 	isBackMenu_ = false;
@@ -226,9 +224,11 @@ void Daimyo::SettingDenger(void)
 
 void Daimyo::ResultAlternate(void)
 {
+	//インスタンス
+	auto& gameMng = GameRuleManager::GetInstance();
+
 	//収益
 	int income = alternateInfo_.income;
-	int dissatisfaction = SUCCESS_DISSATISFACTION;
 	isSuccess_ = true;
 
 	//大名のお金が減る
@@ -239,27 +239,24 @@ void Daimyo::ResultAlternate(void)
 	if (alternateInfo_.probability < rand)
 	{
 		//失敗
+
+		//失敗分の収益倍率
 		income *= alternateInfo_.confiscation;
-		dissatisfaction = FAILED_DISSATISFACTION;
 		isSuccess_ = false;
+
+		//全体不満度を上昇
+		gameMng.AddDissatisfaction(FAILED_DISSATISFACTION);
+	}
+	else
+	{
+		//成功分の不満度上昇
+		
+		//全体不満度を上昇
+		gameMng.AddDissatisfaction(SUCCESS_DISSATISFACTION);
 	}
 
 	//お金を増やす
-	auto& gameMng = GameRuleManager::GetInstance();
 	gameMng.AddMoney(income);
-
-	//不満度を増やす
-	dissatisfaction_ += dissatisfaction;
-
-	//不満度が上限に達したら
-	if (dissatisfaction_ >= DISSATISFACTION_MAX)
-	{
-		//全体不満度を上昇
-		gameMng.AddDissatisfaction(ADD_ALL_DISSATISFACTION);
-
-		//自分の不満度はリセット
-		dissatisfaction_ = 0;
-	}
 }
 
 void Daimyo::UpdateStandby(void)
@@ -425,9 +422,6 @@ void Daimyo::DrawNormal(void)
 
 	//所持金
 	DrawFormatString(pos_.x, pos_.y + 50, 0x00ff00, L"%.2f", money_);
-
-	//不満度
-	DrawFormatString(pos_.x, pos_.y + 66, 0xff0000, L"%d", dissatisfaction_);
 }
 
 void Daimyo::DrawSelect(void)
