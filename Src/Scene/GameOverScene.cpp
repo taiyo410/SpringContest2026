@@ -9,6 +9,7 @@
 #include "../Manager/Resource/FontManager.h"
 #include "../Manager/Generic/SceneManager.h"
 #include "../Manager/Game/CollisionManager2D.h"
+#include "../Manager/Game/GameRuleManager.h"		
 #include "../Object/Character/Cursor/Cursor.h"
 #include "../Common/TextWriter.h"     // パスを修正
 #include "../Common/FontController.h" // パスを修正
@@ -18,6 +19,7 @@
 GameOverScene::GameOverScene(void) :
 	soundMng_(SoundManager::GetInstance())
 {
+
 	CollisionManager2D::CreateInstance();
 	cursor_ = std::make_unique<Cursor>();
 
@@ -29,6 +31,8 @@ GameOverScene::~GameOverScene(void)
 {
 	soundMng_.Stop(SoundManager::SRC::GAME_OVER_BGM);
 	CollisionManager2D::GetInstance().Destroy();
+
+	GameRuleManager::GetInstance().Destroy();		//ゲームシーンで作ったゲームルールマネージャをここで消す
 }
 
 void GameOverScene::Load(void)

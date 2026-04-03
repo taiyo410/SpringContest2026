@@ -96,10 +96,10 @@ private:
 	int elapsedYear_;
 
 	//コンストラクタ
-	GameRuleManager(void) = default;
+	GameRuleManager(void);
 
 	//デストラクタ
-	~GameRuleManager(void)override = default;
+	~GameRuleManager(void)override;
 
 };
 

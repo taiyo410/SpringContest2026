@@ -21,6 +21,7 @@
 GameClearScene::GameClearScene(void) :
 	soundMng_(SoundManager::GetInstance())
 {
+
 	CollisionManager2D::CreateInstance();
 	cursor_ = std::make_unique<Cursor>();
 
@@ -32,6 +33,8 @@ GameClearScene::~GameClearScene(void)
 {
 	soundMng_.Stop(SoundManager::SRC::GAME_CLEAR_BGM);
 	CollisionManager2D::GetInstance().Destroy();
+
+	GameRuleManager::GetInstance().Destroy();		//ゲームシーンで作ったゲームルールマネージャをここで消す
 }
 
 void GameClearScene::Load(void)

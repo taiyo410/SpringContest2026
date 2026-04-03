@@ -52,3 +52,15 @@ void GameRuleManager::Draw(void)
 void GameRuleManager::Release(void)
 {
 }
+
+GameRuleManager::GameRuleManager(void)
+{
+}
+
+GameRuleManager::~GameRuleManager(void)
+{
+	int i = 0;
+}
+
+
+
