@@ -2,6 +2,7 @@
 #include "../Template/Singleton.h"
 
 class FontController;
+class DissatisfactionBar;
 
 class GameRuleManager : public Singleton<GameRuleManager>
 {
@@ -18,9 +19,6 @@ public:
 
 	//フォントサイズ
 	static constexpr int FONT_SIZE = 20;
-
-	//最大不満度
-	static constexpr int DISSATISFACTION_MAX = 100;
 
 	/// @brief ロード
 	/// @param  
@@ -55,7 +53,7 @@ public:
 	const bool HasEnoughMoney(int _request)const { return nowMoney_ >= _request; }
 
 	//不満度を高める
-	void AddDissatisfaction(const int _value) { dissatisfaction_ += _value; }
+	void AddDissatisfaction(const int _value);
 
 	//ゲームオーバー判定
 	const bool IsGameOver(void);
@@ -65,18 +63,16 @@ private:
 	//現在の所持金
 	int nowMoney_;
 
-	//総不満度
-	int dissatisfaction_;
-
 	//フォント
 	std::unique_ptr<FontController>font_;
 	int moneyFont_;
+
+	//不満度コライダ
+	std::unique_ptr<DissatisfactionBar> dissatifactionBar_;
 
 	//コンストラクタ
 	GameRuleManager(void);
 
 	//デストラクタ
 	~GameRuleManager(void)override;
-
 };
-

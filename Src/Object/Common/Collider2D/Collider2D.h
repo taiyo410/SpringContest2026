@@ -25,6 +25,12 @@ public:
 		ALTERNATE_NORMAL,	//参勤(普通)
 		ALTERNATE_DENGER,	//参勤(危険)
 
+		ENHANCEMENT_TIME,			//強化(時間)
+		ENHANCEMENT_PROBABILITY,	//強化(確率)
+		ENHANCEMENT_INCOME,			//強化(収入)
+
+		DISSATISFACTION_RECOVERY,	//不満度回復
+
 		MAX
 	};
 
