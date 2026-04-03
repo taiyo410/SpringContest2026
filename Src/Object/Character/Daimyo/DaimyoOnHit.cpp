@@ -18,6 +18,9 @@ DaimyoOnHit::DaimyoOnHit(Daimyo& _parent)
 		});
 	hit_.emplace(Collider2D::TAG::ALTERNATE_NORMAL, [](const std::weak_ptr<Collider2D> _partner) {});
 	hit_.emplace(Collider2D::TAG::ALTERNATE_DENGER, [](const std::weak_ptr<Collider2D> _partner) {});
+	hit_.emplace(Collider2D::TAG::ENHANCEMENT_TIME, [](const std::weak_ptr<Collider2D> _partner) {});
+	hit_.emplace(Collider2D::TAG::ENHANCEMENT_PROBABILITY, [](const std::weak_ptr<Collider2D> _partner) {});
+	hit_.emplace(Collider2D::TAG::ENHANCEMENT_INCOME, [](const std::weak_ptr<Collider2D> _partner) {});
 }
 
 DaimyoOnHit::~DaimyoOnHit(void)
@@ -26,50 +29,55 @@ DaimyoOnHit::~DaimyoOnHit(void)
 
 void DaimyoOnHit::OnHit(const std::weak_ptr<Collider2D> _partner)
 {
-	auto myCol = _partner.lock();
+	//コライダ
+	const auto& col = _partner.lock();
 
-	// 【修正4】マウスの「左クリックした瞬間」を安全に取得
-	static bool oldMouseClick = false;
-	bool currentMouseClick = (GetMouseInput() & MOUSE_INPUT_LEFT) != 0;
-	bool mouseClickTrg = currentMouseClick && !oldMouseClick;
-	oldMouseClick = currentMouseClick;
+	//タグごとで分ける
+	hit_[col->GetTag()](_partner);
+}
 
-	if (myCol)
+void DaimyoOnHit::HitCursor(const std::weak_ptr<Collider2D> _partner)
+{
+	//入力
+	const auto& input = InputManager::GetInstance();
+
+	//左クリック
+	if (input.IsTrgMouseLeft())
 	{
-		hit_[myCol->GetTag()](_partner);
-
-		if (parent_.GetState() == Daimyo::STATE::SELECT)
-		{
-			// 右クリックで戻る処理は削除
-		}
-
-		if (mouseClickTrg)
+		for (const auto& myCol : parent_.GetColliders())
 		{
 			if (myCol->IsHit() && myCol->GetTag() == Collider2D::TAG::DAIMYO)
 			{
-				parent_.ChangeState(Daimyo::STATE::SELECT);
+				//状態遷移
+				parent_.ChangeState(Daimyo::STATE::SELECT_DIRECTION);
 			}
 			else if (myCol->IsHit() && myCol->GetTag() == Collider2D::TAG::CHOICE_ALTERNATE)
 			{
-				if (parent_.GetMoney() >= 50.0f) // 仮で定数
+				//お金が足りているか
+				if (parent_.GetMoney() >= Daimyo::FUNDS_MIN)
 				{
+					//状態遷移
 					parent_.ChangeState(Daimyo::STATE::SELECT_ALTERNATE);
 				}
 				else
 				{
+					//状態遷移
 					parent_.ChangeState(Daimyo::STATE::NO_MONEY);
 				}
 			}
 			else if (myCol->IsHit() && myCol->GetTag() == Collider2D::TAG::CHOICE_ENHANCEMENT)
 			{
-				parent_.ChangeState(Daimyo::STATE::SELECT);
+				//状態遷移
+				parent_.ChangeState(Daimyo::STATE::ENHANCEMENT);
 			}
 			else if (myCol->IsHit() && myCol->GetTag() == Collider2D::TAG::CHOICE_DETAILS)
 			{
+				//状態遷移
 				parent_.ChangeState(Daimyo::STATE::SELECT);
 			}
 			else if (myCol->IsHit() && myCol->GetTag() == Collider2D::TAG::ALTERNATE_SAFETY)
 			{
+				//難易度設定
 				parent_.SetAlternateDiff(Daimyo::ALTERNATE_DIFF::SAFETY);
 				parent_.ChangeState(Daimyo::STATE::ACTION_ALTERNATE);
 
@@ -78,6 +86,7 @@ void DaimyoOnHit::OnHit(const std::weak_ptr<Collider2D> _partner)
 			}
 			else if (myCol->IsHit() && myCol->GetTag() == Collider2D::TAG::ALTERNATE_NORMAL)
 			{
+				//難易度設定
 				parent_.SetAlternateDiff(Daimyo::ALTERNATE_DIFF::NORMAL);
 				parent_.ChangeState(Daimyo::STATE::ACTION_ALTERNATE);
 
@@ -85,15 +94,46 @@ void DaimyoOnHit::OnHit(const std::weak_ptr<Collider2D> _partner)
 			}
 			else if (myCol->IsHit() && myCol->GetTag() == Collider2D::TAG::ALTERNATE_DENGER)
 			{
+				//難易度設定
 				parent_.SetAlternateDiff(Daimyo::ALTERNATE_DIFF::DENGER);
 				parent_.ChangeState(Daimyo::STATE::ACTION_ALTERNATE);
 
-				GameRuleManager::GetInstance().AddYear(1);
+				//状態遷移
+				parent_.ChangeState(Daimyo::STATE::ACTION_ALTERNATE);
+			}
+			else if (myCol->IsHit() && myCol->GetTag() == Collider2D::TAG::ENHANCEMENT_TIME)
+			{
+				//状態遷移
+				parent_.ChangeState(Daimyo::STATE::NORMAL);
+
+				//強化
+				parent_.Enhancement(Daimyo::ENHANCEMENT_TYPE::TIME);
+			}
+			else if (myCol->IsHit() && myCol->GetTag() == Collider2D::TAG::ENHANCEMENT_PROBABILITY)
+			{
+				//状態遷移
+				parent_.ChangeState(Daimyo::STATE::NORMAL);
+
+				//強化
+				parent_.Enhancement(Daimyo::ENHANCEMENT_TYPE::PROBABILITY);
+			}
+			else if (myCol->IsHit() && myCol->GetTag() == Collider2D::TAG::ENHANCEMENT_INCOME)
+			{
+				//状態遷移
+				parent_.ChangeState(Daimyo::STATE::NORMAL);
+
+				//強化
+				parent_.Enhancement(Daimyo::ENHANCEMENT_TYPE::INCOME);
 			}
 		}
+
+		//一年経過
+		GameRuleManager::GetInstance().AddYear(1);
+	
+		//クリックで戻さない
+		parent_.ProhibitedBack();
+
 	}
+
 }
 
-void DaimyoOnHit::HitCursor(const std::weak_ptr<Collider2D> _partner)
-{
-}

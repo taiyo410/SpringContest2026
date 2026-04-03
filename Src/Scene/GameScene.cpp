@@ -36,7 +36,6 @@ GameScene::~GameScene(void)
 	//インスタンスの削除
 	CollisionManager2D::GetInstance().Destroy();
 	CharacterManager::GetInstance().Destroy();
-	GameRuleManager::GetInstance().Destroy();
 	SoundManager::GetInstance().Release();
 	UIManager::GetInstance().Destroy();
 }
@@ -74,10 +73,10 @@ void GameScene::Init(void)
 	frame_ = 0;
 	slowFrame_ = FRAME_PER_UPDATE;
 }
-
-void GameScene::LoadingUpdate(void)
-{
-}
+//
+//void GameScene::LoadingUpdate(void)
+//{
+//}
 
 void GameScene::NoneUpdate(void)
 {
@@ -95,12 +94,18 @@ void GameScene::NormalUpdate(void)
 		SceneManager::GetInstance().ChangeScene(SceneManager::SCENE_ID::GAME_CLEAR);
 		return;
 	}
+	else if (GameRuleManager::GetInstance().IsGameOver())
+	{
+		SceneManager::GetInstance().ChangeScene(SceneManager::SCENE_ID::GAME_OVER);
+		return;
+	}
 
 #ifdef _DEBUG
 	DebagUpdate();
 #endif // _DEBUG
 
 	GameRuleManager::GetInstance().Update();
+	CharacterManager::GetInstance().Update();
 	UIManager::GetInstance().Update();
 	CollisionManager2D::GetInstance().Update();
 	CollisionManager2D::GetInstance().Sweep();
@@ -114,9 +119,6 @@ void GameScene::NormalUpdate(void)
 
 }
 
-void GameScene::LoadingDraw(void)
-{
-}
 
 void GameScene::NormalDraw(void)
 {

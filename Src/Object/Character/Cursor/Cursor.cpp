@@ -37,6 +37,7 @@ void Cursor::Draw(void)
 	{
 		col.get()->GetGeometry().Draw(0);
 	}
+	DrawFormatString(0, 0, 0xffffff, L"Cursor Pos:(%f,%f)", pos_.x, pos_.y);
 }
 
 void Cursor::Release(void)

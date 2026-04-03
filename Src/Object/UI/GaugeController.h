@@ -11,7 +11,7 @@ public:
 	/// @param _per 参照割合(0.0f~1.0f)
 	/// @param _col1 左側のカラー
 	/// @param _col2 右側のカラー(右から左へ補完するための色)
-	GaugeController(ResourceManager::SRC _maskSrc, Vector2F& _pos,Vector2F& _size,float& _per,FLOAT4& _col1,FLOAT4& _col2);
+	GaugeController(ResourceManager::SRC _maskSrc, const Vector2F& _pos,const Vector2F& _size,const float& _per,FLOAT4& _col1,FLOAT4& _col2);
 
 	/// @brief デストラクタ
 	/// @param  
@@ -44,22 +44,23 @@ public:
 private:
 
 	//定数バッファ
-	static constexpr int GAUGE_CONST_BUF = 3;
+	static constexpr int GAUGE_CONST_BUF = 4;
 	//カラー1の定数バッファ番号
 	static constexpr int COLER1_BUF_NUM = 0;
 	//カラー2の定数バッファ番号
 	static constexpr int COLER2_BUF_NUM = 1;
 	//現在の割合以上のゲージの色
 	static constexpr FLOAT4 GAUGE_OVER_COLOR = { 0.5f,0.5f,0.5f,1.0f };
+	static constexpr int GAUGE_OVER_COLOR_BUF_NUM = 2;
 
 	//ゲージ割合の定数バッファ番号
-	static constexpr int PERCENT_BUF_NUM = 2;
+	static constexpr int PERCENT_BUF_NUM = 3;
 	//座標
-	Vector2F& pos_;
+	const Vector2F& pos_;
 	//サイズ
-	Vector2F& size_;
+	const Vector2F& size_;
 	//割合
-	float& per_;
+	const float& per_;
 	//マスク画像
 	int maskImg_;
 	//マスク画像種類

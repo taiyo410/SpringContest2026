@@ -140,10 +140,6 @@ private:
 	//テキスト
 	std::unique_ptr<TextWriter>textWtiter_;
 
-	//ゲージ
-	std::unique_ptr<GaugeController>gaugeCntl_;
-	std::unique_ptr<ArrowController>arrowCntl_;
-
 	//各選択肢の更新
 	std::function<void(void)>updateTitle_;
 	std::unordered_map<TITLE_STATE, std::function<void(void)>> titleSelectFuncTable_;
@@ -194,12 +190,6 @@ private:
 	int stringAlpha_;
 	//アルファ値のブレンドカウント
 	float blendCnt_;
-
-	float gaugeCnt_;
-	Vector2F gaugePos_;
-	Vector2F gaugeSize_;
-	FLOAT4 col_;
-	float gaugePer_;
 
 	//状態遷移
 	void ChangeState(const TITLE_STATE& _state);

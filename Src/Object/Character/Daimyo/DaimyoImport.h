@@ -17,7 +17,7 @@ struct DaimyoImport
 	Vector2F hitBoxMax = { 0.0f,0.0f };
 
 	//êF
-	unsigned int color = 0;
+	FLOAT4 color = {};
 
 	//í~êœî{ó¶
 	float accumulationSpeed_ = 0.0f;
@@ -78,7 +78,7 @@ inline void FromJson(const nlohmann::json& _j, DaimyoImport& _data)
 		green = c.value("green", 0);
 		blue = c.value("blue", 0);
 	
-		_data.color = GetColor(red, green, blue);
+		_data.color = { static_cast<float>(red) / 255.0f, static_cast<float>(green) / 255.0f, static_cast<float>(blue) / 255.0f,0.0f };
 	}
 
 	//ç¿ïW

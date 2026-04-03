@@ -113,6 +113,22 @@ COLOR_F Easing::EaseFunc(const COLOR_F& start, const COLOR_F& end, const float t
     return ret;
 }
 
+FLOAT4 Easing::EaseFunc(const FLOAT4& start, const FLOAT4& end, const float t, const EASING_TYPE type)
+{
+    // üŒ`•âŠÔ
+    if (t >= 1.0f)
+    {
+        return end;
+    }
+    SetEasing(t, type);
+    FLOAT4 ret = start;
+    ret.x += (end.x - start.x) * easingUpdate_(t);
+    ret.y += (end.y - start.y) * easingUpdate_(t);
+    ret.z += (end.z- start.z) * easingUpdate_(t);
+    ret.w += (end.w - start.w) * easingUpdate_(t);
+    return ret;
+}
+
 
 
 float Easing::EaseFuncDeg(float& start, float& end, const float t, const EASING_TYPE type)

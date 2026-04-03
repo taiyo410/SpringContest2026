@@ -2,6 +2,7 @@
 #include "../Template/Singleton.h"
 
 class FontController;
+class DissatisfactionBar;
 
 class GameRuleManager : public Singleton<GameRuleManager>
 {
@@ -60,14 +61,11 @@ public:
 	//所持金が足りているかの比較(100000単位)
 	const bool HasEnoughMoney(int _requestVal)const { return nowMoney_ >= _requestVal; }
 
-	//不満度を増やす
-	void AddDissatisfaction(const int _value) { dissatisfaction_ += _value; }
-
-	//不満度を減らす
-	void SubDissatisfaction(const int _value) { dissatisfaction_ -= _value; }
+	//不満度を高める
+	void AddDissatisfaction(const int _value);
 
 	//不満度の取得
-	const int GetDissatisfaction(void)const { return dissatisfaction_; }
+	const int GetDissatisfaction(void)const;
 
 	// === 年数管理機能 (追加) ===
 	//経過年数を取得
@@ -79,27 +77,27 @@ public:
 	//ゲームクリア条件を満たしているか
 	const bool IsGameClear(void)const { return elapsedYear_ >= CLEAR_YEAR_LIMIT; }
 
+	//ゲームオーバー条件を満たしているか
+	const bool IsGameOver(void)const;
+
 private:
 
 	//フォント
 	std::unique_ptr<FontController>font_;
 
-	int moneyFont_;
-
 	//所持金
 	int nowMoney_;
 
-	//不満度
-	int dissatisfaction_;
-
 	//経過年数 (追加)
 	int elapsedYear_;
+	int moneyFont_;
+
+	//不満度コライダ
+	std::unique_ptr<DissatisfactionBar> dissatifactionBar_;
 
 	//コンストラクタ
 	GameRuleManager(void);
 
 	//デストラクタ
-	~GameRuleManager(void);
-
+	~GameRuleManager(void)override;
 };
-

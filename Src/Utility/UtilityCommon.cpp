@@ -291,3 +291,33 @@ Vector2 UtilityCommon::GetStringSizeToHandle(const int fontHandle, const std::ws
         fontHandle);
     return size;
 }
+
+const bool UtilityCommon::IsHasFormat(const std::wstring _str)
+{
+    if (_str.find(L"%d") != std::wstring::npos || _str.find(L"%f") != std::wstring::npos)
+    {
+        return true;
+    }
+    return false;
+}
+
+const bool UtilityCommon::EqualFloat4(const FLOAT4& _value1, const FLOAT4& _value2)
+{
+    if (_value1.x == _value2.x && _value1.y == _value2.y && _value1.z == _value2.z && _value1.w == _value2.w)
+    {
+        return true;
+    }
+	return false;
+}
+
+const FLOAT4 UtilityCommon::GetColorF(const unsigned int color)
+{
+
+	// カラーコードからRGB成分を抽出し、0.0f～1.0fの範囲に正規化してFLOAT4に格納
+    FLOAT4 ret = {};
+    ret.x = ((color >> 16) & 0xFF) / 255.0f; // 赤
+    ret.y = ((color >> 8) & 0xFF) / 255.0f;  // 緑
+    ret.z = (color & 0xFF) / 255.0f;         // 青
+    ret.w = 1.0f;                            // アルファ（不透明）
+	return ret;
+}

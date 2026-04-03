@@ -3,7 +3,7 @@
 #include "../Renderer/PixelRenderer.h"
 #include "GaugeController.h"
 
-GaugeController::GaugeController(ResourceManager::SRC _maskSrc, Vector2F& _pos, Vector2F& _size, float& _per, FLOAT4& _col1, FLOAT4& _col2):
+GaugeController::GaugeController(ResourceManager::SRC _maskSrc, const Vector2F& _pos, const Vector2F& _size, const float& _per, FLOAT4& _col1, FLOAT4& _col2):
 	maskSrc_(_maskSrc),
 	pos_(_pos),
 	size_(_size),

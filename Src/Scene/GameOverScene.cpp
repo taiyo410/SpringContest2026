@@ -9,6 +9,7 @@
 #include "../Manager/Resource/FontManager.h"
 #include "../Manager/Generic/SceneManager.h"
 #include "../Manager/Game/CollisionManager2D.h"
+#include "../Manager/Game/GameRuleManager.h"		
 #include "../Object/Character/Cursor/Cursor.h"
 #include "../Common/TextWriter.h"     // パスを修正
 #include "../Common/FontController.h" // パスを修正
@@ -18,6 +19,7 @@
 GameOverScene::GameOverScene(void) :
 	soundMng_(SoundManager::GetInstance())
 {
+
 	CollisionManager2D::CreateInstance();
 	cursor_ = std::make_unique<Cursor>();
 
@@ -29,6 +31,8 @@ GameOverScene::~GameOverScene(void)
 {
 	soundMng_.Stop(SoundManager::SRC::GAME_OVER_BGM);
 	CollisionManager2D::GetInstance().Destroy();
+
+	GameRuleManager::GetInstance().Destroy();		//ゲームシーンで作ったゲームルールマネージャをここで消す
 }
 
 void GameOverScene::Load(void)
@@ -170,18 +174,19 @@ void GameOverScene::NormalUpdate(void)
 					if (i == selectNum_)
 					{
 						btn.easeCnt += SceneManager::GetInstance().GetDeltaTime();
-						if (btn.easeCnt >= 0.4f) btn.easeCnt = 0.4f;
+						if (btn.easeCnt >= 0.4f) btn.easeCnt = 0.0f;
 					}
 					else
 					{
-						btn.easeCnt -= SceneManager::GetInstance().GetDeltaTime();
-						if (btn.easeCnt <= 0.0f) btn.easeCnt = 0.0f;
+						//btn.easeCnt -= SceneManager::GetInstance().GetDeltaTime();
+						//if (btn.easeCnt <= 0.0f) 
+						btn.easeCnt = 0.0f;
 					}
 
 					Vector2 goalPos;
 					goalPos.x = btn.startPos.x + 30;
 					goalPos.y = btn.startPos.y;
-					btn.curPos = easing_->EaseFunc(btn.startPos, goalPos, btn.easeCnt / 0.4f, Easing::EASING_TYPE::OUT_BACK);
+					btn.curPos = easing_->EaseFunc(btn.startPos, goalPos, btn.easeCnt / 0.4f, Easing::EASING_TYPE::COS_BACK);
 				}
 
 				bool currentMouseClick = (GetMouseInput() & MOUSE_INPUT_LEFT) != 0;
@@ -223,7 +228,7 @@ void GameOverScene::NormalDraw(void)
 
 	if (isAnimationEnd_)
 	{
-		UtilityDraw::DrawStringCenter(Application::SCREEN_HALF_X, Application::SCREEN_SIZE_Y * 3 / 10, UtilityCommon::WHITE, gameOverFontHandle_, L"GameOver");
+		UtilityDraw::DrawStringCenterToFontHandle(Application::SCREEN_HALF_X, Application::SCREEN_SIZE_Y * 3 / 10, UtilityCommon::WHITE, gameOverFontHandle_, L"GameOver");
 
 		for (int i = 0; i < static_cast<int>(menuBtns_.size()); ++i)
 		{

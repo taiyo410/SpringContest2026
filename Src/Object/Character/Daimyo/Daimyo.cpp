@@ -1,7 +1,9 @@
 #include "../pch.h"
 #include "../Application.h"
 #include "../Utility/UtilityCommon.h"
+#include "../Utility/UtilityDraw.h"
 #include "../Utility/Utility2D.h"
+#include "../Common/Easing.h"
 #include "../Manager/Generic/SceneManager.h"
 #include "../Manager/Resource/ResourceManager.h"
 #include "../Manager/Generic/InputManager.h"
@@ -9,6 +11,8 @@
 #include "../Object/Common/Collider2D/Collider2D.h"
 #include "../Object/Common/Collider2D/Geometry2D/BoxGeo.h"
 #include "../Object/Character/Daimyo/DaimyoOnHit.h"
+#include "../Object/UI/ArrowController.h"
+#include "../Object/UI/GaugeController.h"
 #include "Daimyo.h"
 
 Daimyo::Daimyo(const DaimyoImport _import)
@@ -17,14 +21,42 @@ Daimyo::Daimyo(const DaimyoImport _import)
 	state_ = STATE::STANDBY;
 	nextState_ = STATE::STANDBY;
 	money_ = 0.0f;
-	dissatisfaction_ = 0;
 	alternateInfo_ = {};
 	cnt_ = 0.0;
+	isSuccess_ = false;
 	isBackMenu_ = false;
+	alternatePer_ = 0.0f;
+	edoPos_ = EDO_POS;
+	arrowPos_ = import_.pos;
+	alternateColor_ = import_.color;
+	dissatisfactionPer_ = 0.0f;
+	easing_ = std::make_unique<Easing>();
+	arrow_ = std::make_unique<ArrowController>(ResourceManager::SRC::ARROW_GAUGE
+		, arrowPos_, edoPos_
+		, ARROW_THICK, alternatePer_
+		, alternateColor_,EDO_COL,Vector2F(20.0f,5.0f),Vector2F(-50.0f, -5.0f));
+
+	float gaugeX = import_.pos.x + import_.hitBoxMin.x;
+	float gaugeY = import_.pos.y - import_.hitBoxMin.y+10.0f;
+	moneyGaugePos_ = { gaugeX ,gaugeY };
+	moneyGaugeSize_ = Vector2F(100.0f, 20.0f);
+	moneyGaugeCol_ = {1.0f,1.0f,0.0f,1.0f};
+	moneyPer_ = 0.0f;
+	moneyGauge_ = std::make_unique<GaugeController>(ResourceManager::SRC::GAUGE, moneyGaugePos_, moneyGaugeSize_, moneyPer_, moneyGaugeCol_, moneyGaugeCol_);
+	moneyGaugeColCnt_ = 0.0f;
+	dissatisfactionGaugeCol_ = { 1.0f,0.0f,0.0f,1.0f };
+	dissatisfactionGaugePos_ = { gaugeX ,gaugeY + moneyGaugeSize_.y + 5.0f };
+	dissatisfactionGauge_ = std::make_unique<GaugeController>(ResourceManager::SRC::GAUGE, dissatisfactionGaugePos_, moneyGaugeSize_, dissatisfactionPer_, dissatisfactionGaugeCol_, dissatisfactionGaugeCol_);
+
+	enhancementCnt_[ENHANCEMENT_TYPE::TIME] = 0;
+	enhancementCnt_[ENHANCEMENT_TYPE::PROBABILITY] = 0;
+	enhancementCnt_[ENHANCEMENT_TYPE::INCOME] = 0;
 
 	//更新
 	update_.emplace(STATE::STANDBY, [this](void) {UpdateStandby(); });
 	update_.emplace(STATE::NORMAL, [this](void) {UpdateNormal(); });
+	update_.emplace(STATE::SELECT_DIRECTION, [this](void) {UpdateSelectDirection(); });
+	update_.emplace(STATE::DELETE_SELECT_DIRECTION, [this](void) {UpdateDeleteSelectDirection(); });
 	update_.emplace(STATE::SELECT, [this](void) {UpdateSelect(); });
 	update_.emplace(STATE::SELECT_ALTERNATE, [this](void) {UpdateSelectAlternate(); });
 	update_.emplace(STATE::NO_MONEY, [this](void) {UpdateNoMoney(); });
@@ -36,6 +68,8 @@ Daimyo::Daimyo(const DaimyoImport _import)
 	//描画
 	draw_.emplace(STATE::STANDBY, [this](void) {DrawStandby(); });
 	draw_.emplace(STATE::NORMAL, [this](void) {DrawNormal(); });
+	draw_.emplace(STATE::SELECT_DIRECTION, [this](void) {DrawSelectDirection(); });
+	draw_.emplace(STATE::DELETE_SELECT_DIRECTION, [this](void) {DrawSelectDirection(); });
 	draw_.emplace(STATE::SELECT, [this](void) {DrawSelect(); });
 	draw_.emplace(STATE::SELECT_ALTERNATE, [this](void) {DrawSelectAlternate(); });
 	draw_.emplace(STATE::NO_MONEY, [this](void) {DrawNoMoney(); });
@@ -47,12 +81,14 @@ Daimyo::Daimyo(const DaimyoImport _import)
 	//コライダ生成
 	changeSetting_.emplace(STATE::STANDBY, [this](void) {});
 	changeSetting_.emplace(STATE::NORMAL, [this](void) {CreateCastleCol(); });
+	changeSetting_.emplace(STATE::SELECT_DIRECTION, [this](void) {InitSelectDirection(); });
+	changeSetting_.emplace(STATE::DELETE_SELECT_DIRECTION, [this](void) {DeleteSelectDirection(); });
 	changeSetting_.emplace(STATE::SELECT, [this](void) {CreateSelectCol(); });
 	changeSetting_.emplace(STATE::SELECT_ALTERNATE, [this](void) {CreateAlternateCol(); });
 	changeSetting_.emplace(STATE::NO_MONEY, [this](void) {DeleteAllColliders(); });
 	changeSetting_.emplace(STATE::ACTION_ALTERNATE, [this](void) {DeleteAllColliders(); });
 	changeSetting_.emplace(STATE::RESULT_ALTERNATE, [this](void) {ResultAlternate(); });
-	changeSetting_.emplace(STATE::ENHANCEMENT, [this](void) {});
+	changeSetting_.emplace(STATE::ENHANCEMENT, [this](void) {CreateEnhancementCol(); });
 	changeSetting_.emplace(STATE::DETAILS, [this](void) {});
 
 	//難易度設定
@@ -67,9 +103,11 @@ Daimyo::~Daimyo(void)
 
 void Daimyo::Load(void)
 {
-	//初期化
-	Init();
+	arrow_->Load();
 
+	moneyGauge_->Load();
+
+	dissatisfactionGauge_->Load();
 	//画像ID
 	imageId_ = ResourceManager::GetInstance().Load(ResourceManager::SRC::CASTLE).handleId_;
 	
@@ -82,6 +120,9 @@ void Daimyo::Init(void)
 	//当たり判定
 	onHit_ = std::make_unique<DaimyoOnHit>(*this);
 
+	arrow_->Init();
+	moneyGauge_->Init();
+	dissatisfactionGauge_->Init();
 	//初期化
 	pos_ = import_.pos;
 	selectPos_.emplace(SELECT::SELECT_ALTERNATE, pos_ + ALTERNATE_LOCAL_POS);
@@ -95,14 +136,19 @@ void Daimyo::Init(void)
 	state_ = STATE::STANDBY;
 	nextState_ = STATE::NORMAL;
 	money_ = 0.0f;
-	dissatisfaction_ = 0;
 	alternateInfo_ = {};
 	cnt_ = 0.0f;
 	isBackMenu_ = false;
+
+	enhancementCnt_[ENHANCEMENT_TYPE::TIME] = 0;
+	enhancementCnt_[ENHANCEMENT_TYPE::PROBABILITY] = 0;
+	enhancementCnt_[ENHANCEMENT_TYPE::INCOME] = 0;
 }
 
 void Daimyo::Update(void)
 {
+	moneyGauge_->Update();
+	dissatisfactionGauge_->Update();
 	//状態ごとの更新
 	update_[state_]();
 }
@@ -111,6 +157,9 @@ void Daimyo::Draw(void)
 {
 	//状態ごとの描画
 	draw_[state_]();
+
+	moneyGauge_->Draw();
+	dissatisfactionGauge_->Draw();
 }
 
 void Daimyo::Release(void)
@@ -123,6 +172,24 @@ void Daimyo::OnHit(const std::weak_ptr<Collider2D> _partner)
 }
 
 
+void Daimyo::ChangeState(const STATE _nextState)
+{
+	nextState_ = _nextState;
+	state_ = STATE::STANDBY;
+}
+
+void Daimyo::SetAlternateDiff(ALTERNATE_DIFF _diff)
+{
+	//難易度設定
+	settingDiff_[_diff]();
+}
+
+void Daimyo::Enhancement(ENHANCEMENT_TYPE _type)
+{
+	//強化カウントの上昇
+	enhancementCnt_[_type]++;
+}
+
 void Daimyo::CreateCastleCol(void)
 {
 	//コライダの初期化
@@ -131,6 +198,68 @@ void Daimyo::CreateCastleCol(void)
 	//当たり判定
 	std::unique_ptr<Geometry2D> geo = std::make_unique<BoxGeo>(pos_, pos_, Utility2D::Distance(import_.hitBoxMin, import_.hitBoxMax), import_.hitBoxMin, import_.hitBoxMax);
 	MakeCollider(Collider2D::TAG::DAIMYO, std::move(geo), { Collider2D::TAG::DAIMYO,Collider2D::TAG::CHOICE_ALTERNATE,Collider2D::TAG::CHOICE_ENHANCEMENT,Collider2D::TAG::CHOICE_DETAILS });
+}
+
+void Daimyo::InitSelectDirection(void)
+{
+	easingCnt_ = 0.0f;
+	blendAlpha_ = UtilityCommon::ALPHA_MIN;
+	startAlpha_ = UtilityCommon::ALPHA_MIN;
+	goalAlpha_ = UtilityCommon::ALPHA_MAX;
+	selectGoalPos_[SELECT::SELECT_ALTERNATE] = pos_ + ALTERNATE_LOCAL_POS;
+	selectGoalPos_[SELECT::ENHANCEMENT] = pos_ + ENHANCEMENT_LOCAL_POS;
+	selectGoalPos_[SELECT::DETAILS] = pos_ + DETAILS_LOCAL_POS;
+	for (auto& select : selectPos_)
+	{
+		//選択肢の座標を城の座標に初期化
+		select.second = pos_;
+		selectStartPos_[select.first] = pos_;
+	}
+}
+
+void Daimyo::DeleteSelectDirection(void)
+{
+	//コライダの初期化
+	DeleteAllColliders();
+	//選択肢の座標を城の座標に初期化
+	easingCnt_ = 0.0f;
+	startAlpha_ = UtilityCommon::ALPHA_MAX;
+	goalAlpha_ = UtilityCommon::ALPHA_MIN;
+	for (auto& selectGoal : selectGoalPos_)
+	{
+		selectStartPos_[selectGoal.first] = selectPos_[selectGoal.first];
+		selectGoal.second = pos_;
+	}
+}
+
+void Daimyo::EasingSelectDirection(void)
+{
+	Vector2F alternate = pos_ + ALTERNATE_LOCAL_POS;
+	Vector2F enhancement = pos_ + ENHANCEMENT_LOCAL_POS;
+	Vector2F details = pos_ + DETAILS_LOCAL_POS;
+
+	////選択肢の座標をイージングで動かす
+	//selectPos_[SELECT::SELECT_ALTERNATE] = easing_->EaseFunc(pos_, selectGoalPos_[SELECT::SELECT_ALTERNATE], easingCnt_ / EASEING_TIME, Easing::EASING_TYPE::LERP);
+	//selectPos_[SELECT::ENHANCEMENT] = easing_->EaseFunc(pos_, selectGoalPos_[SELECT::ENHANCEMENT], easingCnt_/ EASEING_TIME, Easing::EASING_TYPE::LERP);
+	//selectPos_[SELECT::DETAILS] = easing_->EaseFunc(pos_, selectGoalPos_[SELECT::DETAILS], easingCnt_/ EASEING_TIME, Easing::EASING_TYPE::LERP);
+
+	for (auto& pos : selectPos_)
+	{
+		pos.second = easing_->EaseFunc(selectStartPos_[pos.first], selectGoalPos_[pos.first], easingCnt_ / EASEING_TIME, Easing::EASING_TYPE::QUAD_OUT);
+	}
+
+	Easing::EASING_TYPE type = startAlpha_ ==UtilityCommon::ALPHA_MIN ? Easing::EASING_TYPE::QUAD_IN : Easing::EASING_TYPE::QUAD_OUT;
+	blendAlpha_ = easing_->EaseFunc(startAlpha_, goalAlpha_, easingCnt_ / EASEING_TIME, type);
+	easingCnt_ += SceneManager::GetInstance().GetDeltaTime();
+	if (easingCnt_ >= EASEING_TIME)
+	{
+		blendAlpha_ = goalAlpha_;
+		//選択肢の座標を目的の座標にする
+		for (auto& pos : selectPos_)
+		{
+			pos.second = selectGoalPos_[pos.first];
+		}
+	}
 }
 
 void Daimyo::CreateSelectCol(void)
@@ -154,6 +283,8 @@ void Daimyo::CreateAlternateCol(void)
 	//コライダの初期化
 	DeleteAllColliders();
 
+	alternateColor_ = import_.color;
+
 	//当たり判定
 	std::unique_ptr<Geometry2D> geo = std::make_unique<BoxGeo>(alternateMenuPos_[ALTERNATE_DIFF::SAFETY], alternateMenuPos_[ALTERNATE_DIFF::SAFETY], ALTERNATE_PRE_RADIUS, ALTERNATE_MENU_MIN, ALTERNATE_MENU_MAX);
 	MakeCollider(Collider2D::TAG::ALTERNATE_SAFETY, std::move(geo), { Collider2D::TAG::DAIMYO,Collider2D::TAG::ALTERNATE_SAFETY,Collider2D::TAG::ALTERNATE_NORMAL,Collider2D::TAG::ALTERNATE_DENGER });
@@ -165,35 +296,54 @@ void Daimyo::CreateAlternateCol(void)
 	MakeCollider(Collider2D::TAG::ALTERNATE_DENGER, std::move(geo), { Collider2D::TAG::DAIMYO,Collider2D::TAG::ALTERNATE_SAFETY,Collider2D::TAG::ALTERNATE_NORMAL,Collider2D::TAG::ALTERNATE_DENGER });
 }
 
+void Daimyo::CreateEnhancementCol(void)
+{
+	//コライダの初期化
+	DeleteAllColliders();
+
+	//当たり判定
+	std::unique_ptr<Geometry2D> geo = std::make_unique<BoxGeo>(alternateMenuPos_[ALTERNATE_DIFF::SAFETY], alternateMenuPos_[ALTERNATE_DIFF::SAFETY], ALTERNATE_PRE_RADIUS, ALTERNATE_MENU_MIN, ALTERNATE_MENU_MAX);
+	MakeCollider(Collider2D::TAG::ENHANCEMENT_TIME, std::move(geo), { Collider2D::TAG::DAIMYO,Collider2D::TAG::ALTERNATE_SAFETY,Collider2D::TAG::ALTERNATE_NORMAL,Collider2D::TAG::ALTERNATE_DENGER });
+
+	geo = std::make_unique<BoxGeo>(alternateMenuPos_[ALTERNATE_DIFF::NORMAL], alternateMenuPos_[ALTERNATE_DIFF::NORMAL], ALTERNATE_PRE_RADIUS, ALTERNATE_MENU_MIN, ALTERNATE_MENU_MAX);
+	MakeCollider(Collider2D::TAG::ENHANCEMENT_PROBABILITY, std::move(geo), { Collider2D::TAG::DAIMYO,Collider2D::TAG::ALTERNATE_SAFETY,Collider2D::TAG::ALTERNATE_NORMAL,Collider2D::TAG::ALTERNATE_DENGER });
+
+	geo = std::make_unique<BoxGeo>(alternateMenuPos_[ALTERNATE_DIFF::DENGER], alternateMenuPos_[ALTERNATE_DIFF::DENGER], ALTERNATE_PRE_RADIUS, ALTERNATE_MENU_MIN, ALTERNATE_MENU_MAX);
+	MakeCollider(Collider2D::TAG::ENHANCEMENT_INCOME, std::move(geo), { Collider2D::TAG::DAIMYO,Collider2D::TAG::ALTERNATE_SAFETY,Collider2D::TAG::ALTERNATE_NORMAL,Collider2D::TAG::ALTERNATE_DENGER });
+}
+
 void Daimyo::SettingSafety(void)
 {
-	alternateInfo_.probability = SUCCESS_SAFETY;
-	alternateInfo_.income = INCOME_SAFETY;
+	alternateInfo_.probability = SUCCESS_SAFETY + SUCCESS_ENHANCE * enhancementCnt_[ENHANCEMENT_TYPE::PROBABILITY];
+	alternateInfo_.income = INCOME_SAFETY + INCOME_ENHANCE * enhancementCnt_[ENHANCEMENT_TYPE::INCOME];
 	alternateInfo_.confiscation = CONFISCATION_SAFETY;
 	alternateInfo_.requiredTime = REQUIRED_TIME_SAFETY;
 }
 
 void Daimyo::SettingNormal(void)
 {
-	alternateInfo_.probability = SUCCESS_NORMAL;
-	alternateInfo_.income = INCOME_NORMAL;
+	alternateInfo_.probability = SUCCESS_NORMAL + SUCCESS_ENHANCE * enhancementCnt_[ENHANCEMENT_TYPE::PROBABILITY];
+	alternateInfo_.income = INCOME_NORMAL + INCOME_ENHANCE * enhancementCnt_[ENHANCEMENT_TYPE::INCOME];
 	alternateInfo_.confiscation = CONFISCATION_NORMAL;
 	alternateInfo_.requiredTime = REQUIRED_TIME_NORMAL;
 }
 
 void Daimyo::SettingDenger(void)
 {
-	alternateInfo_.probability = SUCCESS_DENGER;
-	alternateInfo_.income = INCOME_DENGER;
+	alternateInfo_.probability = SUCCESS_DENGER + SUCCESS_ENHANCE * enhancementCnt_[ENHANCEMENT_TYPE::PROBABILITY];
+	alternateInfo_.income = INCOME_DENGER + INCOME_ENHANCE * enhancementCnt_[ENHANCEMENT_TYPE::INCOME];
 	alternateInfo_.confiscation = CONFISCATION_DENGER;
 	alternateInfo_.requiredTime = REQUIRED_TIME_DENGER;
 }
 
 void Daimyo::ResultAlternate(void)
 {
+	//インスタンス
+	auto& gameMng = GameRuleManager::GetInstance();
+
 	//収益
 	int income = alternateInfo_.income;
-	int dissatisfaction = SUCCESS_DISSATISFACTION;
+	isSuccess_ = true;
 
 	//大名のお金が減る
 	money_ -= FUNDS_MIN;
@@ -203,26 +353,42 @@ void Daimyo::ResultAlternate(void)
 	if (alternateInfo_.probability < rand)
 	{
 		//失敗
+
+		//失敗分の収益倍率
 		income *= alternateInfo_.confiscation;
-		dissatisfaction = FAILED_DISSATISFACTION;
+		isSuccess_ = false;
+
+		//全体不満度を上昇
+		gameMng.AddDissatisfaction(FAILED_DISSATISFACTION);
+	}
+	else
+	{
+		//成功分の不満度上昇
+		
+		//全体不満度を上昇
+		gameMng.AddDissatisfaction(SUCCESS_DISSATISFACTION);
 	}
 
 	//お金を増やす
-	auto& gameMng = GameRuleManager::GetInstance();
 	gameMng.AddMoney(income);
 
-	//不満度を増やす
-	dissatisfaction_ += dissatisfaction;
 
-	//不満度が上限に達したら
-	if (dissatisfaction_ >= DISSATISFACTION_MAX)
-	{
-		//全体不満度を上昇
-		gameMng.AddDissatisfaction(ADD_ALL_DISSATISFACTION);
 
-		//自分の不満度はリセット
-		dissatisfaction_ = 0;
-	}
+
+	////不満度を増やす
+	//dissatisfaction_ += dissatisfaction;
+	////不満度の割合を計算
+	//dissatisfactionPer_ = static_cast<float>(dissatisfaction_) / static_cast<float>(DISSATISFACTION_MAX);
+
+	////不満度が上限に達したら
+	//if (dissatisfaction_ >= DISSATISFACTION_MAX)
+	//{
+	//	//全体不満度を上昇
+	//	gameMng.AddDissatisfaction(ADD_ALL_DISSATISFACTION);
+
+	//	//自分の不満度はリセット
+	//	dissatisfaction_ = 0;
+	//}
 }
 
 void Daimyo::UpdateStandby(void)
@@ -236,6 +402,42 @@ void Daimyo::UpdateNormal(void)
 {
 	//お金を増やす
 	money_ += SceneManager::GetInstance().GetDeltaTime() * import_.accumulationSpeed_;
+	if (money_ > FUNDS_MIN)
+	{
+		const FLOAT4 yellow = UtilityCommon::GetColorF(UtilityCommon::YELLOW);
+		const FLOAT4 green = UtilityCommon::GetColorF(UtilityCommon::ORANGE);
+		moneyGaugeCol_ = easing_->EaseFunc(yellow, green, moneyGaugeColCnt_ / 0.5f, Easing::EASING_TYPE::COS_BACK);
+		moneyGaugeColCnt_ += SceneManager::GetInstance().GetDeltaTime();
+		if (moneyGaugeColCnt_ > 0.5f)
+		{
+			moneyGaugeColCnt_ = 0.0f;
+		}
+	}
+
+	moneyPer_ = money_ / static_cast<float>(FUNDS_MAX);
+
+}
+
+void Daimyo::UpdateSelectDirection(void)
+{
+	EasingSelectDirection();
+	//イージングが終わったら
+	if (easingCnt_ >= EASEING_TIME)
+	{
+		//選択状態に移行
+		ChangeState(STATE::SELECT);
+	}
+}
+
+void Daimyo::UpdateDeleteSelectDirection(void)
+{
+	EasingSelectDirection();
+	//イージングが終わったら
+	if (easingCnt_ >= EASEING_TIME)
+	{
+		//選択状態に移行
+		ChangeState(STATE::NORMAL);
+	}
 }
 
 void Daimyo::UpdateSelect(void)
@@ -250,7 +452,7 @@ void Daimyo::UpdateSelect(void)
 	if (isBackMenu_ && input.IsTrgMouseLeft())
 	{
 		//通常に戻る
-		ChangeState(STATE::NORMAL);
+		ChangeState(STATE::DELETE_SELECT_DIRECTION);
 	}
 
 	//クリックで戻る
@@ -295,7 +497,7 @@ void Daimyo::UpdateNoMoney(void)
 
 void Daimyo::UpdateActionAlternate(void)
 {
-	if (alternateInfo_.requiredTime < cnt_)
+	if (alternateInfo_.requiredTime - TIME_ENHANCE * enhancementCnt_[ENHANCEMENT_TYPE::TIME] < cnt_)
 	{
 		//結果
 		ChangeState(STATE::RESULT_ALTERNATE);
@@ -306,6 +508,9 @@ void Daimyo::UpdateActionAlternate(void)
 		//参勤交代終了
 		return;
 	}
+	alternatePer_ = cnt_ / alternateInfo_.requiredTime;
+
+	arrow_->Update();
 
 	//カウンタ
 	cnt_ += SceneManager::GetInstance().GetDeltaTime();
@@ -377,9 +582,10 @@ void Daimyo::DrawNormal(void)
 {
 	for (auto& col : colliders_)
 	{
-		col.get()->GetGeometry().Draw(import_.color);
+		col.get()->GetGeometry().Draw();
 	}
 
+	
 	//名前
 	DrawFormatString(pos_.x, pos_.y, 0xffffff, L"%ls", UtilityCommon::GetWStringFromString(import_.name).c_str());
 
@@ -388,9 +594,6 @@ void Daimyo::DrawNormal(void)
 
 	//所持金
 	DrawFormatString(pos_.x, pos_.y + 50, 0x00ff00, L"%.2f", money_);
-
-	//不満度
-	DrawFormatString(pos_.x, pos_.y + 66, 0xff0000, L"%d", dissatisfaction_);
 }
 
 void Daimyo::DrawSelect(void)
@@ -402,10 +605,36 @@ void Daimyo::DrawSelect(void)
 	Vector2F enhancement = pos_ + ENHANCEMENT_LOCAL_POS;
 	Vector2F details = pos_ + DETAILS_LOCAL_POS;
 
-	//名前
-	DrawStringF(alternate.x, alternate.y, L"alternate", 0x0);
-	DrawStringF(enhancement.x, enhancement.y, L"enhancement", 0x0);
-	DrawStringF(details.x, details.y, L"details", 0x0);
+	////名前
+	//DrawStringF(alternate.x, alternate.y, L"alternate", 0x0);
+	//DrawStringF(enhancement.x, enhancement.y, L"enhancement", 0x0);
+	//DrawStringF(details.x, details.y, L"details", 0x0);
+	UtilityDraw::DrawStringCenter(selectPos_[SELECT::SELECT_ALTERNATE].x, selectPos_[SELECT::SELECT_ALTERNATE].y, 0x0, L"alternate");
+	UtilityDraw::DrawStringCenter(selectPos_[SELECT::ENHANCEMENT].x, selectPos_[SELECT::ENHANCEMENT].y, 0x0, L"enhancement");
+	UtilityDraw::DrawStringCenter(selectPos_[SELECT::DETAILS].x, selectPos_[SELECT::DETAILS].y, 0x0,L"details");
+
+
+}
+
+void Daimyo::DrawSelectDirection(void)
+{
+	//通常描画
+	DrawNormal();
+	Vector2F alternate = pos_ + ALTERNATE_LOCAL_POS;
+	Vector2F enhancement = pos_ + ENHANCEMENT_LOCAL_POS;
+	Vector2F details = pos_ + DETAILS_LOCAL_POS;
+	////名前
+	//DrawStringF(alternate.x, alternate.y, L"alternate", 0x0);
+	//DrawStringF(enhancement.x, enhancement.y, L"enhancement", 0x0);
+	//DrawStringF(details.x, details.y, L"details", 0x0);
+
+	SetDrawBlendMode(DX_BLENDMODE_ALPHA, blendAlpha_);
+	UtilityDraw::DrawStringCenter(selectPos_[SELECT::SELECT_ALTERNATE].x, selectPos_[SELECT::SELECT_ALTERNATE].y, 0x0, L"alternate");
+	UtilityDraw::DrawStringCenter(selectPos_[SELECT::ENHANCEMENT].x, selectPos_[SELECT::ENHANCEMENT].y, 0x0, L"enhancement");
+	UtilityDraw::DrawStringCenter(selectPos_[SELECT::DETAILS].x, selectPos_[SELECT::DETAILS].y, 0x0, L"details");
+	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+
+
 }
 
 void Daimyo::DrawSelectAlternate(void)
@@ -416,7 +645,10 @@ void Daimyo::DrawSelectAlternate(void)
 
 void Daimyo::DrawNoMoney(void)
 {
+	//通常描画
 	DrawNormal();
+
+	DrawString(pos_.x + 50, pos_.y, L"NoMoney", 0xffffff);
 }
 
 void Daimyo::DrawActionAlternate(void)
@@ -425,12 +657,16 @@ void Daimyo::DrawActionAlternate(void)
 	DrawNormal();
 
 	DrawFormatString(0, 0, 0xffffff, L"%.2f", cnt_);
+
+	arrow_->Draw();
 }
 
 void Daimyo::DrawResultAlternate(void)
 {
 	//通常描画
 	DrawNormal();
+
+	DrawString(pos_.x + 50, pos_.y, isSuccess_ ? L"Success" : L"Failure", 0xffffff);
 }
 
 void Daimyo::DrawEnhancement(void)

@@ -1,9 +1,11 @@
 #pragma once
 #include<vector>
+#include "../Object/UI/ArrowController.h"
 #include "../../Template/Singleton.h"
 #include "../Object/Character/Daimyo/DaimyoImport.h"
 
 class Cursor;
+class ArrowController;
 class Daimyo;
 
 class CharacterManager :public Singleton<CharacterManager>
@@ -36,6 +38,16 @@ public:
 	const bool IsMoneyMax(void);
 
 private:
+
+	static constexpr Vector2F EDO_POS = { 784.0f,359.0f};
+
+	//矢印ゲージ
+	std::unique_ptr<ArrowController>arrow_;
+	float arrowPer_;
+	FLOAT4 arrowCol_;
+	Vector2F arrowStartPos_;
+	Vector2F arrowEndPos_;
+
 
 	//カーソル
 	std::unique_ptr<Cursor> cursor_;

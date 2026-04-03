@@ -16,6 +16,7 @@ public:
 		DAIMYO,			//大名
 		TITLE_MENU,		//タイトルのメニュー
 		SLIDER_BUTTON,	//スライダーのボタン
+		SLIDER_BAR,		//スライダーのバー
 
 		CHOICE_ALTERNATE,	//選択肢(参勤)
 		CHOICE_ENHANCEMENT,	//選択肢(強化)
@@ -24,6 +25,12 @@ public:
 		ALTERNATE_SAFETY,	//参勤(安全)
 		ALTERNATE_NORMAL,	//参勤(普通)
 		ALTERNATE_DENGER,	//参勤(危険)
+
+		ENHANCEMENT_TIME,			//強化(時間)
+		ENHANCEMENT_PROBABILITY,	//強化(確率)
+		ENHANCEMENT_INCOME,			//強化(収入)
+
+		DISSATISFACTION_RECOVERY,	//不満度回復
 
 		MAX
 	};

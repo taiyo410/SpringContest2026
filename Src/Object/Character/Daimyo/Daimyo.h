@@ -2,7 +2,10 @@
 #include "../Base/CharacterBase2D.h"
 #include "DaimyoImport.h"
 
+class ArrowController;
+class GaugeController;
 class DaimyoOnHit;
+class Easing;
 
 class Daimyo : public CharacterBase2D
 {
@@ -13,6 +16,8 @@ public:
 	{
 		STANDBY,			//遷移待機
 		NORMAL,				//通常
+		SELECT_DIRECTION,	//演出
+		DELETE_SELECT_DIRECTION,	//演出
 		SELECT,				//選択
 		SELECT_ALTERNATE,	//参勤(選択)
 		NO_MONEY,			//お金が足りない
@@ -36,6 +41,14 @@ public:
 		SAFETY,		//安全
 		NORMAL,		//普通
 		DENGER,		//危険
+	};
+
+	//強化の種類
+	enum class ENHANCEMENT_TYPE
+	{
+		TIME,			//時間
+		PROBABILITY,	//成功率
+		INCOME			//収入
 	};
 
 	//参勤の情報
@@ -72,14 +85,19 @@ public:
 	static constexpr int SUCCESS_DENGER = 50;
 
 	//難易度ごとの収入(100000単位)
-	static constexpr int INCOME_SAFETY = 30;
-	static constexpr int INCOME_NORMAL = 50;
-	static constexpr int INCOME_DENGER = 80;
+	static constexpr int INCOME_SAFETY = 3;
+	static constexpr int INCOME_NORMAL = 5;
+	static constexpr int INCOME_DENGER = 8;
 
 	//難易度ごとの失敗の没収割合
 	static constexpr float CONFISCATION_SAFETY = 0.5f;
 	static constexpr float CONFISCATION_NORMAL = 0.5f;
 	static constexpr float CONFISCATION_DENGER = 0.0f;
+
+	//各項目の強化値
+	static constexpr int SUCCESS_ENHANCE = 5;
+	static constexpr int INCOME_ENHANCE = 1;
+	static constexpr int TIME_ENHANCE = 2;
 
 	//参勤交代に行ける最低資金
 	static constexpr int FUNDS_MIN = 10;
@@ -87,15 +105,9 @@ public:
 	//所持できる資金の上限
 	static constexpr int FUNDS_MAX = 50;
 
-	//不満度の最大値
-	static constexpr int DISSATISFACTION_MAX = 10;
-
 	//不満度上昇値
 	static constexpr int SUCCESS_DISSATISFACTION = 2;
 	static constexpr int FAILED_DISSATISFACTION = 6;
-
-	//全体の不満度上昇値
-	static constexpr int ADD_ALL_DISSATISFACTION = 8;
 
 	//コンストラクタ
 	Daimyo(const DaimyoImport _import);
@@ -131,15 +143,26 @@ public:
 	const STATE GetState(void) const { return state_; }
 	
 	//状態遷移
-	void ChangeState(STATE _nextState) { nextState_ = _nextState; }
+	void ChangeState(const STATE _nextState);
 	
 	//所持金
 	const float GetMoney(void) const { return money_; }
 	
 	//難易度設定
-	void SetAlternateDiff(ALTERNATE_DIFF _diff) { /* 一旦空実装 */ }
+	void SetAlternateDiff(ALTERNATE_DIFF _diff);
+
+	//強化
+	void Enhancement(ENHANCEMENT_TYPE _type);
 
 private:
+
+	static constexpr float EASEING_TIME = 0.2f;
+
+	static constexpr Vector2F EDO_POS = { 784.0f,359.0f };
+	//江戸の色
+	static constexpr FLOAT4 EDO_COL = { 1.0f, 0.647f, 0.0f, 1.0f };
+
+	static constexpr float ARROW_THICK = 100.0f;
 
 	//状態
 	STATE state_;
@@ -151,20 +174,57 @@ private:
 	//インポート情報
 	DaimyoImport import_;
 
+	Vector2F edoPos_;
+
 	//所持金
 	float money_;
 
 	//不満度
 	int dissatisfaction_;
 
+	//参勤の成功失敗
+	bool isSuccess_;
+
 	//参勤の情報
 	AlternateInfo alternateInfo_;
 
+	//強化回数
+	std::unordered_map<ENHANCEMENT_TYPE, int> enhancementCnt_;
+
 	//参勤交代の時間
 	float cnt_;
+	float alternatePer_;
+	FLOAT4 alternateColor_;
+	//イージング
+	std::unique_ptr<Easing> easing_;
 
+	////矢印ゲージ
+	std::unique_ptr<ArrowController>arrow_;
+	//イージングカウント
+	float easingCnt_;
+	//アルファ値
+	int blendAlpha_;
+	int startAlpha_;
+	int goalAlpha_;
+
+	//お金ゲージ
+	std::unique_ptr<GaugeController>moneyGauge_;
+	//不満度ゲージ
+	std::unique_ptr<GaugeController>dissatisfactionGauge_;
+	Vector2F moneyGaugePos_;
+	Vector2F moneyGaugeSize_;
+	float moneyPer_;
+	FLOAT4 moneyGaugeCol_;
+	float moneyGaugeColCnt_;
+
+	//不満度割合
+	float dissatisfactionPer_;
+	FLOAT4 dissatisfactionGaugeCol_;
+	Vector2F dissatisfactionGaugePos_;
 	//選択肢座標
 	std::unordered_map<SELECT,Vector2F> selectPos_;
+	std::unordered_map<SELECT,Vector2F> selectGoalPos_;
+	std::unordered_map<SELECT,Vector2F> selectStartPos_;
 
 	//参勤難易度
 	std::unordered_map<ALTERNATE_DIFF,Vector2F> alternateMenuPos_;
@@ -187,6 +247,8 @@ private:
 	//更新
 	void UpdateStandby(void);
 	void UpdateNormal(void);
+	void UpdateSelectDirection(void);
+	void UpdateDeleteSelectDirection(void);
 	void UpdateSelect(void);
 	void UpdateSelectAlternate(void);
 	void UpdateNoMoney(void);
@@ -199,6 +261,7 @@ private:
 	void DrawStandby(void);
 	void DrawNormal(void);
 	void DrawSelect(void);
+	void DrawSelectDirection(void);
 	void DrawSelectAlternate(void);
 	void DrawNoMoney(void);
 	void DrawActionAlternate(void);
@@ -209,11 +272,23 @@ private:
 	//城コライダの生成
 	void CreateCastleCol(void);
 
+	//選択肢の出てくる演出の初期化
+	void InitSelectDirection(void);
+
+	//選択肢を消す時の演出の初期化
+	void DeleteSelectDirection(void);
+
+	//選択肢についてのイージング
+	void EasingSelectDirection(void);
+
 	//項目コライダの生成
 	void CreateSelectCol(void);
 
 	//参勤項目コライダの生成
 	void CreateAlternateCol(void);
+
+	//強化項目コライダの生成
+	void CreateEnhancementCol(void);
 
 	//難易度ごとの設定
 	void SettingSafety(void);

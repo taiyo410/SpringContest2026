@@ -16,7 +16,7 @@ public:
 
 	/// @brief 
 	/// @param  
-	MenuController(const int _menuNum, const std::wstring _menu, const Vector2 _pos, int& _fontHandle);
+	MenuController(const int _menuNum, const std::wstring _menu, const Vector2 _pos, int& _fontHandle,bool _isMakeCollider);
 	~MenuController(void);
 
 	/// @brief ロード
@@ -127,6 +127,7 @@ private:
 	bool isEndDirectEase_;				//演出イージングが終わったか
 	unsigned int color_;				//カラー
 	bool isHit_;						//当たり判定
+	bool isMakeCollider_;					//コライダを作成するか
 };
 
 template<typename T>

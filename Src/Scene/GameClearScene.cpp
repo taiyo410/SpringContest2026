@@ -21,6 +21,7 @@
 GameClearScene::GameClearScene(void) :
 	soundMng_(SoundManager::GetInstance())
 {
+
 	CollisionManager2D::CreateInstance();
 	cursor_ = std::make_unique<Cursor>();
 
@@ -32,6 +33,8 @@ GameClearScene::~GameClearScene(void)
 {
 	soundMng_.Stop(SoundManager::SRC::GAME_CLEAR_BGM);
 	CollisionManager2D::GetInstance().Destroy();
+
+	GameRuleManager::GetInstance().Destroy();		//ゲームシーンで作ったゲームルールマネージャをここで消す
 }
 
 void GameClearScene::Load(void)
@@ -169,18 +172,19 @@ void GameClearScene::NormalUpdate(void)
 					if (i == selectNum_)
 					{
 						btn.easeCnt += SceneManager::GetInstance().GetDeltaTime();
-						if (btn.easeCnt >= 0.4f) btn.easeCnt = 0.4f;
+						if (btn.easeCnt >= 0.4f) btn.easeCnt = 0.0f;
 					}
 					else
 					{
-						btn.easeCnt -= SceneManager::GetInstance().GetDeltaTime();
-						if (btn.easeCnt <= 0.0f) btn.easeCnt = 0.0f;
+						//btn.easeCnt -= SceneManager::GetInstance().GetDeltaTime();
+						//if (btn.easeCnt <= 0.0f)
+						btn.easeCnt = 0.0f;
 					}
 
 					Vector2 goalPos;
 					goalPos.x = btn.startPos.x + 30;
 					goalPos.y = btn.startPos.y;
-					btn.curPos = easing_->EaseFunc(btn.startPos, goalPos, btn.easeCnt / 0.4f, Easing::EASING_TYPE::OUT_BACK);
+					btn.curPos = easing_->EaseFunc(btn.startPos, goalPos, btn.easeCnt / 0.4f, Easing::EASING_TYPE::COS_BACK);
 				}
 
 				bool currentMouseClick = (GetMouseInput() & MOUSE_INPUT_LEFT) != 0;
@@ -214,7 +218,7 @@ void GameClearScene::NormalDraw(void)
 
 	if (isAnimationEnd_)
 	{
-		UtilityDraw::DrawStringCenter(Application::SCREEN_HALF_X, Application::SCREEN_SIZE_Y * 3 / 10, UtilityCommon::WHITE, gameClearFontHandle_, L"GameClear");
+		UtilityDraw::DrawStringCenterToFontHandle(Application::SCREEN_HALF_X, Application::SCREEN_SIZE_Y * 3 / 10, UtilityCommon::WHITE, gameClearFontHandle_, L"GameClear");
 
 		int textStartX = Application::SCREEN_HALF_X - 220;
 		int statsPosY = Application::SCREEN_HALF_Y - 30;
