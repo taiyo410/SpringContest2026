@@ -172,18 +172,19 @@ void GameClearScene::NormalUpdate(void)
 					if (i == selectNum_)
 					{
 						btn.easeCnt += SceneManager::GetInstance().GetDeltaTime();
-						if (btn.easeCnt >= 0.4f) btn.easeCnt = 0.4f;
+						if (btn.easeCnt >= 0.4f) btn.easeCnt = 0.0f;
 					}
 					else
 					{
-						btn.easeCnt -= SceneManager::GetInstance().GetDeltaTime();
-						if (btn.easeCnt <= 0.0f) btn.easeCnt = 0.0f;
+						//btn.easeCnt -= SceneManager::GetInstance().GetDeltaTime();
+						//if (btn.easeCnt <= 0.0f)
+						btn.easeCnt = 0.0f;
 					}
 
 					Vector2 goalPos;
 					goalPos.x = btn.startPos.x + 30;
 					goalPos.y = btn.startPos.y;
-					btn.curPos = easing_->EaseFunc(btn.startPos, goalPos, btn.easeCnt / 0.4f, Easing::EASING_TYPE::OUT_BACK);
+					btn.curPos = easing_->EaseFunc(btn.startPos, goalPos, btn.easeCnt / 0.4f, Easing::EASING_TYPE::COS_BACK);
 				}
 
 				bool currentMouseClick = (GetMouseInput() & MOUSE_INPUT_LEFT) != 0;
