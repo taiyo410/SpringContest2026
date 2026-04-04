@@ -47,7 +47,7 @@ void Cursor::Load(void)
 
 	//ƒtƒHƒ“ƒg
 	font_ = std::make_unique<FontController>();
-	fontHandle_ = font_->GetFontHandle(FontManager::FONT_BOKUTATI , FONT_SIZE, 20);
+	fontHandle_ = font_->GetFontHandle(FontManager::FONT_BOKUTATI , FONT_SIZE, FONT_TICKNESS);
 }
 
 void Cursor::Init(void)

@@ -53,6 +53,7 @@ private:
 	//‚«o‚µ‘Š‘ÎÀ•W
 	static constexpr Vector2F SPEECH_LOCAL_POS = { 120.0f,-120.0f };
 	static constexpr int FONT_SIZE = 24;
+	static constexpr int FONT_TICKNESS = 24;
 
 	//à–¾‚Ìí—Ş
 	EXPLAN explanType_;
