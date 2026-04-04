@@ -27,6 +27,8 @@ public:
 		GAME_OVER_IMG,		//ゲームオーバー
 		GAME_CLEAR_IMG,		//ゲームクリア
 
+		SPEECH_BUBBLE,		//吹き出し
+
 		//複数画像
 		CONTROLLER_UI_IMGS,
 
