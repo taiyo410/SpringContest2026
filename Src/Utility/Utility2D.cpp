@@ -32,6 +32,17 @@ double Utility2D::Distance(const Vector2F& v1, const Vector2F& v2)
     return sqrtf(powf(v2.x - v1.x, 2) + powf(v2.y - v1.y, 2));
 }
 
+double Utility2D::GetAngleDeg(const Vector2& from, const Vector2& to)
+{
+    double angleRad = atan2(to.y - from.y, to.x - from.x);
+	return angleRad * (180.0f / DX_PI_F);
+}
+
+double Utility2D::GetAngleRad(const Vector2F& from, const Vector2F& to)
+{
+	return atan2f(to.y - from.y, to.x - from.x);
+}
+
 Vector2 Utility2D::WorldToMapPos(const Vector2& worldPos, const Vector2& mapSize)
 {
     Vector2 mapPos = worldPos;

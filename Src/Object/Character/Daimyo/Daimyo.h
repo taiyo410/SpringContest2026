@@ -65,14 +65,23 @@ public:
 	static constexpr Vector2F SELECT_MIN = {-50.0f,-20.0f};
 	static constexpr Vector2F SELECT_MAX = {50.0f,20.0f};
 	static constexpr float ALTERNATE_PRE_RADIUS = 200.0f;
-	static constexpr Vector2F ALTERNATE_MENU_MIN = {-200.0f,-75.0f};
-	static constexpr Vector2F ALTERNATE_MENU_MAX = {200.0f,75.0f};
+	static constexpr Vector2F ALTERNATE_MENU_MIN = {-250.0f,-75.0f };
+	static constexpr Vector2F ALTERNATE_MENU_MAX = { 250.0f,75.0f };
+
+	static constexpr Vector2F ENHANCE_MENU_MIN = {-250.0f*0.25f,-130.0f * 0.25f };
+	static constexpr Vector2F ENHANCE_MENU_MAX = { 250.0f * 0.25f,130.0f * 0.25f };
 
 	//選択肢との相対座標
 	static constexpr Vector2F ALTERNATE_LOCAL_POS = { 50.0f, -80.0f };
 	static constexpr Vector2F ENHANCEMENT_LOCAL_POS = { 120.0f, -20.0f };
 	static constexpr Vector2F DETAILS_LOCAL_POS = { 120.0f, 50.0f };
 	static constexpr float ALTERNATE_MENU_LOCAL_POS = 220.0f;
+
+	static constexpr float ENHANCEMENT_MENU_LOCAL_BOX_POS = 100.0f;
+	static constexpr float ENHANCEMENT_MENU_LOCAL_POS_X = 330.0f;
+	static constexpr float ENHANCEMENT_MENU_LOCAL_POS_Y = 120.0f;
+
+
 
 	//難易度ごとの所要時間
 	static constexpr float REQUIRED_TIME_SAFETY = 15.0f;
@@ -164,6 +173,12 @@ private:
 
 	static constexpr float ARROW_THICK = 100.0f;
 
+	//かご画像サイズ
+	static constexpr Vector2F KAGO_SIZE = { 1536.0f * 0.3f,1024.0f * 0.3f };
+
+	static constexpr float KAGO_VERTICAL_LOCAL_START_POS = -30.0f;
+	static constexpr float KAGO_VERTICAL_LOCAL_GOAL_POS = -50.0f;
+	static constexpr float KAGO_VERTICAL_LOCAL_CNT = 1.0f;
 	//状態
 	STATE state_;
 	STATE nextState_;
@@ -174,6 +189,7 @@ private:
 	//インポート情報
 	DaimyoImport import_;
 
+	//江戸の座標
 	Vector2F edoPos_;
 
 	//所持金
@@ -190,15 +206,21 @@ private:
 
 	//強化回数
 	std::unordered_map<ENHANCEMENT_TYPE, int> enhancementCnt_;
+	//強化メニュー
+	std::unordered_map<ENHANCEMENT_TYPE, Vector2F> enhancementPos_;
 
 	//参勤交代の時間
 	float cnt_;
 	float alternatePer_;
 	FLOAT4 alternateColor_;
+
+
 	//イージング
 	std::unique_ptr<Easing> easing_;
 
-	////矢印ゲージ
+	
+
+	//矢印ゲージ
 	std::unique_ptr<ArrowController>arrow_;
 	//イージングカウント
 	float easingCnt_;
@@ -206,6 +228,11 @@ private:
 	int blendAlpha_;
 	int startAlpha_;
 	int goalAlpha_;
+
+	//かごの画像
+	int kagoImage_;
+	Vector2F kagoCenterPos_;
+	float kagoVerticalLocalCnt_;
 
 	//お金ゲージ
 	std::unique_ptr<GaugeController>moneyGauge_;
@@ -227,7 +254,7 @@ private:
 	std::unordered_map<SELECT,Vector2F> selectStartPos_;
 
 	//参勤難易度
-	std::unordered_map<ALTERNATE_DIFF,Vector2F> alternateMenuPos_;
+	std::unordered_map<ALTERNATE_DIFF, Vector2F> alternateMenuPos_;
 
 	//状態ごとの更新
 	std::unordered_map<STATE,std::function<void(void)>>update_;
@@ -268,6 +295,11 @@ private:
 	void DrawResultAlternate(void);
 	void DrawEnhancement(void);
 	void DrawDetails(void);
+	//かごの描画
+	void DrawKago(void);
+
+	//かごの更新
+	void KagoUpdate(void);
 
 	//城コライダの生成
 	void CreateCastleCol(void);

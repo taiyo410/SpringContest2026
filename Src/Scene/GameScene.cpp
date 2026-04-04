@@ -53,8 +53,7 @@ void GameScene::Load(void)
 	pauseScene_->Load();
 
 	//マップ
-	mapImage_ = ResourceManager::GetInstance().Load(ResourceManager::SRC::MAP).handleId_;
-
+	mapImage_ = resMng_.Load(ResourceManager::SRC::MAP).handleId_;
 	//フェーズ遷移用
 	changeUpdate_.emplace(UPDATE_PHASE::NONE, [this]() {ChangeNone(); });
 	changeUpdate_.emplace(UPDATE_PHASE::FADE, [this]() {ChangeFade(); });

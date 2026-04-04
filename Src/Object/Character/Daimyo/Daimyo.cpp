@@ -110,6 +110,7 @@ void Daimyo::Load(void)
 	dissatisfactionGauge_->Load();
 	//画像ID
 	imageId_ = ResourceManager::GetInstance().Load(ResourceManager::SRC::CASTLE).handleId_;
+	kagoImage_ = ResourceManager::GetInstance().Load(ResourceManager::SRC::KAGO).handleId_;
 	
 	//城の当たり判定生成
 	CreateCastleCol();
@@ -132,6 +133,11 @@ void Daimyo::Init(void)
 	alternateMenuPos_.emplace(ALTERNATE_DIFF::SAFETY, Vector2F(Application::SCREEN_HALF_X, Application::SCREEN_HALF_Y - ALTERNATE_MENU_LOCAL_POS ));
 	alternateMenuPos_.emplace(ALTERNATE_DIFF::NORMAL, Vector2F(Application::SCREEN_HALF_X, Application::SCREEN_HALF_Y));
 	alternateMenuPos_.emplace(ALTERNATE_DIFF::DENGER, Vector2F(Application::SCREEN_HALF_X, Application::SCREEN_HALF_Y + ALTERNATE_MENU_LOCAL_POS));
+
+	enhancementPos_.emplace(ENHANCEMENT_TYPE::TIME, Vector2F(Application::SCREEN_HALF_X - ENHANCEMENT_MENU_LOCAL_POS_X, Application::SCREEN_HALF_Y - ENHANCEMENT_MENU_LOCAL_POS_Y));
+	enhancementPos_.emplace(ENHANCEMENT_TYPE::INCOME, Vector2F(Application::SCREEN_HALF_X - ENHANCEMENT_MENU_LOCAL_POS_X, Application::SCREEN_HALF_Y));
+	enhancementPos_.emplace(ENHANCEMENT_TYPE::PROBABILITY, Vector2F(Application::SCREEN_HALF_X - ENHANCEMENT_MENU_LOCAL_POS_X, Application::SCREEN_HALF_Y + ENHANCEMENT_MENU_LOCAL_POS_Y));
+
 
 	state_ = STATE::STANDBY;
 	nextState_ = STATE::NORMAL;
@@ -302,13 +308,13 @@ void Daimyo::CreateEnhancementCol(void)
 	DeleteAllColliders();
 
 	//当たり判定
-	std::unique_ptr<Geometry2D> geo = std::make_unique<BoxGeo>(alternateMenuPos_[ALTERNATE_DIFF::SAFETY], alternateMenuPos_[ALTERNATE_DIFF::SAFETY], ALTERNATE_PRE_RADIUS, ALTERNATE_MENU_MIN, ALTERNATE_MENU_MAX);
+	std::unique_ptr<Geometry2D> geo = std::make_unique<BoxGeo>(enhancementPos_[ENHANCEMENT_TYPE::TIME], enhancementPos_[ENHANCEMENT_TYPE::TIME], ALTERNATE_PRE_RADIUS, ENHANCE_MENU_MIN, ENHANCE_MENU_MAX);
 	MakeCollider(Collider2D::TAG::ENHANCEMENT_TIME, std::move(geo), { Collider2D::TAG::DAIMYO,Collider2D::TAG::ALTERNATE_SAFETY,Collider2D::TAG::ALTERNATE_NORMAL,Collider2D::TAG::ALTERNATE_DENGER });
 
-	geo = std::make_unique<BoxGeo>(alternateMenuPos_[ALTERNATE_DIFF::NORMAL], alternateMenuPos_[ALTERNATE_DIFF::NORMAL], ALTERNATE_PRE_RADIUS, ALTERNATE_MENU_MIN, ALTERNATE_MENU_MAX);
+	geo = std::make_unique<BoxGeo>(enhancementPos_[ENHANCEMENT_TYPE::INCOME], enhancementPos_[ENHANCEMENT_TYPE::INCOME], ALTERNATE_PRE_RADIUS, ENHANCE_MENU_MIN, ENHANCE_MENU_MAX);
 	MakeCollider(Collider2D::TAG::ENHANCEMENT_PROBABILITY, std::move(geo), { Collider2D::TAG::DAIMYO,Collider2D::TAG::ALTERNATE_SAFETY,Collider2D::TAG::ALTERNATE_NORMAL,Collider2D::TAG::ALTERNATE_DENGER });
 
-	geo = std::make_unique<BoxGeo>(alternateMenuPos_[ALTERNATE_DIFF::DENGER], alternateMenuPos_[ALTERNATE_DIFF::DENGER], ALTERNATE_PRE_RADIUS, ALTERNATE_MENU_MIN, ALTERNATE_MENU_MAX);
+	geo = std::make_unique<BoxGeo>(enhancementPos_[ENHANCEMENT_TYPE::PROBABILITY], enhancementPos_[ENHANCEMENT_TYPE::PROBABILITY], ALTERNATE_PRE_RADIUS, ENHANCE_MENU_MIN, ENHANCE_MENU_MAX);
 	MakeCollider(Collider2D::TAG::ENHANCEMENT_INCOME, std::move(geo), { Collider2D::TAG::DAIMYO,Collider2D::TAG::ALTERNATE_SAFETY,Collider2D::TAG::ALTERNATE_NORMAL,Collider2D::TAG::ALTERNATE_DENGER });
 }
 
@@ -510,6 +516,8 @@ void Daimyo::UpdateActionAlternate(void)
 	}
 	alternatePer_ = cnt_ / alternateInfo_.requiredTime;
 
+	KagoUpdate();
+
 	arrow_->Update();
 
 	//カウンタ
@@ -659,6 +667,8 @@ void Daimyo::DrawActionAlternate(void)
 	DrawFormatString(0, 0, 0xffffff, L"%.2f", cnt_);
 
 	arrow_->Draw();
+
+	DrawKago();
 }
 
 void Daimyo::DrawResultAlternate(void)
@@ -671,12 +681,43 @@ void Daimyo::DrawResultAlternate(void)
 
 void Daimyo::DrawEnhancement(void)
 {
+
+	SetDrawBlendMode(DX_BLENDMODE_ALPHA, 100);
+	DrawBox(ENHANCEMENT_MENU_LOCAL_BOX_POS, ENHANCEMENT_MENU_LOCAL_BOX_POS,
+		 Application::SCREEN_SIZE_X- ENHANCEMENT_MENU_LOCAL_BOX_POS,Application::SCREEN_SIZE_Y- ENHANCEMENT_MENU_LOCAL_BOX_POS,0x000000, true);
+	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 	//通常描画
 	DrawNormal();
+	for (auto& enhancePos : enhancementPos_)
+	{
+		DrawExtendGraphF(enhancePos.second.x - ENHANCE_MENU_MIN.x / 2, enhancePos.second.y - ENHANCE_MENU_MIN.y / 2,
+			enhancePos.second.x + ENHANCE_MENU_MAX.x / 2, enhancePos.second.y + ENHANCE_MENU_MAX.y / 2, imageId_, true);
+	}
+
 }
 
 void Daimyo::DrawDetails(void)
 {
 	//通常描画
 	DrawNormal();
+}
+
+void Daimyo::DrawKago(void)
+{
+	Vector2F dir = EDO_POS - import_.pos;
+	DrawRotaGraph(kagoCenterPos_.x, kagoCenterPos_.y, 0.1f, atan2f(dir.y, dir.x), kagoImage_, true);
+}
+
+void Daimyo::KagoUpdate(void)
+{
+	////駕籠の座標をイージングで動かす
+	kagoCenterPos_ = easing_->EaseFunc(import_.pos, EDO_POS, cnt_ / alternateInfo_.requiredTime, Easing::EASING_TYPE::LERP);
+
+	kagoCenterPos_ += kagoCenterPos_.Vertical() + Vector2F(0.0f, easing_->EaseFunc(KAGO_VERTICAL_LOCAL_START_POS, KAGO_VERTICAL_LOCAL_GOAL_POS
+		, kagoVerticalLocalCnt_/ KAGO_VERTICAL_LOCAL_CNT,Easing::EASING_TYPE::COS_BACK));
+	kagoVerticalLocalCnt_ += SceneManager::GetInstance().GetDeltaTime();
+	if(kagoVerticalLocalCnt_> KAGO_VERTICAL_LOCAL_CNT)
+	{
+		kagoVerticalLocalCnt_ = 0.0f;
+	}
 }

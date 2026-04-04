@@ -22,6 +22,30 @@ struct Vector2F
 	/// @return 
 	static bool IsSameVector2F(const Vector2F value1, const Vector2F value2);
 
+	/// @brief ベクトルの長さを求める
+	/// @param value 求めたいベクトル
+	/// @return 
+	const float Length(const Vector2F& value);
+
+	/// @brief ベクトルの長さを求める
+	/// @param  
+	/// @return 
+	const float Length(void)const;
+
+	/// @brief 正規化
+	/// @param  
+	/// @return 正規化したベクトルを返す
+	const Vector2F Normalized(Vector2F _vec)const;
+	const Vector2F Normalized(void)const;
+
+	//垂直ベクトルを求める
+	const Vector2F Perpendicular(void)const;
+	const Vector2F Perpendicular(const Vector2F _vec)const;
+
+	//垂直方向のみを求める
+	const Vector2F Vertical(void)const;
+	const Vector2F Vertical(const Vector2F _vec)const;
+
 	//Vector2F同士の演算
 	const Vector2F operator+(const Vector2F _value)const;
 	void operator+=(const Vector2F _value);

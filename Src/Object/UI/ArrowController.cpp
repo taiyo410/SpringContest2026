@@ -76,20 +76,20 @@ void ArrowController::MakeArrowGauge(void)
 	//方向を決める
 	Vector2F dir = endPos_ - startPos_;
 	//長さを求める
-	float length = sqrtf(dir.x * dir.x + dir.y * dir.y);
+	float length = dir.Length();
 
 	//0除算を防ぐ
 	if (length < 0.001)return;
 
 	//正規化
 	//float inv = 1.0f / length;
-	Vector2F norm = dir / length;
+	Vector2F norm = dir.Normalized();
 
 	//ローカル座標分ずらす
 	startPos_ += norm * startLocalPos_;
 	endPos_ += norm * endLocalPos_;
 	//垂直ベクトルを求める
-	Vector2F perp = { -norm.y, norm.x };
+	Vector2F perp = norm.Perpendicular();
 
 	float half = thick_ * 0.5f;
 

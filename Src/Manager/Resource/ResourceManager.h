@@ -20,7 +20,8 @@ public:
 		//画像
 		MAP,		//マップ
 		CASTLE,		//城
-		GAUGE,
+		GAUGE,		//ゲージ
+		KAGO,
 		ARROW_GAUGE,		//矢印ゲージ
 		TITLE_BACK_IMG,		//タイトル背景
 		TITLE_LOGO,			//タイトルロゴ

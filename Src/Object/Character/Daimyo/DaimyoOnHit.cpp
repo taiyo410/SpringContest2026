@@ -21,6 +21,7 @@ DaimyoOnHit::DaimyoOnHit(Daimyo& _parent)
 	hit_.emplace(Collider2D::TAG::ENHANCEMENT_TIME, [](const std::weak_ptr<Collider2D> _partner) {});
 	hit_.emplace(Collider2D::TAG::ENHANCEMENT_PROBABILITY, [](const std::weak_ptr<Collider2D> _partner) {});
 	hit_.emplace(Collider2D::TAG::ENHANCEMENT_INCOME, [](const std::weak_ptr<Collider2D> _partner) {});
+	hit_.emplace(Collider2D::TAG::DISSATISFACTION_RECOVERY, [](const std::weak_ptr<Collider2D> _partner) {});
 }
 
 DaimyoOnHit::~DaimyoOnHit(void)

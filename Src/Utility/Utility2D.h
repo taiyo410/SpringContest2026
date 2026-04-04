@@ -13,6 +13,10 @@ public:
 	static int SqrMagnitude(const Vector2F& v);
 	static double Distance(const Vector2& v1, const Vector2& v2);
 	static double Distance(const Vector2F& v1, const Vector2F& v2);
+
+	//2間の角度の取得
+	static double GetAngleDeg(const Vector2& from, const Vector2& to);
+	static double GetAngleRad(const Vector2F& from, const Vector2F& to);
 	
 	/// @brief ワールド座標をマップ座標へ
 	/// @param worldPos ワールド座標
