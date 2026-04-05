@@ -13,12 +13,15 @@ public:
 	//説明の種類
 	enum class EXPLAN
 	{
-		NO_IMAGE,			//画像なし
-		DAIMYO,				//大名
-		DAIMYO_ALTERNATE,	//参勤
-		ENHANCEMENT,		//強化
-		DETAILS,			//詳細
-		DISSATISFACTION,	//不満
+		NO_IMAGE,				//画像なし
+		DAIMYO,					//大名
+		DAIMYO_ALTERNATE,		//参勤
+		ENHANCEMENT,			//強化
+		ENHANCE_TIME,			//強化
+		ENHANCE_PROBABILITY,	//強化
+		ENHANCE_INCOME,			//強化
+		DETAILS,				//詳細
+		DISSATISFACTION,		//不満
 	};
 
 	//コンストラクタ

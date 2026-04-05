@@ -28,6 +28,9 @@ private:
 	void HitDaimyo(const std::weak_ptr<Collider2D> _partner);
 	void HitDaimyoAlternate(const std::weak_ptr<Collider2D> _partner);
 	void HitDaimyoEnhancement(const std::weak_ptr<Collider2D> _partner);
+	void HitDaimyoEnhanceTime(const std::weak_ptr<Collider2D> _partner);
+	void HitDaimyoEnhanceProbability(const std::weak_ptr<Collider2D> _partner);
+	void HitDaimyoEnhanceIncome(const std::weak_ptr<Collider2D> _partner);
 	void HitDaimyoDetails(const std::weak_ptr<Collider2D> _partner);
 	void HitDissatisfactionBar(const std::weak_ptr<Collider2D> _partner);
 };

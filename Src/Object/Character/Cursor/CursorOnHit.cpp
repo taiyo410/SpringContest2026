@@ -14,9 +14,9 @@ CursorOnHit::CursorOnHit(Cursor& _parent)
 	hit_.emplace(Collider2D::TAG::ALTERNATE_SAFETY, [this](const std::weak_ptr<Collider2D> _partner) {});
 	hit_.emplace(Collider2D::TAG::ALTERNATE_NORMAL, [this](const std::weak_ptr<Collider2D> _partner) {});
 	hit_.emplace(Collider2D::TAG::ALTERNATE_DENGER, [this](const std::weak_ptr<Collider2D> _partner) {});
-	hit_.emplace(Collider2D::TAG::ENHANCEMENT_TIME, [this](const std::weak_ptr<Collider2D> _partner) {});
-	hit_.emplace(Collider2D::TAG::ENHANCEMENT_PROBABILITY, [this](const std::weak_ptr<Collider2D> _partner) {});
-	hit_.emplace(Collider2D::TAG::ENHANCEMENT_INCOME, [this](const std::weak_ptr<Collider2D> _partner) {});
+	hit_.emplace(Collider2D::TAG::ENHANCEMENT_TIME, [this](const std::weak_ptr<Collider2D> _partner) {HitDaimyoEnhanceTime(_partner); });
+	hit_.emplace(Collider2D::TAG::ENHANCEMENT_PROBABILITY, [this](const std::weak_ptr<Collider2D> _partner) {HitDaimyoEnhanceProbability(_partner); });
+	hit_.emplace(Collider2D::TAG::ENHANCEMENT_INCOME, [this](const std::weak_ptr<Collider2D> _partner) {HitDaimyoEnhanceIncome(_partner); });
 	hit_.emplace(Collider2D::TAG::DISSATISFACTION_RECOVERY, [this](const std::weak_ptr<Collider2D> _partner) {HitDissatisfactionBar(_partner); });
 	hit_.emplace(Collider2D::TAG::DISSATISFACTION_RECOVERY_YES, [this](const std::weak_ptr<Collider2D> _partner) {});
 	hit_.emplace(Collider2D::TAG::DISSATISFACTION_RECOVERY_NO, [this](const std::weak_ptr<Collider2D> _partner) {});
@@ -48,6 +48,21 @@ void CursorOnHit::HitDaimyoAlternate(const std::weak_ptr<Collider2D> _partner)
 void CursorOnHit::HitDaimyoEnhancement(const std::weak_ptr<Collider2D> _partner)
 {
 	parent_.ChangeExplan(Cursor::EXPLAN::ENHANCEMENT);
+}
+
+void CursorOnHit::HitDaimyoEnhanceTime(const std::weak_ptr<Collider2D> _partner)
+{
+	parent_.ChangeExplan(Cursor::EXPLAN::ENHANCE_TIME);
+}
+
+void CursorOnHit::HitDaimyoEnhanceProbability(const std::weak_ptr<Collider2D> _partner)
+{
+	parent_.ChangeExplan(Cursor::EXPLAN::ENHANCE_PROBABILITY);
+}
+
+void CursorOnHit::HitDaimyoEnhanceIncome(const std::weak_ptr<Collider2D> _partner)
+{
+	parent_.ChangeExplan(Cursor::EXPLAN::ENHANCE_INCOME);
 }
 
 void CursorOnHit::HitDaimyoDetails(const std::weak_ptr<Collider2D> _partner)

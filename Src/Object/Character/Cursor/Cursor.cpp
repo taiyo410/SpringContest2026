@@ -23,18 +23,15 @@ void Cursor::Load(void)
 	auto& res = ResourceManager::GetInstance();
 
 	speechBubbleImg_ = res.Load(ResourceManager::SRC::SPEECH_BUBBLE).handleId_;
-	explanImg_.emplace(EXPLAN::NO_IMAGE, -1);
-	explanImg_.emplace(EXPLAN::DAIMYO, res.Load(ResourceManager::SRC::CASTLE).handleId_);
-	explanImg_.emplace(EXPLAN::DAIMYO_ALTERNATE, res.Load(ResourceManager::SRC::CASTLE).handleId_);
-	explanImg_.emplace(EXPLAN::ENHANCEMENT, res.Load(ResourceManager::SRC::CASTLE).handleId_);
-	explanImg_.emplace(EXPLAN::DETAILS, res.Load(ResourceManager::SRC::CASTLE).handleId_);
-	explanImg_.emplace(EXPLAN::DISSATISFACTION, res.Load(ResourceManager::SRC::CASTLE).handleId_);
 
 	//説明文の登録
 	explanStr_.emplace(EXPLAN::NO_IMAGE, L"");
 	explanStr_.emplace(EXPLAN::DAIMYO, L"参勤交代の実行\n参勤交代の強化\n現在の詳細を見る\nの3つの項目を選べる");
 	explanStr_.emplace(EXPLAN::DAIMYO_ALTERNATE, L"参勤交代をする\n難易度によって\n時間、収入、成功率\nが変化する");
 	explanStr_.emplace(EXPLAN::ENHANCEMENT, L"参勤交代の\n時間、収入、成功率\nを強化する\n強化にはお金がかかる");
+	explanStr_.emplace(EXPLAN::ENHANCE_TIME, L"実行時間を減らす\n一回につき10％減");
+	explanStr_.emplace(EXPLAN::ENHANCE_PROBABILITY, L"成功率を上げる\n一回につき10％増");
+	explanStr_.emplace(EXPLAN::ENHANCE_INCOME, L"収入を上げる\n一回につき10％増");
 	explanStr_.emplace(EXPLAN::DETAILS, L"現在の強化状況が分かる");
 	explanStr_.emplace(EXPLAN::DISSATISFACTION, L"不満度を下げる\nお金が1000万円かかる");
 

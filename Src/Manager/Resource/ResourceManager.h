@@ -22,6 +22,8 @@ public:
 		CASTLE,		//城
 		GAUGE,
 		ARROW_GAUGE,		//矢印ゲージ
+		SELECT_MENU,		//選択肢
+
 		TITLE_BACK_IMG,		//タイトル背景
 		TITLE_LOGO,			//タイトルロゴ
 		GAME_OVER_IMG,		//ゲームオーバー

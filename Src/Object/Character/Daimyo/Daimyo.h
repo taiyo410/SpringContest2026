@@ -1,4 +1,6 @@
 #pragma once
+#include<unordered_map>
+#include<string>
 #include "../Base/CharacterBase2D.h"
 #include "DaimyoImport.h"
 
@@ -6,6 +8,7 @@ class ArrowController;
 class GaugeController;
 class DaimyoOnHit;
 class Easing;
+class FontController;
 
 class Daimyo : public CharacterBase2D
 {
@@ -54,8 +57,8 @@ public:
 	//参勤の情報
 	struct AlternateInfo
 	{
-		int probability = 0;		//成功確率
-		int income = 0;				//収益
+		float probability = 0.0f;	//成功確率
+		float income = 0.0f;		//収益
 		float confiscation = 0.0f;	//没収率
 		float requiredTime = 0.0f;	//所要時間
 	};
@@ -85,19 +88,17 @@ public:
 	static constexpr int SUCCESS_DENGER = 50;
 
 	//難易度ごとの収入(100000単位)
-	static constexpr int INCOME_SAFETY = 3;
-	static constexpr int INCOME_NORMAL = 5;
-	static constexpr int INCOME_DENGER = 8;
+	static constexpr float INCOME_SAFETY = 3.0f;
+	static constexpr float INCOME_NORMAL = 5.0f;
+	static constexpr float INCOME_DENGER = 8.0f;
 
 	//難易度ごとの失敗の没収割合
 	static constexpr float CONFISCATION_SAFETY = 0.5f;
 	static constexpr float CONFISCATION_NORMAL = 0.5f;
 	static constexpr float CONFISCATION_DENGER = 0.0f;
 
-	//各項目の強化値
-	static constexpr int SUCCESS_ENHANCE = 5;
-	static constexpr int INCOME_ENHANCE = 1;
-	static constexpr int TIME_ENHANCE = 2;
+	//各項目の強化倍率(%)
+	static constexpr float ENHANCE_PER = 10.0f;
 
 	//参勤交代に行ける最低資金
 	static constexpr int FUNDS_MIN = 10;
@@ -163,6 +164,25 @@ private:
 	static constexpr FLOAT4 EDO_COL = { 1.0f, 0.647f, 0.0f, 1.0f };
 
 	static constexpr float ARROW_THICK = 100.0f;
+
+	static constexpr int SELECT_FONT_SIZE = 16;
+	static constexpr int ALTERNATE_FONT_SIZE = 30;
+	static constexpr int ALTERNATE_EXPLAN_FONT_SIZE = 24;
+	static constexpr int FONT_TICKNESS = 24;
+
+	static constexpr float FONT_ALTERNATE_LOCAL_POS_Y = -52.0f;
+	static constexpr float FONT_ALTERNATE_EXPLAN_LOCAL_POS_Y = 16.0f;
+
+	//選択肢画像
+	int selectMenuImg_;
+
+	//フォント
+	std::unique_ptr<FontController> font_;
+	int selectFontHandle_;
+	std::unordered_map<SELECT, std::wstring> selectStr_;
+	int alternateFontHandle_;
+	int alternateExplanFontHandle_;
+	std::unordered_map<ALTERNATE_DIFF, std::wstring> alternateStr_;
 
 	//状態
 	STATE state_;

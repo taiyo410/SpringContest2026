@@ -18,7 +18,7 @@ public:
 	static constexpr int INITIAL_FUNDS = 50;
 
 	//フォントサイズ
-	static constexpr int FONT_SIZE = 20;
+	static constexpr int FONT_SIZE = 24;
 
 	//最大不満度
 	static constexpr int DISSATISFACTION_MAX = 100;
@@ -27,7 +27,7 @@ public:
 	static constexpr int START_YEAR = 1682;
 
 	//クリアとなる経過年数 (追加)
-	static constexpr int CLEAR_YEAR_LIMIT = 240;
+	static constexpr int CLEAR_YEAR_LIMIT = 50;
 
 	/// @brief ロード
 	/// @param  
@@ -87,10 +87,11 @@ private:
 
 	//所持金
 	int nowMoney_;
+	int moneyFont_;
 
 	//経過年数 (追加)
 	int elapsedYear_;
-	int moneyFont_;
+	int imageId_;
 
 	//不満度コライダ
 	std::unique_ptr<DissatisfactionBar> dissatifactionBar_;
