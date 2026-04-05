@@ -68,8 +68,8 @@ public:
 	static constexpr Vector2F SELECT_MIN = {-50.0f,-20.0f};
 	static constexpr Vector2F SELECT_MAX = {50.0f,20.0f};
 	static constexpr float ALTERNATE_PRE_RADIUS = 200.0f;
-	static constexpr Vector2F ALTERNATE_MENU_MIN = {-250.0f,-75.0f };
-	static constexpr Vector2F ALTERNATE_MENU_MAX = { 250.0f,75.0f };
+	static constexpr Vector2F ALTERNATE_MENU_MIN = {-200.0f,-75.0f };
+	static constexpr Vector2F ALTERNATE_MENU_MAX = { 200.0f,75.0f };
 
 	static constexpr Vector2F ENHANCE_MENU_MIN = {-62.5f,-32.5f };
 	static constexpr Vector2F ENHANCE_MENU_MAX = { 62.5f,32.5f };
