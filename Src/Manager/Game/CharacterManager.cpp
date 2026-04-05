@@ -39,13 +39,13 @@ void CharacterManager::Update(void)
 
 void CharacterManager::Draw(void)
 {
-	//キャラクターの描画
-	cursor_->Draw();
-	
+	//キャラクターの描画	
 	for (auto& daimyo : daimyo_)
 	{
 		daimyo->Draw();
 	}
+
+	cursor_->Draw();
 
 	DrawCircle(EDO_POS.x, EDO_POS.y, 50.0f, 0xFF0000, true);
 }

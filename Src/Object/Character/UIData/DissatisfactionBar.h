@@ -1,9 +1,19 @@
 #pragma once
+#include<unordered_map>
+#include<functional>
 #include"../Object/ObjectBase2D.h"
 
 class DissatisfactionBar : public ObjectBase2D
 {
 public:
+
+	//状態
+	enum class STATE
+	{
+		STANDBY,
+		NORMAL,
+		SELECT
+	};
 
 	//最大不満度
 	static constexpr int DISSATISFACTION_MAX = 100;
@@ -53,8 +63,38 @@ private:
 	static constexpr Vector2F DIS_POS = { 60.0f, 300.0f };
 	static constexpr Vector2F DIS_BOX_SIZE = { 40.0f, 200.0f };
 	static constexpr float DIS_RADIUS = 300.0f;
+	static constexpr float SELECT_LOCAL_POS_Y = 150.0f;
+	static constexpr Vector2F SELECT_BOX_SIZE = { 200.0f,100.0f };
 
 	//総不満度
 	int dissatisfaction_;
-};
 
+	//状態
+	STATE preState_;
+	STATE state_;
+
+	//更新
+	std::unordered_map<STATE, std::function<void(void)>> update_;
+
+	//描画
+	std::unordered_map<STATE, std::function<void(void)>> draw_;
+
+	//状態遷移前
+	std::unordered_map<STATE, std::function<void(void)>> preChange_;
+
+	//状態遷移
+	void ChangeState(const STATE _state);
+
+	//状態遷移の前処理
+	void PreChangeStateNormal(void);
+	void PreChangeStateSelect(void);
+
+	//更新
+	void UpdateStandBy(void);
+	void UpdateNormal(void);
+	void UpdateSelect(void);
+
+	//描画
+	void DrawNormal(void);
+	void DrawSelect(void);
+};

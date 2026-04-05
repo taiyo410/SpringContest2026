@@ -10,6 +10,7 @@
 #include "../Manager/Resource/ResourceManager.h"
 #include "../Manager/Generic/InputManager.h"
 #include "../Manager/Game/GameRuleManager.h"
+#include "../Manager/Resource/FontManager.h"
 #include "../Object/Common/Collider2D/Collider2D.h"
 #include "../Object/Common/Collider2D/Geometry2D/BoxGeo.h"
 #include "../Object/Character/Daimyo/DaimyoOnHit.h"
@@ -115,6 +116,20 @@ void Daimyo::Load(void)
 	dissatisfactionGauge_->Load();
 	//âÊëúID
 	imageId_ = ResourceManager::GetInstance().Load(ResourceManager::SRC::CASTLE).handleId_;
+	selectMenuImg_ = ResourceManager::GetInstance().Load(ResourceManager::SRC::SELECT_MENU).handleId_;
+
+	//ÉtÉHÉìÉg
+	font_ = std::make_unique<FontController>();
+	selectFontHandle_ = font_->GetFontHandle(FontManager::FONT_BOKUTATI, SELECT_FONT_SIZE, FONT_TICKNESS);
+	alternateFontHandle_ = font_->GetFontHandle(FontManager::FONT_BOKUTATI, ALTERNATE_FONT_SIZE, FONT_TICKNESS, DX_FONTTYPE_EDGE);
+	alternateExplanFontHandle_ = font_->GetFontHandle(FontManager::FONT_BOKUTATI, ALTERNATE_EXPLAN_FONT_SIZE, FONT_TICKNESS);
+	selectStr_.emplace(SELECT::SELECT_ALTERNATE, L"éQãŒåë„");
+	selectStr_.emplace(SELECT::ENHANCEMENT, L"ã≠âª");
+	selectStr_.emplace(SELECT::DETAILS, L"è⁄ç◊");
+	alternateStr_.emplace(ALTERNATE_DIFF::SAFETY, L"à¿ëSÇ»ìπ");
+	alternateStr_.emplace(ALTERNATE_DIFF::NORMAL, L"ïÅí ÇÃìπ");
+	alternateStr_.emplace(ALTERNATE_DIFF::DENGER, L"äÎåØÇ»ìπ");
+
 	kagoImage_ = ResourceManager::GetInstance().Load(ResourceManager::SRC::KAGO).handleId_;
 	enhancementMarkImg_ = ResourceManager::GetInstance().Load(ResourceManager::SRC::FAMIRY_CREST).handleId_;
 	fontHandle_ = fontController_->GetFontHandle(FontManager::FONT_BOKUTATI, 30, 0);
@@ -309,8 +324,8 @@ void Daimyo::CreateSelectCol(void)
 	geo = std::make_unique<BoxGeo>(selectPos_[SELECT::ENHANCEMENT], selectPos_[SELECT::ENHANCEMENT], SELECT_PRE_RADIUS, SELECT_MIN, SELECT_MAX);
 	MakeCollider(Collider2D::TAG::CHOICE_ENHANCEMENT, std::move(geo), { Collider2D::TAG::DAIMYO,Collider2D::TAG::CHOICE_ALTERNATE,Collider2D::TAG::CHOICE_ENHANCEMENT,Collider2D::TAG::CHOICE_DETAILS });
 
-	geo = std::make_unique<BoxGeo>(selectPos_[SELECT::DETAILS], selectPos_[SELECT::DETAILS], SELECT_PRE_RADIUS, SELECT_MIN, SELECT_MAX);
-	MakeCollider(Collider2D::TAG::CHOICE_DETAILS, std::move(geo), { Collider2D::TAG::DAIMYO,Collider2D::TAG::CHOICE_ALTERNATE,Collider2D::TAG::CHOICE_ENHANCEMENT,Collider2D::TAG::CHOICE_DETAILS });
+	//geo = std::make_unique<BoxGeo>(selectPos_[SELECT::DETAILS], selectPos_[SELECT::DETAILS], SELECT_PRE_RADIUS, SELECT_MIN, SELECT_MAX);
+	//MakeCollider(Collider2D::TAG::CHOICE_DETAILS, std::move(geo), { Collider2D::TAG::DAIMYO,Collider2D::TAG::CHOICE_ALTERNATE,Collider2D::TAG::CHOICE_ENHANCEMENT,Collider2D::TAG::CHOICE_DETAILS });
 }
 
 void Daimyo::CreateAlternateCol(void)
@@ -349,26 +364,26 @@ void Daimyo::CreateEnhancementCol(void)
 
 void Daimyo::SettingSafety(void)
 {
-	alternateInfo_.probability = SUCCESS_SAFETY + SUCCESS_ENHANCE * enhancementCnt_[ENHANCEMENT_TYPE::PROBABILITY];
-	alternateInfo_.income = INCOME_SAFETY + INCOME_ENHANCE * enhancementCnt_[ENHANCEMENT_TYPE::INCOME];
+	alternateInfo_.probability = SUCCESS_SAFETY + (SUCCESS_SAFETY / ENHANCE_PER) * enhancementCnt_[ENHANCEMENT_TYPE::PROBABILITY];
+	alternateInfo_.income = INCOME_SAFETY + (INCOME_SAFETY / ENHANCE_PER) * enhancementCnt_[ENHANCEMENT_TYPE::INCOME];
 	alternateInfo_.confiscation = CONFISCATION_SAFETY;
-	alternateInfo_.requiredTime = REQUIRED_TIME_SAFETY;
+	alternateInfo_.requiredTime = REQUIRED_TIME_SAFETY - (REQUIRED_TIME_SAFETY / ENHANCE_PER) * enhancementCnt_[ENHANCEMENT_TYPE::TIME];
 }
 
 void Daimyo::SettingNormal(void)
 {
-	alternateInfo_.probability = SUCCESS_NORMAL + SUCCESS_ENHANCE * enhancementCnt_[ENHANCEMENT_TYPE::PROBABILITY];
-	alternateInfo_.income = INCOME_NORMAL + INCOME_ENHANCE * enhancementCnt_[ENHANCEMENT_TYPE::INCOME];
+	alternateInfo_.probability = SUCCESS_NORMAL + (SUCCESS_NORMAL / ENHANCE_PER) * enhancementCnt_[ENHANCEMENT_TYPE::PROBABILITY];
+	alternateInfo_.income = INCOME_NORMAL + (INCOME_NORMAL / ENHANCE_PER) * enhancementCnt_[ENHANCEMENT_TYPE::INCOME];
 	alternateInfo_.confiscation = CONFISCATION_NORMAL;
-	alternateInfo_.requiredTime = REQUIRED_TIME_NORMAL;
+	alternateInfo_.requiredTime = REQUIRED_TIME_NORMAL - (REQUIRED_TIME_NORMAL / ENHANCE_PER) * enhancementCnt_[ENHANCEMENT_TYPE::TIME];
 }
 
 void Daimyo::SettingDenger(void)
 {
-	alternateInfo_.probability = SUCCESS_DENGER + SUCCESS_ENHANCE * enhancementCnt_[ENHANCEMENT_TYPE::PROBABILITY];
-	alternateInfo_.income = INCOME_DENGER + INCOME_ENHANCE * enhancementCnt_[ENHANCEMENT_TYPE::INCOME];
+	alternateInfo_.probability = SUCCESS_DENGER + (SUCCESS_DENGER / ENHANCE_PER) * enhancementCnt_[ENHANCEMENT_TYPE::PROBABILITY];
+	alternateInfo_.income = INCOME_DENGER + (INCOME_DENGER / ENHANCE_PER) * enhancementCnt_[ENHANCEMENT_TYPE::INCOME];
 	alternateInfo_.confiscation = CONFISCATION_DENGER;
-	alternateInfo_.requiredTime = REQUIRED_TIME_DENGER;
+	alternateInfo_.requiredTime = REQUIRED_TIME_DENGER - (REQUIRED_TIME_DENGER / ENHANCE_PER) * enhancementCnt_[ENHANCEMENT_TYPE::TIME];
 }
 
 void Daimyo::ResultAlternate(void)
@@ -532,7 +547,7 @@ void Daimyo::UpdateNoMoney(void)
 
 void Daimyo::UpdateActionAlternate(void)
 {
-	if (alternateInfo_.requiredTime - TIME_ENHANCE * enhancementCnt_[ENHANCEMENT_TYPE::TIME] < cnt_)
+	if (alternateInfo_.requiredTime < cnt_)
 	{
 		//åãâ 
 		ChangeState(STATE::RESULT_ALTERNATE);
@@ -650,11 +665,27 @@ void Daimyo::DrawSelect(void)
 	//DrawStringF(alternate.x, alternate.y, L"alternate", 0x0);
 	//DrawStringF(enhancement.x, enhancement.y, L"enhancement", 0x0);
 	//DrawStringF(details.x, details.y, L"details", 0x0);
-	UtilityDraw::DrawStringCenter(selectPos_[SELECT::SELECT_ALTERNATE].x, selectPos_[SELECT::SELECT_ALTERNATE].y, 0x0, L"alternate");
-	UtilityDraw::DrawStringCenter(selectPos_[SELECT::ENHANCEMENT].x, selectPos_[SELECT::ENHANCEMENT].y, 0x0, L"enhancement");
-	UtilityDraw::DrawStringCenter(selectPos_[SELECT::DETAILS].x, selectPos_[SELECT::DETAILS].y, 0x0,L"details");
 
-
+	//ëIëéà
+	DrawExtendGraph(selectPos_[SELECT::SELECT_ALTERNATE].x + SELECT_MIN.x
+		, selectPos_[SELECT::SELECT_ALTERNATE].y + SELECT_MIN.y
+		, selectPos_[SELECT::SELECT_ALTERNATE].x + SELECT_MAX.x
+		, selectPos_[SELECT::SELECT_ALTERNATE].y + SELECT_MAX.y
+		,selectMenuImg_, true);
+	DrawExtendGraph(selectPos_[SELECT::ENHANCEMENT].x + SELECT_MIN.x
+		, selectPos_[SELECT::ENHANCEMENT].y + SELECT_MIN.y
+		, selectPos_[SELECT::ENHANCEMENT].x + SELECT_MAX.x
+		, selectPos_[SELECT::ENHANCEMENT].y + SELECT_MAX.y
+		,selectMenuImg_, true);
+	//DrawExtendGraph(selectPos_[SELECT::DETAILS].x + SELECT_MIN.x
+	//	, selectPos_[SELECT::DETAILS].y + SELECT_MIN.y
+	//	, selectPos_[SELECT::DETAILS].x + SELECT_MAX.x
+	//	, selectPos_[SELECT::DETAILS].y + SELECT_MAX.y
+	//	,selectMenuImg_, true);
+	
+	UtilityDraw::DrawStringCenterToFontHandle(selectPos_[SELECT::SELECT_ALTERNATE].x, selectPos_[SELECT::SELECT_ALTERNATE].y, 0x0, selectFontHandle_, selectStr_[SELECT::SELECT_ALTERNATE]);
+	UtilityDraw::DrawStringCenterToFontHandle(selectPos_[SELECT::ENHANCEMENT].x, selectPos_[SELECT::ENHANCEMENT].y, 0x0, selectFontHandle_, selectStr_[SELECT::ENHANCEMENT]);
+	//UtilityDraw::DrawStringCenterToFontHandle(selectPos_[SELECT::DETAILS].x, selectPos_[SELECT::DETAILS].y, 0x0, selectFontHandle_, selectStr_[SELECT::DETAILS]);
 }
 
 void Daimyo::DrawSelectDirection(void)
@@ -670,9 +701,28 @@ void Daimyo::DrawSelectDirection(void)
 	//DrawStringF(details.x, details.y, L"details", 0x0);
 
 	SetDrawBlendMode(DX_BLENDMODE_ALPHA, blendAlpha_);
-	UtilityDraw::DrawStringCenter(selectPos_[SELECT::SELECT_ALTERNATE].x, selectPos_[SELECT::SELECT_ALTERNATE].y, 0x0, L"alternate");
-	UtilityDraw::DrawStringCenter(selectPos_[SELECT::ENHANCEMENT].x, selectPos_[SELECT::ENHANCEMENT].y, 0x0, L"enhancement");
-	UtilityDraw::DrawStringCenter(selectPos_[SELECT::DETAILS].x, selectPos_[SELECT::DETAILS].y, 0x0, L"details");
+	//ëIëéà
+	DrawExtendGraph(selectPos_[SELECT::SELECT_ALTERNATE].x + SELECT_MIN.x
+		, selectPos_[SELECT::SELECT_ALTERNATE].y + SELECT_MIN.y
+		, selectPos_[SELECT::SELECT_ALTERNATE].x + SELECT_MAX.x
+		, selectPos_[SELECT::SELECT_ALTERNATE].y + SELECT_MAX.y
+		, selectMenuImg_, true);
+	DrawExtendGraph(selectPos_[SELECT::ENHANCEMENT].x + SELECT_MIN.x
+		, selectPos_[SELECT::ENHANCEMENT].y + SELECT_MIN.y
+		, selectPos_[SELECT::ENHANCEMENT].x + SELECT_MAX.x
+		, selectPos_[SELECT::ENHANCEMENT].y + SELECT_MAX.y
+		, selectMenuImg_, true);
+	//DrawExtendGraph(selectPos_[SELECT::DETAILS].x + SELECT_MIN.x
+	//	, selectPos_[SELECT::DETAILS].y + SELECT_MIN.y
+	//	, selectPos_[SELECT::DETAILS].x + SELECT_MAX.x
+	//	, selectPos_[SELECT::DETAILS].y + SELECT_MAX.y
+	//	, selectMenuImg_, true);
+	//UtilityDraw::DrawStringCenter(selectPos_[SELECT::SELECT_ALTERNATE].x, selectPos_[SELECT::SELECT_ALTERNATE].y, 0x0, L"alternate");
+	//UtilityDraw::DrawStringCenter(selectPos_[SELECT::ENHANCEMENT].x, selectPos_[SELECT::ENHANCEMENT].y, 0x0, L"enhancement");
+	//UtilityDraw::DrawStringCenter(selectPos_[SELECT::DETAILS].x, selectPos_[SELECT::DETAILS].y, 0x0, L"details");
+	UtilityDraw::DrawStringCenterToFontHandle(selectPos_[SELECT::SELECT_ALTERNATE].x, selectPos_[SELECT::SELECT_ALTERNATE].y, 0x0, selectFontHandle_, L"éQãŒåë„");
+	UtilityDraw::DrawStringCenterToFontHandle(selectPos_[SELECT::ENHANCEMENT].x, selectPos_[SELECT::ENHANCEMENT].y, 0x0, selectFontHandle_, L"ã≠âª");
+	//UtilityDraw::DrawStringCenterToFontHandle(selectPos_[SELECT::DETAILS].x, selectPos_[SELECT::DETAILS].y, 0x0, selectFontHandle_, L"è⁄ç◊");
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 
 
@@ -682,6 +732,90 @@ void Daimyo::DrawSelectAlternate(void)
 {
 	//í èÌï`âÊ
 	DrawNormal();
+
+	for (auto pos : alternateMenuPos_)
+	{
+		//ëIëéà
+		DrawRotaGraph(pos.second.x, pos.second.y, 1.0, 0.0, selectMenuImg_, true);
+	}
+
+	//è⁄ç◊
+	std::wstring timeStr = L"é¿çséûä‘ÅF";
+	std::wstring probabilityStr = L"\nê¨å˜ó¶ÅF";
+	std::wstring incomeStr = L"\né˚ì¸ÅF";
+	wchar_t buf[32];
+	float timeValue = REQUIRED_TIME_SAFETY - (REQUIRED_TIME_SAFETY / ENHANCE_PER) * enhancementCnt_[ENHANCEMENT_TYPE::TIME];
+	float probabilityValue = SUCCESS_SAFETY + (SUCCESS_SAFETY / ENHANCE_PER) * enhancementCnt_[ENHANCEMENT_TYPE::PROBABILITY];
+	if (probabilityValue > 100.0f)probabilityValue = 100.0f;
+	float incomeValue = INCOME_SAFETY + (INCOME_SAFETY / ENHANCE_PER) * enhancementCnt_[ENHANCEMENT_TYPE::INCOME];
+	incomeValue *= GameRuleManager::UNITS;
+
+	//à¿ëSÇ»ìπ
+	swprintf(buf,32,L"%.1f", timeValue);
+	std::wstring time = timeStr + buf + L"ïb";
+	swprintf(buf, 32, L"%.1f", probabilityValue);
+	std::wstring probability = probabilityStr + buf + L"Åì";
+	//swprintf(buf, 32, L"%.1f", incomeValue);
+	std::wstring income = incomeStr + std::to_wstring(static_cast<int>(incomeValue)) + L"â~";
+	UtilityDraw::DrawStringCenterToFontHandle(alternateMenuPos_[ALTERNATE_DIFF::SAFETY].x
+		, alternateMenuPos_[ALTERNATE_DIFF::SAFETY].y + FONT_ALTERNATE_LOCAL_POS_Y
+		, UtilityCommon::GREEN
+		,alternateFontHandle_
+		,alternateStr_[ALTERNATE_DIFF::SAFETY]);
+	UtilityDraw::DrawStringCenterToFontHandle(alternateMenuPos_[ALTERNATE_DIFF::SAFETY].x
+		, alternateMenuPos_[ALTERNATE_DIFF::SAFETY].y + FONT_ALTERNATE_EXPLAN_LOCAL_POS_Y
+		, UtilityCommon::BLACK
+		, alternateExplanFontHandle_
+		, time + probability + income);
+	
+
+	//ïÅí ÇÃìπ
+	timeValue = REQUIRED_TIME_NORMAL - (REQUIRED_TIME_NORMAL / ENHANCE_PER) * enhancementCnt_[ENHANCEMENT_TYPE::TIME];
+	probabilityValue = SUCCESS_NORMAL + (SUCCESS_NORMAL / ENHANCE_PER) * enhancementCnt_[ENHANCEMENT_TYPE::PROBABILITY];
+	if (probabilityValue > 100.0f)probabilityValue = 100.0f;
+	incomeValue = INCOME_NORMAL + (INCOME_NORMAL / ENHANCE_PER) * enhancementCnt_[ENHANCEMENT_TYPE::INCOME];
+	incomeValue *= GameRuleManager::UNITS;
+
+	swprintf(buf, 32, L"%.1f", timeValue);
+	time = timeStr + buf + L"ïb";
+	swprintf(buf, 32, L"%.1f", probabilityValue);
+	probability = probabilityStr + buf + L"Åì";
+	//swprintf(buf, 32, L"%.1f", incomeValue);
+	income = incomeStr + std::to_wstring(static_cast<int>(incomeValue)) + L"â~";
+	UtilityDraw::DrawStringCenterToFontHandle(alternateMenuPos_[ALTERNATE_DIFF::NORMAL].x
+		, alternateMenuPos_[ALTERNATE_DIFF::NORMAL].y + FONT_ALTERNATE_LOCAL_POS_Y
+		, UtilityCommon::YELLOW
+		,alternateFontHandle_
+		,alternateStr_[ALTERNATE_DIFF::NORMAL]);
+	UtilityDraw::DrawStringCenterToFontHandle(alternateMenuPos_[ALTERNATE_DIFF::NORMAL].x
+		, alternateMenuPos_[ALTERNATE_DIFF::NORMAL].y + FONT_ALTERNATE_EXPLAN_LOCAL_POS_Y
+		, UtilityCommon::BLACK
+		, alternateExplanFontHandle_
+		, time + probability + income);
+
+	//äÎåØÇ»ìπ
+	timeValue = REQUIRED_TIME_DENGER - (REQUIRED_TIME_DENGER / ENHANCE_PER) * enhancementCnt_[ENHANCEMENT_TYPE::TIME];
+	probabilityValue = SUCCESS_DENGER + (SUCCESS_DENGER / ENHANCE_PER) * enhancementCnt_[ENHANCEMENT_TYPE::PROBABILITY];
+	if (probabilityValue > 100.0f)probabilityValue = 100.0f;
+	incomeValue = INCOME_DENGER + (INCOME_DENGER / ENHANCE_PER) * enhancementCnt_[ENHANCEMENT_TYPE::INCOME];
+	incomeValue *= GameRuleManager::UNITS;
+
+	swprintf(buf, 32, L"%.1f", timeValue);
+	time = timeStr + buf + L"ïb";
+	swprintf(buf, 32, L"%.1f", probabilityValue);
+	probability = probabilityStr + buf + L"Åì";
+	//swprintf(buf, 32, L"%.1f", incomeValue);
+	income = incomeStr + std::to_wstring(static_cast<int>(incomeValue)) + L"â~";
+	UtilityDraw::DrawStringCenterToFontHandle(alternateMenuPos_[ALTERNATE_DIFF::DENGER].x
+		, alternateMenuPos_[ALTERNATE_DIFF::DENGER].y + FONT_ALTERNATE_LOCAL_POS_Y
+		, UtilityCommon::RED
+		,alternateFontHandle_
+		,alternateStr_[ALTERNATE_DIFF::DENGER]);
+	UtilityDraw::DrawStringCenterToFontHandle(alternateMenuPos_[ALTERNATE_DIFF::DENGER].x
+		, alternateMenuPos_[ALTERNATE_DIFF::DENGER].y + FONT_ALTERNATE_EXPLAN_LOCAL_POS_Y
+		, UtilityCommon::BLACK
+		, alternateExplanFontHandle_
+		, time + probability + income);
 }
 
 void Daimyo::DrawNoMoney(void)

@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Src\Object\Character\Cursor\CursorOnHit.cpp" />
     <ClCompile Include="Src\Object\Character\UIData\DissatisfactionBar.cpp" />
     <ClCompile Include="Src\Manager\Game\GameRuleManager.cpp" />
     <ClCompile Include="Src\Manager\Generic\SliderUIManager.cpp" />
@@ -93,6 +94,7 @@
     <ClCompile Include="Src\Common\TextWriter.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Src\Object\Character\Cursor\CursorOnHit.h" />
     <ClInclude Include="Src\Object\Character\UIData\DissatisfactionBar.h" />
     <ClInclude Include="Src\Manager\Game\GameRuleManager.h" />
     <ClInclude Include="Src\Manager\Generic\SliderUIManager.h" />

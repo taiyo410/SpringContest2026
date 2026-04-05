@@ -35,6 +35,9 @@ void ResourceManager::Init(void)
 	res = std::make_unique<ResourceData>(ResourceData::TYPE::IMG, PATH_IMG + L"ArrowGauge.png");
 	resourcesMap_.emplace(SRC::ARROW_GAUGE, std::move(res));
 	
+	res = std::make_unique<ResourceData>(ResourceData::TYPE::IMG, PATH_IMG + L"SelectMenu.png");
+	resourcesMap_.emplace(SRC::SELECT_MENU, std::move(res));
+	
 	res = std::make_unique<ResourceData>(ResourceData::TYPE::IMG, PATH_IMG + L"GameOver.png");
 	resourcesMap_.emplace(SRC::GAME_OVER_IMG, std::move(res));
 
@@ -46,6 +49,9 @@ void ResourceManager::Init(void)
 
 	res = std::make_unique<ResourceData>(ResourceData::TYPE::IMG, PATH_IMG + L"kamon.png");
 	resourcesMap_.emplace(SRC::FAMIRY_CREST, std::move(res));
+
+	res = std::make_unique<ResourceData>(ResourceData::TYPE::IMG, PATH_IMG + L"SpeechBubble.png");
+	resourcesMap_.emplace(SRC::SPEECH_BUBBLE, std::move(res));
 
 	//ï°êîâÊëú
 	res = std::make_unique<ResourceData>(ResourceData::TYPE::IMGS, PATH_IMG + L"XboxControllerBotton128.png",
