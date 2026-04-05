@@ -125,6 +125,14 @@ public:
 	/// @return ランダムの値
 	static int GetRandomValue(int _min, int _max);
 
+	/// @brief カウントアップ
+	/// @param count カウント
+	/// @param max 最大値
+	/// @param isLoop ループさせるか 
+	/// @param delta デルタタイム(指定なしで固定デルタタイム) 
+	/// @return 
+	static void CountUp(float& count, const float& max, const bool isLoop, const float& delta=-1);
+
 	/// @brief フォントを使用した文字列のサイズを取る
 	/// @param fontHandle フォントハンドル
 	/// @param _str 調べたい文字列

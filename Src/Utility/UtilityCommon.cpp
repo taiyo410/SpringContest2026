@@ -279,6 +279,23 @@ int UtilityCommon::GetRandomValue(int _min, int _max)
     return dist(mt);
 }
 
+void UtilityCommon::CountUp(float& count, const float& max, const bool isLoop, const float& delta)
+{
+	if (delta < 0)
+    {
+        count += FIXED_DELTA_TIME;
+    }
+    else
+    {
+        count += delta;
+    }
+
+	if (count > max)
+    {
+		isLoop ? count -= max : count = max;
+    }
+}
+
 Vector2 UtilityCommon::GetStringSizeToHandle(const int fontHandle, const std::wstring _str)
 {
     Vector2 size = {};

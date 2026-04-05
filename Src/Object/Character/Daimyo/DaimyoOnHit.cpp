@@ -42,6 +42,9 @@ void DaimyoOnHit::HitCursor(const std::weak_ptr<Collider2D> _partner)
 	//入力
 	const auto& input = InputManager::GetInstance();
 
+
+
+
 	//左クリック
 	if (input.IsTrgMouseLeft())
 	{
@@ -130,10 +133,28 @@ void DaimyoOnHit::HitCursor(const std::weak_ptr<Collider2D> _partner)
 
 		//一年経過
 		GameRuleManager::GetInstance().AddYear(1);
-	
+
 		//クリックで戻さない
 		parent_.ProhibitedBack();
 
+	}
+	else
+	{
+		for (auto& myCol : parent_.GetColliders())
+		{
+			if (myCol->IsHit() && myCol->GetTag() == Collider2D::TAG::ENHANCEMENT_TIME)
+			{
+				parent_.UpdateEnhancementMarkAlpha(Daimyo::ENHANCEMENT_TYPE::TIME);
+			}
+			else if (myCol->IsHit() && myCol->GetTag() == Collider2D::TAG::ENHANCEMENT_PROBABILITY)
+			{
+				parent_.UpdateEnhancementMarkAlpha(Daimyo::ENHANCEMENT_TYPE::PROBABILITY);
+			}
+			else if (myCol->IsHit() && myCol->GetTag() == Collider2D::TAG::ENHANCEMENT_INCOME)
+			{
+				parent_.UpdateEnhancementMarkAlpha(Daimyo::ENHANCEMENT_TYPE::INCOME);
+			}
+		}
 	}
 
 }

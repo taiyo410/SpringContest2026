@@ -113,6 +113,8 @@ public:
 	COLOR_F EaseFunc(const COLOR_F& start, const COLOR_F& end, const float t, const EASING_TYPE type);
 	FLOAT4 EaseFunc(const FLOAT4& start, const FLOAT4& end, const float t, const EASING_TYPE type);
 
+
+
 	/// @brief 角度の最終計算(360度などの制限があるため、別で処理する)
 	/// @param start 初期位置
 	/// @param end 終了位置

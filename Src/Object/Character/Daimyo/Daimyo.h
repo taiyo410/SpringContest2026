@@ -6,6 +6,7 @@ class ArrowController;
 class GaugeController;
 class DaimyoOnHit;
 class Easing;
+class FontController;
 
 class Daimyo : public CharacterBase2D
 {
@@ -68,8 +69,13 @@ public:
 	static constexpr Vector2F ALTERNATE_MENU_MIN = {-250.0f,-75.0f };
 	static constexpr Vector2F ALTERNATE_MENU_MAX = { 250.0f,75.0f };
 
-	static constexpr Vector2F ENHANCE_MENU_MIN = {-250.0f*0.25f,-130.0f * 0.25f };
-	static constexpr Vector2F ENHANCE_MENU_MAX = { 250.0f * 0.25f,130.0f * 0.25f };
+	static constexpr Vector2F ENHANCE_MENU_MIN = {-62.5f,-32.5f };
+	static constexpr Vector2F ENHANCE_MENU_MAX = { 62.5f,32.5f };
+
+	static constexpr float ENHANCE_BOX_OFFSET = 25.0f;
+	static constexpr float ENHANCE_MARK_OFFSET = 50.0f;
+	static constexpr float ENHANCE_MARK_SCL = 0.3f;
+	static constexpr float ENHANCE_MARK_SIZE = 225.0f* ENHANCE_MARK_SCL;
 
 	//選択肢との相対座標
 	static constexpr Vector2F ALTERNATE_LOCAL_POS = { 50.0f, -80.0f };
@@ -163,6 +169,9 @@ public:
 	//強化
 	void Enhancement(ENHANCEMENT_TYPE _type);
 
+	//強化マークのアルファ値の更新
+	void UpdateEnhancementMarkAlpha(ENHANCEMENT_TYPE _type);
+
 private:
 
 	static constexpr float EASEING_TIME = 0.2f;
@@ -208,6 +217,19 @@ private:
 	std::unordered_map<ENHANCEMENT_TYPE, int> enhancementCnt_;
 	//強化メニュー
 	std::unordered_map<ENHANCEMENT_TYPE, Vector2F> enhancementPos_;
+	//強化ステータスマーク
+	int enhancementMarkImg_;
+	//強化ステータスマークのアルファ値
+	std::unordered_map<ENHANCEMENT_TYPE, int> enhancementMarkAlpha_;
+	float enhancementMarkAlphaCnt_;
+	//フォントハンドル
+	int fontHandle_;
+	//フォントコントローラー
+	std::unique_ptr<FontController> fontController_;
+	//強化項目の選択肢の文字列
+	std::unordered_map<ENHANCEMENT_TYPE, std::wstring> enhancementStr_;
+	//強化項目毎の色
+	std::unordered_map<ENHANCEMENT_TYPE, unsigned int> enhancementCol_;
 
 	//参勤交代の時間
 	float cnt_;
@@ -217,8 +239,6 @@ private:
 
 	//イージング
 	std::unique_ptr<Easing> easing_;
-
-	
 
 	//矢印ゲージ
 	std::unique_ptr<ArrowController>arrow_;
@@ -282,6 +302,7 @@ private:
 	void UpdateActionAlternate(void);
 	void UpdateResultAlternate(void);
 	void UpdateEnhancement(void);
+	void UpdateEnhancementDirction(void);
 	void UpdateDetails(void);
 
 	//描画

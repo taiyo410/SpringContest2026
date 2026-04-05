@@ -18,10 +18,11 @@ public:
 		TEST,
 
 		//画像
-		MAP,		//マップ
-		CASTLE,		//城
-		GAUGE,		//ゲージ
-		KAGO,
+		MAP,				//マップ
+		CASTLE,				//城
+		GAUGE,				//ゲージ
+		KAGO,				//駕籠
+		FAMIRY_CREST,		//家紋
 		ARROW_GAUGE,		//矢印ゲージ
 		TITLE_BACK_IMG,		//タイトル背景
 		TITLE_LOGO,			//タイトルロゴ
