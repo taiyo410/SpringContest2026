@@ -92,6 +92,7 @@
     <ClCompile Include="Src\Manager\Generic\UIManager.cpp" />
     <ClCompile Include="Src\Scene\StartScene.cpp" />
     <ClCompile Include="Src\Common\TextWriter.cpp" />
+    <ClCompile Include="Src\Scene\YesNoScene.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Src\Object\Character\Cursor\CursorOnHit.h" />
@@ -215,6 +216,7 @@
     <ClInclude Include="Src\Manager\Generic\UIManager.h" />
     <ClInclude Include="Src\Scene\StartScene.h" />
     <ClInclude Include="Src\Common\TextWriter.h" />
+    <ClInclude Include="Src\Scene\YesNoScene.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Src\Shader\Common\Pixel\PixelShader2DHeader.hlsli" />

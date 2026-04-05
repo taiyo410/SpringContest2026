@@ -12,6 +12,9 @@
 #include "../Object/Character/Cursor/Cursor.h"
 #include "../Manager/Generic/SliderUIManager.h"
 #include "../Object/UI/SliderUIController.h"
+
+#include "../Scene/YesNoScene.h"
+
 #include "SettingScene.h"
 
 SettingScene::SettingScene(void):
@@ -19,7 +22,8 @@ SettingScene::SettingScene(void):
 	soundMng_(SoundManager::GetInstance()),
 	dataBank_(DataBank::GetInstance()),
 	volume_(VOL_MAX, VOL_MAX, VOL_MAX),
-	volumePer_(1.0f,1.0f,1.0f)
+	volumePer_(1.0f,1.0f,1.0f),
+	questionStr_(L"")
 {
 	//更新関数のセット
 	updateFunc_ = [this]() {NormalUpdate(); };
@@ -30,6 +34,7 @@ SettingScene::SettingScene(void):
 		{SETTING_BTN::BGM,L"BGM(%d)"},
 		{SETTING_BTN::SE,L"SE(%d)"},
 		{SETTING_BTN::TEXT_SPD,L"テキスト速度(%d)"},
+		{SETTING_BTN::SCREEN_SETTING,L"スクリーン変更"},
 		{SETTING_BTN::EXIT_SETTING,L"タイトルメニューへ"}
 	};
 	
@@ -38,12 +43,14 @@ SettingScene::SettingScene(void):
 		{SETTING_STATE::BGM,[this]() {ChangeBGM(); }},
 		{SETTING_STATE::SE,[this]() {ChangeSE(); }},
 		{SETTING_STATE::TEXT_SPD,[this]() {ChangeTextSpeed(); }},
+		{SETTING_STATE::SCREEN_SET,[this]() {ChangeScreenSetting(); }},
 		{SETTING_STATE::EXIT_SETTING,[this]() {ChangeExitSetting(); }}
 	};
 
 	menuMng_ = std::make_unique<MenuManager>();
 	cursor_ = std::make_unique<Cursor>();
 	sliderUIMng_ = std::make_unique<SliderUIManager>();
+	yesNoScn_ = std::make_unique<YesNoScene>(Vector2F(Application::SCREEN_HALF_X, Application::SCREEN_HALF_Y), YES_NO_SIZE);
 	int i = 0;
 	for (auto& button : buttonStrTable_)
 	{
@@ -81,6 +88,8 @@ void SettingScene::Load(void)
 		sliderUIMng_->AddSliderUI(*cursor_, volumePer_[static_cast<int>(type)], sliderPos, length);
 	}
 	sliderUIMng_->Load();
+
+	yesNoScn_->Load();
 }
 
 void SettingScene::Init(void)
@@ -88,6 +97,7 @@ void SettingScene::Init(void)
 	cursor_->Init();
 	sliderUIMng_->Init();
 	menuMng_->Init();
+	yesNoScn_->Init();
 	ChangeSetting(SETTING_STATE::NORMAL);
 }
 
@@ -111,6 +121,11 @@ void SettingScene::NormalDraw(void)
 		, volume_[static_cast<int>(VOLUME_TYPE::SE)]
 		, volume_[static_cast<int>(VOLUME_TYPE::TEXT_SPD)] });
 	sliderUIMng_->Draw();
+
+	if (state_ == SETTING_STATE::SCREEN_SET)
+	{
+		yesNoScn_->Draw(questionStr_);
+	}
 
 	cursor_->Draw();
 }
@@ -144,7 +159,24 @@ void SettingScene::ChangeTextSpeed(void)
 
 void SettingScene::ChangeExitSetting(void)
 {
+	questionStr_ = L"タイトルメニューに戻りますか？";
 	updateSetting_ = [this]() {UpdateExitSetting(); };
+}
+
+void SettingScene::ChangeScreenSetting(void)
+{
+	int i= dataBank_.GetIsFullScreen();
+
+	if (dataBank_.GetIsFullScreen())
+	{
+		questionStr_ = L"ウィンドウモードに変更しますか？";
+	}
+	else
+	{
+		questionStr_ = L"フルスクリーンに変更しますか？";
+	}
+	yesNoScn_->Init();
+	updateSetting_ = [this]() {UpdateScreenSetting(); };
 }
 
 void SettingScene::UpdateSettingNormal(void)
@@ -162,11 +194,8 @@ void SettingScene::UpdateSettingNormal(void)
 		volume_[i] = volumePer_[i] * VOL_MAX;
 	}
 
+
 	auto hitItr = sliderUIMng_->GetIsHitSlider();
-	//if (hitItr != sliderUIMng_->GetSliderUIsEnd())
-	//{
-	//	menuMng_->SetSelectMenuNum((*hitItr)->GetSliderNum());
-	//}
 	if (sliderUIMng_->GetActiveSliderNum() != -1)
 	{
 		menuMng_->SetSelectMenuNum(sliderUIMng_->GetActiveSliderNum());
@@ -175,42 +204,25 @@ void SettingScene::UpdateSettingNormal(void)
 	{
 		menuMng_->SetSelectMenuNum((*hitItr)->GetSliderNum());
 	}
-
-
 	sliderUIMng_->Update();
 
 	const int selectNum = menuMng_->GetSelectMenuNum();
-	if (inputMngS_.IsTrgDown(INPUT_EVENT::OK)&&menuMng_->GetSelectMenuNum()==static_cast<int>(SETTING_STATE::EXIT_SETTING))
+	if (inputMngS_.IsTrgDown(INPUT_EVENT::OK)&& IsQuestionScene())
 	{
 		ChangeSetting(static_cast<SETTING_STATE>(selectNum));
 		return;
 	}
-	//else if (inputMng_.IsKeyKeepPressed(KEY_INPUT_A,0.2f))
-	//{
-	//	UtilityTemplates::SubIndex(volumePer_[static_cast<int>(selectNum)],0.0f,0.01f);
-	//	VolumeRefrect();
-
-	//}
-	//else if (inputMng_.IsKeyKeepPressed(KEY_INPUT_D, 0.2f))
-	//{
-	//	UtilityTemplates::AddIndex(volumePer_[static_cast<int>(selectNum)],1.0f,0.01f);
-	//	VolumeRefrect();
-	//}
 
 }
 
 void SettingScene::UpdateBGM(void)
 {
-	//SetNumber(bgmVol_);
-	//dataBank_.SetBGMVolume(bgmVol_ / VOL_MAX);
-	//ChangeSetting(SETTING_STATE::NORMAL);
+
 }
 
 void SettingScene::UpdateSE(void)
 {
-	//SetNumber(seVol_);
-	//dataBank_.SetBGMVolume(bgmVol_ / VOL_MAX);
-	//ChangeSetting(SETTING_STATE::NORMAL);
+
 }
 
 void SettingScene::UpdateTextSpeed(void)
@@ -221,6 +233,20 @@ void SettingScene::UpdateTextSpeed(void)
 void SettingScene::UpdateExitSetting(void)
 {
 	scnMng_.PopScene();
+}
+
+void SettingScene::UpdateScreenSetting(void)
+{
+	yesNoScn_->Update();
+	if (InputManagerS::GetInstance().IsTrgDown(INPUT_EVENT::OK))
+	{
+		if (yesNoScn_->GetState() == YesNoScene::YES_NO_STATE::YES)
+		{
+			dataBank_.GetIsFullScreen() ? dataBank_.SetIsFullScreen(false) : dataBank_.SetIsFullScreen(true);
+		}
+		ChangeSetting(SETTING_STATE::NORMAL);
+
+	}
 }
 
 void SettingScene::SetNumber(int& _num)
@@ -287,4 +313,11 @@ void SettingScene::VolumeRefrect(void)
 	{
 		dataBank_.SetTextSpeed(volume_[static_cast<int>(VOLUME_TYPE::TEXT_SPD)]);
 	}
+}
+
+const bool SettingScene::IsQuestionScene(void) const
+{
+	const int selectNum=menuMng_->GetSelectMenuNum();
+	return selectNum == static_cast<int>(SETTING_STATE::SCREEN_SET)
+		|| selectNum == static_cast<int>(SETTING_STATE::EXIT_SETTING);
 }

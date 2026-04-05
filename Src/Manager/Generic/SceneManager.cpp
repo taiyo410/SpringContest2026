@@ -35,6 +35,7 @@ void SceneManager::Init(void)
 
 	//データバンクを生成
 	DataBank::CreateInstance();
+	DataBank::GetInstance().Init();
 
 	//ボタンUIマネージャ生成
 	ButtonUIManager::CreateInstance();

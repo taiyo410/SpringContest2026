@@ -88,12 +88,9 @@ public:
 	/// @brief 通常更新
 	/// @param  
 	void NormalUpdate(const Vector2 _localPos, const float _easeTime, const Easing::EASING_TYPE _easeType);
-
-	/// @brief はい/いいえのメニュー演出の更新
-	/// @param _localPos 
-	/// @param _easeTime 
-	/// @param _easeType 
-	void SetYesNoUpdate(const bool _isYes);
+	/// @brief イージングなしの通常更新
+	/// @param  
+	void NormalUpdate(void);
 
 	/// @brief すべてのメニューの演出イージングが終わっているかの取得
 	/// @param  
@@ -117,10 +114,6 @@ public:
 	/// @param
 	template<typename T>
 	void DrawFormat(std::vector<T> _format);
-
-	/// @brief はいいいえの描画
-	/// @param _questionStr 質問内容
-	void YesNoDraw(const std::wstring _questionStr);
 
 
 	/// @brief メニューの選択

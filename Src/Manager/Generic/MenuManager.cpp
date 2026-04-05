@@ -114,25 +114,10 @@ void MenuManager::UpdateDirection(const float _disSpawn, const float _easeTime, 
 	//イージング中のメニューの座標を更新
 	for (auto& menu : menuList_)
 	{
-		//if (menu.second.isEase)
-		//{
-		//	Vector2 goalPos = { _goalPosX,menu.second.curPos.y };
-		//	menu.second.curPos = easing_->EaseFunc(menu.second.startPos, goalPos, menu.second.directionEaseCnt / _easeTime, Easing::EASING_TYPE::OUT_BACK);
-		//	menu.second.directionEaseCnt += SceneManager::GetInstance().GetDeltaTime();
-		//	if (menu.second.directionEaseCnt >= _easeTime)
-		//	{
-		//		menu.second.isEase = false;
-		//		menu.second.isEndDirectEase = true;
-		//		menu.second.curPos = goalPos;
-		//		menu.second.startPos = goalPos;
-		//	}
-		//}
+
 		menu->UpdateDirection(_goalPosX, _easeTime);
 	}
-	//if (disSpawnCnt_ > _disSpawn)
-	//{
-	//	disSpawnCnt_ = 0.0f;
-	//}
+
 	disSpawnCnt_ += SceneManager::GetInstance().GetDeltaTime();
 }
 
@@ -149,21 +134,19 @@ void MenuManager::NormalUpdate(const Vector2 _localPos, const float _easeTime, c
 	sizeEaseCnt_ += SceneManager::GetInstance().GetDeltaTime();
 }
 
-void MenuManager::SetYesNoUpdate(const bool _isYes)
+void MenuManager::NormalUpdate(void)
 {
-	_isYes ? yesNoState_ = YES_NO::YES : yesNoState_ = YES_NO::NO;
+	for (auto& menu : menuList_)
+	{
+		menu->SelectUpdate(selectMenuNum_);
+	}
 }
-
 
 void MenuManager::Draw(void)
 {
 	unsigned int color = UtilityCommon::WHITE;
 	for (auto& menu : menuList_)
 	{
-		////選択中のメニューはサイズイージングして赤色で描画
-		//color = DecideColor(menu.first);
-		//DrawStringToHandle(
-		//	menu.second.curPos.x, menu.second.curPos.y, menu.second.btnStr.c_str(), color, fontHandle_);
 		menu->Draw();
 	}
 }
@@ -173,55 +156,10 @@ void MenuManager::DrawCenter(void)
 	unsigned int color = UtilityCommon::WHITE;
 	for (auto& menu : menuList_)
 	{
-		////選択中のメニューはサイズイージングして赤色で描画
-		//color = DecideColor(menu.first);
-		//UtilityDraw::DrawStringCenterToFontHandle(menu.second.curPos.x, menu.second.curPos.y, color, fontHandle_, menu.second.btnStr.c_str());
 		menu->DrawCenter();
 	}
 }
 
-
-void MenuManager::YesNoDraw(const std::wstring _questionStr)
-{
-	const Vector2 startPos = { Application::SCREEN_HALF_X - (CHECK_EXIT_MENU_SIZE_X / 2)
-						,Application::SCREEN_HALF_Y - (CHECK_EXIT_MENU_SIZE_Y / 2) };
-	const Vector2 endPos = { Application::SCREEN_HALF_X + (CHECK_EXIT_MENU_SIZE_X / 2),
-							Application::SCREEN_HALF_Y + (CHECK_EXIT_MENU_SIZE_Y / 2) };
-
-	//メニュ背景
-	DrawBox(startPos.x,
-		startPos.y,
-		endPos.x,
-		endPos.y,
-		0x00ff00,
-		true
-	);
-
-	//質問の文字列描画
-	DrawFormatStringToHandle(
-		startPos.x + QUESTION_OFFSET,
-		startPos.y + QUESTION_OFFSET,
-		UtilityCommon::BLACK,
-		fontHandle_,
-		_questionStr.c_str()
-	);
-
-	int size = static_cast<int>(yesNoStrTable_->size());
-	for (int i = 0; i < size; i++)
-	{
-		unsigned int btnCol = UtilityCommon::WHITE;
-		//選択中の文字は赤色で描画
-		yesNoState_ == static_cast<YES_NO>(i) ? btnCol = UtilityCommon::RED : btnCol = UtilityCommon::WHITE;
-
-		DrawFormatStringToHandle(
-			startPos.x + YES_NO_DISTANCE_X + i * YES_NO_DISTANCE_Y,
-			startPos.y + YES_NO_DISTANCE_Y,
-			btnCol,
-			fontHandle_,
-			yesNoStrTable_[i].c_str()
-		);
-	};
-}
 
 void MenuManager::SelectMenu(const SoundManager::SRC _src)
 {

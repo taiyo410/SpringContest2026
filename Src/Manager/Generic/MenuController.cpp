@@ -60,11 +60,6 @@ void MenuController::Draw(void)
 	//選択中のメニューはサイズイージングして赤色で描画
 	DrawStringToHandle(
 		curPos_.x, curPos_.y, btnStr_.c_str(), color_, fontHandle_);
-
-	//for (auto& col : colliders_)
-	//{
-	//	col.get()->GetGeometry().Draw(UtilityCommon::RED);
-	//}
 }
 
 void MenuController::DrawCenter(void)
@@ -105,6 +100,19 @@ void MenuController::SelectUpdate(const float _selectNum, const float _currentCn
 	else
 	{
 		curPos_ = startPos_;
+		color_ = UNSELECT_COL;
+	}
+}
+
+void MenuController::SelectUpdate(const float _selectNum)
+{
+	//選択中はカラーのみ変更
+	if (_selectNum == menuNum_)
+	{
+		color_ = SELECT_COL;
+	}
+	else
+	{
 		color_ = UNSELECT_COL;
 	}
 }

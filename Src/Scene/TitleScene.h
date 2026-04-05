@@ -11,6 +11,7 @@ class SettingScene;
 class SoundManager;
 class Easing;
 class MenuManager;
+class YesNoScene;
 class Cursor;
 class TitleScene : public SceneBase
 {
@@ -155,6 +156,8 @@ private:
 	std::shared_ptr<SceneBase>settingScn_;
 	//カーソル
 	std::unique_ptr<Cursor>cursor_;
+	//はいいいえのシーン
+	std::unique_ptr<YesNoScene>yesNoscn_;
 	//サウンド
 	SoundManager& soundMng_;
 
@@ -229,9 +232,6 @@ private:
 	void ChangeSetting(void);
 	void ChangeExit(void);
 	void ChangeGameStart(void);
-
-	//はいいいえ更新
-	void UpdateYesNo(void);
 
 	//スクリーンの大きさを変更
 	void ChangeScreenSize(void);

@@ -50,7 +50,6 @@ void SliderUIManager::Update(void)
 
 void SliderUIManager::Draw(void)
 {
-	//auto itr = std::find_if(sliderUIs_.begin(), sliderUIs_.end(), [](const std::unique_ptr<SliderUIController>& slider) { return slider->GetIsHitSlider(); });
 
 	for (auto& slider : sliderUIs_)
 	{

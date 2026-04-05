@@ -57,6 +57,10 @@ public:
 	/// @param _easeType 
 	void SelectUpdate(const float _selectNum,const float _currentCnt, const Vector2 _localPos, const float _easeTime, const Easing::EASING_TYPE _easeType);
 
+	/// @brief 選択時の更新(選択中のみイージングで動かす)(イージングの種類を指定しない版)
+	/// @param _selectNum 選択中のメニュー番号
+	void SelectUpdate(const float _selectNum);
+
 	/// @brief 演出を終了させる
 	/// @param  
 	void SetEase(void);

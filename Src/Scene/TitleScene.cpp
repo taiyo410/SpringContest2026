@@ -16,6 +16,7 @@
 #include "../Common/FontController.h"
 #include "./StartScene.h"
 #include "./SettingScene.h"
+#include "./YesNoScene.h"
 #include "../Common/Easing.h"
 #include "../Common/TextWriter.h"
 #include "../Object/Character/Cursor/Cursor.h"
@@ -38,7 +39,7 @@ TitleScene::TitleScene(void) :
 	textWtiter_ = std::make_unique<TextWriter>();
 	settingScn_ = std::make_shared<SettingScene>();
 	cursor_ = std::make_unique<Cursor>();
-
+	yesNoscn_ = std::make_unique<YesNoScene>(Vector2F(Application::SCREEN_HALF_X, Application::SCREEN_HALF_Y), Vector2F(600, 200));
 }
 
 TitleScene::~TitleScene(void)
@@ -67,7 +68,7 @@ void TitleScene::Load(void)
 
 	ButtonUIManager::GetInstance().Load();
 	cursor_->Load();
-	yesNoState_ = YES_NO::NO;
+	yesNoscn_->Load();
 }
 
 void TitleScene::Init(void)
@@ -89,13 +90,6 @@ void TitleScene::Init(void)
 		{TITLE_BTN::SCREEN,L"設定"},
 		{TITLE_BTN::EXIT,L"ゲーム終了"}
 	};
-
-	textWtiter_->AddText(L"あああああああああああああああああああああああああああああああああああああああああああああああああああ");
-	yesNoStrTable_ = {
-		{YES_NO::YES,L"はい"},
-		{YES_NO::NO,L"いいえ"}
-	};
-
 	easing_ = std::make_unique<Easing>();
 	selectState_ = TITLE_STATE::MENU;
 	ChangeState(TITLE_STATE::START_STATE);
@@ -113,6 +107,7 @@ void TitleScene::Init(void)
 		i++;
 	}
 	menuMng_->Init();
+	yesNoscn_->Init();
 	//soundMng_.Play(SoundManager::SRC::TITLE_BGM, SoundManager::PLAYTYPE::LOOP);
 }
 
@@ -236,24 +231,6 @@ void TitleScene::DrawMenu(void)
 	DrawExtendGraphF(logoPos_.x, logoPos_.y, logoPos_.x + LOGO_SIZE_X, logoPos_.y + LOGO_SIZE_Y, imgTitleLogo, true);
 	menuMng_->Draw();
 
-	//決定ボタン
-	ButtonUIManager::GetInstance().DrawFromCenter(ButtonUIManager::BTN_UI_TYPE::B_BUTTON_COL_PUSH, DICITION_BTN_POS, DICITION_BTN_SIZE);
-	Vector2F strPos = { DICITION_BTN_POS.x + DICITION_BTN_SIZE / 2.0f,DICITION_BTN_POS.y - BTN_STR_OFFSET_X };
-	DrawStringToHandle(
-		static_cast<int>(strPos.x),
-		static_cast<int>(strPos.y),
-		L"決定",
-		UtilityCommon::WHITE, buttonFontHandle_);
-
-	//戻るボタン
-	ButtonUIManager::GetInstance().DrawFromCenter(ButtonUIManager::BTN_UI_TYPE::A_BUTTON_COL_PUSH, BACK_BTN_POS, DICITION_BTN_SIZE);
-	strPos = { BACK_BTN_POS.x + DICITION_BTN_SIZE / 2.0f,BACK_BTN_POS.y - BTN_STR_OFFSET_X };
-	DrawStringToHandle(
-		static_cast<int>(strPos.x),
-		static_cast<int>(strPos.y),
-		L"戻る",
-		UtilityCommon::WHITE, buttonFontHandle_);
-
 
 	textWtiter_->Draw();
 
@@ -273,24 +250,9 @@ void TitleScene::DrawStart(void)
 
 }
 
-void TitleScene::DrawSetting(void)
-{
-	std::wstring str = L"";
-	bool isFull = DataBank::GetInstance().GetIsFullScreen();
-	if (isFull)
-	{
-		str = L"通常スクリーンにしますか？";
-	}
-	else
-	{
-		str = L"フルスクリーンにしますか？";
-	}
-	menuMng_->YesNoDraw(str);
-}
-
 void TitleScene::DrawExit(void)
 {
-	menuMng_->YesNoDraw(L"本当にゲームを終了しますか？");
+	yesNoscn_->Draw(L"本当にゲームを終了しますか？");
 }
 
 void TitleScene::UpdateSelectGame(void)
@@ -306,15 +268,17 @@ void TitleScene::UpdateSelectGame(void)
 
 void TitleScene::UpdateExitMenu(void)
 {
-	UpdateYesNo();
-	InputManagerS& insS = InputManagerS::GetInstance();
-	if (insS.IsTrgDown(INPUT_EVENT::OK))
+	yesNoscn_->Update();
+	if (InputManagerS::GetInstance().IsTrgDown(INPUT_EVENT::OK))
 	{
-		if (menuMng_->GetIsYes())
+		if (yesNoscn_->GetState() == YesNoScene::YES_NO_STATE::YES)
 		{
 			Application::GetInstance().IsGameEnd();
 		}
-		else { ChangeState(TITLE_STATE::MENU); }
+		else
+		{
+			ChangeState(TITLE_STATE::MENU);
+		}
 	}
 }
 void TitleScene::ChangeStart(void)
@@ -343,23 +307,6 @@ void TitleScene::ChangeExit(void)
 void TitleScene::ChangeGameStart(void)
 {
 	updateTitle_ = [this]() {UpdateSelectGame(); };
-}
-
-
-void TitleScene::UpdateYesNo(void)
-{
-	InputManagerS& insS = InputManagerS::GetInstance();
-	InputManager& ins = InputManager::GetInstance();
-	if (insS.IsTrgDown(INPUT_EVENT::LEFT) || ins.IsTrgDown(KEY_INPUT_A))
-	{
-		soundMng_.Play(SoundManager::SRC::MOVE_BTN_SE, SoundManager::PLAYTYPE::BACK);
-		menuMng_->SetYesNoUpdate(true);
-	}
-	else if (insS.IsTrgDown(INPUT_EVENT::RIGHT) || ins.IsTrgDown(KEY_INPUT_D))
-	{
-		soundMng_.Play(SoundManager::SRC::MOVE_BTN_SE, SoundManager::PLAYTYPE::BACK);
-		menuMng_->SetYesNoUpdate(false);
-	}
 }
 
 void TitleScene::ChangeScreenSize(void)
