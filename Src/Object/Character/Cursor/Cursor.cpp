@@ -4,6 +4,7 @@
 #include "../Utility/UtilityDraw.h"
 #include "../Manager/Resource/ResourceManager.h"
 #include "../Manager/Resource/FontManager.h"
+#include "../Manager/Generic/InputManagerS.h"
 #include "../Object/Common/Collider2D/Collider2D.h"
 #include "../Object/Common/Collider2D/Geometry2D/Circle.h"
 #include "CursorOnHit.h"
@@ -49,6 +50,7 @@ void Cursor::Load(void)
 
 void Cursor::Init(void)
 {
+	isExplanImg_ = true;
 }
 
 void Cursor::Update(void)
@@ -62,6 +64,11 @@ void Cursor::Update(void)
 
 	//à–¾‰æ‘œ‚Ì‰Šú‰»
 	explanType_ = EXPLAN::NO_IMAGE;
+
+	if (InputManagerS::GetInstance().IsTrgDown(INPUT_EVENT::EXPLAIN))
+	{
+		isExplanImg_ ? isExplanImg_ = false : isExplanImg_ = true;
+	}
 }
 
 void Cursor::Draw(void)
@@ -72,7 +79,7 @@ void Cursor::Draw(void)
 	}
 
 	//à–¾‰æ‘œ
-	if (explanType_ != EXPLAN::NO_IMAGE) 
+	if (explanType_ != EXPLAN::NO_IMAGE&&isExplanImg_) 
 	{
 		//‚«o‚µ
 		DrawRotaGraph(speechPos_.x, speechPos_.y, 1.0, 0.0, speechBubbleImg_, true);

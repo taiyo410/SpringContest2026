@@ -130,7 +130,18 @@ void Daimyo::Load(void)
 	alternateStr_.emplace(ALTERNATE_DIFF::NORMAL, L"普通の道");
 	alternateStr_.emplace(ALTERNATE_DIFF::DENGER, L"危険な道");
 
+	alternateFailedStr_.emplace_back(L"ざけんなや...\n隊列乱すな...\nドブカスが...");
+	alternateFailedStr_.emplace_back(L"列があかんわ...");
+	alternateFailedStr_.emplace_back(L"しけてんにぇ...");
+	alternateFailedStr_.emplace_back(L"家臣ﾊﾞｯﾊﾞｲ...");
+
+	alternateSuccessStr_.emplace_back(L"今回はドブカスおらん\nかったな。成功や。");
+	alternateSuccessStr_.emplace_back(L"参勤交代成功！\nこれで民も安心だ！");
+	alternateSuccessStr_.emplace_back(L"今回はスムーズに\n行けたわ");
+
+
 	kagoImage_ = ResourceManager::GetInstance().Load(ResourceManager::SRC::KAGO).handleId_;
+	speechBalloonImg_ = ResourceManager::GetInstance().Load(ResourceManager::SRC::SPEECH_BUBBLE).handleId_;
 	enhancementMarkImg_ = ResourceManager::GetInstance().Load(ResourceManager::SRC::FAMIRY_CREST).handleId_;
 	fontHandle_ = fontController_->GetFontHandle(FontManager::FONT_BOKUTATI, 30, 0);
 	//城の当たり判定生成
@@ -235,7 +246,6 @@ void Daimyo::UpdateEnhancementMarkAlpha(ENHANCEMENT_TYPE _type)
 		}
 		enhancementMarkAlpha_[alpha.first] = easing_->EaseFunc(UtilityCommon::ALPHA_MIN, UtilityCommon::ALPHA_MAX, enhancementMarkAlphaCnt_ / 1.0f, Easing::EASING_TYPE::SIN_BACK);
 		UtilityCommon::CountUp(enhancementMarkAlphaCnt_, 1.0f, true, SceneManager::GetInstance().GetDeltaTime());
-
 	}
 
 }
@@ -287,11 +297,6 @@ void Daimyo::EasingSelectDirection(void)
 	Vector2F alternate = pos_ + ALTERNATE_LOCAL_POS;
 	Vector2F enhancement = pos_ + ENHANCEMENT_LOCAL_POS;
 	Vector2F details = pos_ + DETAILS_LOCAL_POS;
-
-	////選択肢の座標をイージングで動かす
-	//selectPos_[SELECT::SELECT_ALTERNATE] = easing_->EaseFunc(pos_, selectGoalPos_[SELECT::SELECT_ALTERNATE], easingCnt_ / EASEING_TIME, Easing::EASING_TYPE::LERP);
-	//selectPos_[SELECT::ENHANCEMENT] = easing_->EaseFunc(pos_, selectGoalPos_[SELECT::ENHANCEMENT], easingCnt_/ EASEING_TIME, Easing::EASING_TYPE::LERP);
-	//selectPos_[SELECT::DETAILS] = easing_->EaseFunc(pos_, selectGoalPos_[SELECT::DETAILS], easingCnt_/ EASEING_TIME, Easing::EASING_TYPE::LERP);
 
 	for (auto& pos : selectPos_)
 	{
@@ -403,42 +408,28 @@ void Daimyo::ResultAlternate(void)
 	if (alternateInfo_.probability < rand)
 	{
 		//失敗
-
+		RandomAlternateFailedStr(alternateFailedStr_);
 		//失敗分の収益倍率
 		income *= alternateInfo_.confiscation;
 		isSuccess_ = false;
 
 		//全体不満度を上昇
 		gameMng.AddDissatisfaction(FAILED_DISSATISFACTION);
+
+
 	}
 	else
 	{
-		//成功分の不満度上昇
-		
+		//失敗
+		RandomAlternateFailedStr(alternateSuccessStr_);
+
 		//全体不満度を上昇
 		gameMng.AddDissatisfaction(SUCCESS_DISSATISFACTION);
 	}
-
+	alternateResultCnt_ = ALTERNATE_RESULT_TIME;
+	income_ = income*GameRuleManager::UNITS;
 	//お金を増やす
 	gameMng.AddMoney(income);
-
-
-
-
-	////不満度を増やす
-	//dissatisfaction_ += dissatisfaction;
-	////不満度の割合を計算
-	//dissatisfactionPer_ = static_cast<float>(dissatisfaction_) / static_cast<float>(DISSATISFACTION_MAX);
-
-	////不満度が上限に達したら
-	//if (dissatisfaction_ >= DISSATISFACTION_MAX)
-	//{
-	//	//全体不満度を上昇
-	//	gameMng.AddDissatisfaction(ADD_ALL_DISSATISFACTION);
-
-	//	//自分の不満度はリセット
-	//	dissatisfaction_ = 0;
-	//}
 }
 
 void Daimyo::UpdateStandby(void)
@@ -650,6 +641,24 @@ void Daimyo::DrawNormal(void)
 
 	//所持金
 	DrawFormatString(pos_.x, pos_.y + 50, 0x00ff00, L"%.2f", money_);
+
+	if (alternateResultCnt_ > 0.0f)
+	{
+		Vector2F baloonPos = { pos_.x + import_.hitBoxMax.x, pos_.y + import_.hitBoxMin.y };
+		int LOCAL_POS_Y = 40;
+		float SCALE = 1.1f;
+		baloonPos += Vector2F(BALOON_SIZE.x * SCALE / 2-60, -BALOON_SIZE.y * SCALE / 2+50);
+		DrawRotaGraph(baloonPos.x, baloonPos.y, SCALE, 0.0f, speechBalloonImg_, true);
+
+		std::wstring resultStr = isSuccess_ ? alternateSuccessStr_[alternateFailedNum_] : alternateFailedStr_[alternateFailedNum_];
+		//UtilityDraw::DrawStringCenterToFontHandle(baloonPos.x, baloonPos.y-LOCAL_POS_Y, 0x0, alternateExplanFontHandle_, resultStr);
+		UtilityDraw::DrawFormatStringCenterToFontHandle(baloonPos.x, baloonPos.y, 0x0, alternateExplanFontHandle_, (resultStr + L"\n収入：%d\n不満ゲージ：%d").c_str(),
+			income_, SUCCESS_DISSATISFACTION);
+		alternateResultCnt_ -= SceneManager::GetInstance().GetDeltaTime();
+		UtilityCommon::CountDown(alternateResultCnt_, 0.0f, false, SceneManager::GetInstance().GetDeltaTime());
+	}
+
+
 }
 
 void Daimyo::DrawSelect(void)
@@ -677,12 +686,6 @@ void Daimyo::DrawSelect(void)
 		, selectPos_[SELECT::ENHANCEMENT].x + SELECT_MAX.x
 		, selectPos_[SELECT::ENHANCEMENT].y + SELECT_MAX.y
 		,selectMenuImg_, true);
-	//DrawExtendGraph(selectPos_[SELECT::DETAILS].x + SELECT_MIN.x
-	//	, selectPos_[SELECT::DETAILS].y + SELECT_MIN.y
-	//	, selectPos_[SELECT::DETAILS].x + SELECT_MAX.x
-	//	, selectPos_[SELECT::DETAILS].y + SELECT_MAX.y
-	//	,selectMenuImg_, true);
-	
 	UtilityDraw::DrawStringCenterToFontHandle(selectPos_[SELECT::SELECT_ALTERNATE].x, selectPos_[SELECT::SELECT_ALTERNATE].y, 0x0, selectFontHandle_, selectStr_[SELECT::SELECT_ALTERNATE]);
 	UtilityDraw::DrawStringCenterToFontHandle(selectPos_[SELECT::ENHANCEMENT].x, selectPos_[SELECT::ENHANCEMENT].y, 0x0, selectFontHandle_, selectStr_[SELECT::ENHANCEMENT]);
 	//UtilityDraw::DrawStringCenterToFontHandle(selectPos_[SELECT::DETAILS].x, selectPos_[SELECT::DETAILS].y, 0x0, selectFontHandle_, selectStr_[SELECT::DETAILS]);
@@ -695,11 +698,6 @@ void Daimyo::DrawSelectDirection(void)
 	Vector2F alternate = pos_ + ALTERNATE_LOCAL_POS;
 	Vector2F enhancement = pos_ + ENHANCEMENT_LOCAL_POS;
 	Vector2F details = pos_ + DETAILS_LOCAL_POS;
-	////名前
-	//DrawStringF(alternate.x, alternate.y, L"alternate", 0x0);
-	//DrawStringF(enhancement.x, enhancement.y, L"enhancement", 0x0);
-	//DrawStringF(details.x, details.y, L"details", 0x0);
-
 	SetDrawBlendMode(DX_BLENDMODE_ALPHA, blendAlpha_);
 	//選択肢
 	DrawExtendGraph(selectPos_[SELECT::SELECT_ALTERNATE].x + SELECT_MIN.x
@@ -888,8 +886,6 @@ void Daimyo::DrawEnhancement(void)
 			posX += ENHANCE_MARK_SIZE + ENHANCE_MARK_OFFSET;
 		}
 
-
-
 	}
 
 
@@ -919,4 +915,19 @@ void Daimyo::KagoUpdate(void)
 	{
 		kagoVerticalLocalCnt_ = 0.0f;
 	}
+}
+
+void Daimyo::AlternateResultEffect(void)
+{
+	std::wstring resultStr = isSuccess_ ? L"無事に江戸へ到達！": GetRandomAlternateResultStr();
+}
+
+const std::wstring Daimyo::GetRandomAlternateResultStr(void) const
+{
+	return alternateFailedStr_[alternateFailedNum_];
+}
+
+void Daimyo::RandomAlternateFailedStr(const std::vector<std::wstring>_str)
+{
+	alternateFailedNum_ = UtilityCommon::GetRandomValue(0, static_cast<int>(_str.size() - 1));
 }

@@ -80,6 +80,16 @@ void UtilityDraw::DrawStringCenterToFontHandle(const int _centerX, const int _ce
     DrawStringToHandle(x, y, _str.c_str(), color, fontHandle);
 }
 
+void UtilityDraw::DrawFormatStringCenterToFontHandle(const int _centerX, const int _centerY, unsigned int color, const int fontHandle, const wchar_t* _format, ...)
+{
+    wchar_t buf[256];
+    va_list args;
+    va_start(args, _format);
+    vswprintf(buf, 256, _format, args);
+    va_end(args);
+	DrawStringCenterToFontHandle(_centerX, _centerY, color, fontHandle, buf);
+}
+
 void UtilityDraw::DrawStringCenter(const int _centerX, const int _centerY, unsigned int color, const std::wstring _str)
 {
     int w, h;

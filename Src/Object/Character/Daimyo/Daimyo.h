@@ -182,6 +182,9 @@ private:
 
 	static constexpr float ARROW_THICK = 100.0f;
 
+	//吹き出し相対座標
+	static constexpr Vector2F SPEECH_LOCAL_POS = { 120.0f,-120.0f };
+
 	//かご画像サイズ
 	static constexpr Vector2F KAGO_SIZE = { 1536.0f * 0.3f,1024.0f * 0.3f };
 
@@ -196,6 +199,8 @@ private:
 	static constexpr float FONT_ALTERNATE_LOCAL_POS_Y = -52.0f;
 	static constexpr float FONT_ALTERNATE_EXPLAN_LOCAL_POS_Y = 16.0f;
 
+	static constexpr float ALTERNATE_RESULT_TIME = 3.0f;
+	static constexpr Vector2F BALOON_SIZE = { 320.0f,192.0f };
 	//選択肢画像
 	int selectMenuImg_;
 
@@ -206,7 +211,7 @@ private:
 	int alternateFontHandle_;
 	int alternateExplanFontHandle_;
 	std::unordered_map<ALTERNATE_DIFF, std::wstring> alternateStr_;
-
+	int income_;
 	//状態
 	STATE state_;
 	STATE nextState_;
@@ -309,7 +314,16 @@ private:
 
 	//戻るか
 	bool isBackMenu_;
-
+	//結果の演出のカウント
+	float resultAlternateCnt_;
+	//吹き出し
+	int speechBalloonImg_;
+	//参勤失敗の説明の文字列
+	std::vector<std::wstring>alternateFailedStr_;
+	std::vector<std::wstring>alternateSuccessStr_;
+	int alternateFailedNum_;		//参勤失敗の説明の文字列の表示
+	float alternateResultCnt_;	//参勤の結果の演出のカウント
+	int alternateResultFontHandle_;	//参勤の結果の文字のフォントハンドル
 	//更新
 	void UpdateStandby(void);
 	void UpdateNormal(void);
@@ -340,6 +354,14 @@ private:
 
 	//かごの更新
 	void KagoUpdate(void);
+
+	//参勤成功失敗の演出
+	void AlternateResultEffect(void);
+	const std::wstring GetRandomAlternateResultStr(void)const;
+
+	//参勤失敗の説明をランダム決める
+	void RandomAlternateFailedStr(const std::vector<std::wstring>_str);
+
 
 	//城コライダの生成
 	void CreateCastleCol(void);

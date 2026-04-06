@@ -25,6 +25,7 @@ public:
 	/// @param color 
 	/// @param fontHandle 
 	static void DrawStringCenterToFontHandle(const int _centerX, const int _centerY, unsigned int color, const int fontHandle, const std::wstring _str);
+	static void DrawFormatStringCenterToFontHandle(const int _centerX, const int _centerY, unsigned int color, const int fontHandle, const wchar_t* _format, ...);
 
 	/// @brief デバッグ用の文字列描画関数
 	/// @param _centerX 中心座標X

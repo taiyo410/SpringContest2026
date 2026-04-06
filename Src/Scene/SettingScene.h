@@ -80,7 +80,7 @@ private:
     static constexpr float SELECT_EASE_TIME = 0.5f;
 
     //ボタン間の間隔
-    static constexpr int BUTTON_OFFSET = 100;
+    static constexpr int BUTTON_OFFSET = 50;
 
     //ボタンX座標
     static constexpr Vector2 BUTTON_POS = { 200,200 };

@@ -12,6 +12,7 @@
 enum class INPUT_EVENT
 {
 	OK,		//決定
+	EXPLAIN,	//説明
 	CANCEL,	//キャンセル
 	PAUSE,	//ポーズ
 	RIGHT,	//右へ

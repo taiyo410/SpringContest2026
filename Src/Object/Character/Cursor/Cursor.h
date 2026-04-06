@@ -79,5 +79,8 @@ private:
 	//フォント
 	std::unique_ptr<FontController> font_;
 	int fontHandle_;
+
+	//説明画像を出すかどうか
+	bool isExplanImg_;
 };
 

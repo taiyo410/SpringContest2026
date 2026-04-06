@@ -133,6 +133,13 @@ public:
 	/// @return 
 	static void CountUp(float& count, const float& max, const bool isLoop, const float& delta=-1);
 
+	/// @brief カウントダウン
+	/// @param count カウント
+	/// @param min 最小値
+	/// @param isLoop ループさせるか
+	/// @param delta デルタタイム(指定なしで固定デルタタイム) 
+	static void CountDown(float& count, const float& min, const bool isLoop, const float& delta=-1);
+
 	/// @brief フォントを使用した文字列のサイズを取る
 	/// @param fontHandle フォントハンドル
 	/// @param _str 調べたい文字列

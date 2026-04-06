@@ -296,6 +296,22 @@ void UtilityCommon::CountUp(float& count, const float& max, const bool isLoop, c
     }
 }
 
+void UtilityCommon::CountDown(float& count, const float& min, const bool isLoop, const float& delta)
+{
+    if (delta < 0.0f)
+    {
+        count -= FIXED_DELTA_TIME;
+    }
+    else
+    {
+        count -= delta;
+    }
+    if (count < min)
+    {
+        isLoop ? count += min : count = min;
+	}
+}
+
 Vector2 UtilityCommon::GetStringSizeToHandle(const int fontHandle, const std::wstring _str)
 {
     Vector2 size = {};

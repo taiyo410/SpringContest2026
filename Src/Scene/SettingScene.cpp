@@ -300,19 +300,12 @@ const SettingScene::VOLUME_TYPE SettingScene::GetVolumeFromString(const std::wst
 
 void SettingScene::VolumeRefrect(void)
 {
-	const int selectNum = menuMng_->GetSelectMenuNum();
-	if (selectNum == static_cast<int>(SETTING_STATE::BGM))
-	{
-		soundMng_.SetSystemVolume(volume_[static_cast<int>(VOLUME_TYPE::BGM)], static_cast<int>(SoundManager::TYPE::BGM));
-	}
-	else if (selectNum == static_cast<int>(SETTING_STATE::SE))
-	{
-		soundMng_.SetSystemVolume(volume_[static_cast<int>(VOLUME_TYPE::SE)], static_cast<int>(SoundManager::TYPE::SE));
-	}
-	else if (selectNum == static_cast<int>(SETTING_STATE::TEXT_SPD))
-	{
-		dataBank_.SetTextSpeed(volume_[static_cast<int>(VOLUME_TYPE::TEXT_SPD)]);
-	}
+	soundMng_.SetSystemVolume(volume_[static_cast<int>(VOLUME_TYPE::BGM)], static_cast<int>(SoundManager::TYPE::BGM));
+
+	soundMng_.SetSystemVolume(volume_[static_cast<int>(VOLUME_TYPE::SE)], static_cast<int>(SoundManager::TYPE::SE));
+
+	dataBank_.SetTextSpeed(volume_[static_cast<int>(VOLUME_TYPE::TEXT_SPD)]);
+
 }
 
 const bool SettingScene::IsQuestionScene(void) const

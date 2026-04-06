@@ -38,7 +38,7 @@ void SliderUIController::Init(void)
 	geo = std::make_unique<BoxGeo>(leftTopPos_, leftTopPos_, length_.x + 30.0f, Vector2F(0.0f, 0.0f), length_);
 	MakeCollider(Collider2D::TAG::SLIDER_BAR, std::move(geo), { Collider2D::TAG::SLIDER_BUTTON,Collider2D::TAG::SLIDER_BAR });
 
-	Vector2F rightDownPos = GetRightDownPos();
+	Vector2F rightDownPos = leftTopPos_ + (length_ * per_);;
 	circlePos_ = { rightDownPos.x ,  leftTopPos_.y + length_.y / 2.0f };
 }
 
