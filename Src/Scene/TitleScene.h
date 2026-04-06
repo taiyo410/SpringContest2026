@@ -110,8 +110,7 @@ private:
 	//メニュー始まりの座標
 	static constexpr float BUTTON_START_POS_X = 700.0f;
 	//static constexpr float BUTTON_START_POS_Y = Application::SCREEN_HALF_Y - LOGO_SIZE_Y / 2.0f;
-	static constexpr float BUTTON_START_POS_Y = Application::SCREEN_HALF_Y + 50.0f;
-
+	static constexpr float BUTTON_START_POS_Y = Application::SCREEN_HALF_Y + 130.0f;
 
 	//ゲーム終了確認メニューの大きさ
 	static constexpr int CHECK_EXIT_MENU_SIZE_X = 600;
@@ -167,10 +166,51 @@ private:
 	TITLE_BTN selectBtn_;
 	TITLE_STATE selectState_;
 
-	//タイトル背景
-	int imgTitleBack;
+	// タイトル背景関連
+	int imgSky_;
+	int imgMountain_;
+	int imgCloud_;
+	int imgRoad_;
+	int imgKago_;
+
 	//タイトルロゴ
 	int imgTitleLogo;
+
+	// 背景スクロール・描画用変数群
+	float scrollCloudX_;
+	float scrollRoadX_;
+	static constexpr float CLOUD_SPEED = 0.5f;
+	static constexpr float ROAD_SPEED = 3.0f;
+
+	// 駕籠の描画設定
+	static constexpr float KAGO_SIZE_X = 500.0f;
+	static constexpr float KAGO_SIZE_Y = 320.0f;
+	static constexpr float KAGO_POS_X = -40.0f;
+	static constexpr float KAGO_POS_Y = 380.0f;
+
+	// 14病後のロゴ演出用変数
+	float logoWaitTimer_;
+	float logoStampEaseCnt_;
+	bool isLogoAppeared_;
+	float currentLogoScale_;
+	int currentLogoAlpha_;
+	static constexpr float LOGO_WAIT_TIME = 0.0f;
+	static constexpr float LOGO_STAMP_TIME = 0.2f;	// スタンプ演出にかかる時間
+
+	// プロローグ演出用変数
+	bool isPrologue_;
+	float prologueTimer_;
+	static constexpr float PROLOGUE_TIME = 14.0f;	// スタートシーンから移行する時間
+
+	// プロローグの自作テキスト表示用
+	std::wstring prologueText_;
+	float prologueTextDispCnt_;
+	int prologueTextDispLen_;
+	static constexpr float PROLOGUE_TEXT_SPD = 6.0f;	// テキスト描画速度
+
+	//タイトル背景
+	//int imgTitleBack;
+
 	//現在選んでいるボタン
 	int selectNum_;
 
@@ -211,6 +251,7 @@ private:
 	void UpdateTutorial(void);	//チュートリアル
 
 	//描画系
+	void DrawBackground(void);	// 背景の描画まとめ
 	void DrawMenu(void);
 	void DrawStart(void);
 	void DrawSetting(void);

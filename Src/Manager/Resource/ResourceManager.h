@@ -22,6 +22,14 @@ public:
 		CASTLE,		//城
 		GAUGE,
 		ARROW_GAUGE,		//矢印ゲージ
+
+		// タイトルシーン用追加素材
+		TITLE_SKY,				//空
+		TITLE_MOUNTAIN,			//山
+		TITLE_CLOUD,			//雲
+		TITLE_ROAD,				//道
+		TITLE_KAGO,				//籠
+
 		TITLE_BACK_IMG,		//タイトル背景
 		TITLE_LOGO,			//タイトルロゴ
 		GAME_OVER_IMG,		//ゲームオーバー
