@@ -84,27 +84,18 @@ void DaimyoOnHit::HitCursor(const std::weak_ptr<Collider2D> _partner)
 				//難易度設定
 				parent_.SetAlternateDiff(Daimyo::ALTERNATE_DIFF::SAFETY);
 				parent_.ChangeState(Daimyo::STATE::ACTION_ALTERNATE);
-
-				// 参勤交代を実行する度に1年経過
-				rule.AddYear(1);
 			}
 			else if (myCol->IsHit() && myCol->GetTag() == Collider2D::TAG::ALTERNATE_NORMAL)
 			{
 				//難易度設定
 				parent_.SetAlternateDiff(Daimyo::ALTERNATE_DIFF::NORMAL);
 				parent_.ChangeState(Daimyo::STATE::ACTION_ALTERNATE);
-
-				// 参勤交代を実行する度に1年経過
-				rule.AddYear(1);
 			}
 			else if (myCol->IsHit() && myCol->GetTag() == Collider2D::TAG::ALTERNATE_DENGER)
 			{
 				//難易度設定
 				parent_.SetAlternateDiff(Daimyo::ALTERNATE_DIFF::DENGER);
 				parent_.ChangeState(Daimyo::STATE::ACTION_ALTERNATE);
-
-				// 参勤交代を実行する度に1年経過
-				rule.AddYear(1);
 			}
 			else if (myCol->IsHit() && myCol->GetTag() == Collider2D::TAG::ENHANCEMENT_TIME)
 			{
