@@ -193,7 +193,7 @@ void SettingScene::UpdateSettingNormal(void)
 		volumePer_[i] = sliderUIMng_->GetSliderPercent()[i];
 		volume_[i] = volumePer_[i] * VOL_MAX;
 	}
-
+	VolumeRefrect();
 
 	auto hitItr = sliderUIMng_->GetIsHitSlider();
 	if (sliderUIMng_->GetActiveSliderNum() != -1)
