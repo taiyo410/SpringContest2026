@@ -27,7 +27,7 @@ bool Application::Init(void)
 {
 
 	// アプリケーションの初期設定
-	SetWindowText(L"ActionCardBattle");
+	SetWindowText(L"押せ！参勤ボタン！");
 
 	// ウィンドウサイズ
 	SetGraphMode(SCREEN_SIZE_X, SCREEN_SIZE_Y, 32);
