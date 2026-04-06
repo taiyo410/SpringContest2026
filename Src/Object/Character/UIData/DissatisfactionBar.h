@@ -1,7 +1,10 @@
 #pragma once
 #include<unordered_map>
 #include<functional>
+#include<string>
 #include"../Object/ObjectBase2D.h"
+
+class FontController;
 
 class DissatisfactionBar : public ObjectBase2D
 {
@@ -64,7 +67,7 @@ private:
 	static constexpr Vector2F DIS_BOX_SIZE = { 40.0f, 200.0f };
 	static constexpr float DIS_RADIUS = 300.0f;
 	static constexpr float SELECT_LOCAL_POS_Y = 150.0f;
-	static constexpr Vector2F SELECT_BOX_SIZE = { 200.0f,100.0f };
+	static constexpr Vector2F SELECT_BOX_SIZE = { 200.0f,50.0f };
 
 	//総不満度
 	int dissatisfaction_;
@@ -72,6 +75,17 @@ private:
 	//状態
 	STATE preState_;
 	STATE state_;
+
+	//選択肢の座標
+	Vector2F yesPos_;
+	Vector2F noPos_;
+
+	//画像
+	int selectMenuImg_;
+
+	//フォント
+	std::unique_ptr<FontController> font_;
+	int fontHandle_;
 
 	//更新
 	std::unordered_map<STATE, std::function<void(void)>> update_;

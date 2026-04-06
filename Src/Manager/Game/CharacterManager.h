@@ -4,7 +4,6 @@
 #include "../../Template/Singleton.h"
 #include "../Object/Character/Daimyo/DaimyoImport.h"
 
-class Cursor;
 class ArrowController;
 class Daimyo;
 
@@ -48,10 +47,6 @@ private:
 	Vector2F arrowStartPos_;
 	Vector2F arrowEndPos_;
 
-
-	//カーソル
-	std::unique_ptr<Cursor> cursor_;
-
 	//大名
 	std::vector<std::unique_ptr<Daimyo>> daimyo_;
 
@@ -63,9 +58,6 @@ private:
 
 	//デストラクタ
 	~CharacterManager(void)override;
-
-	//カーソルの生成
-	void CreateCursor(void);
 
 	//江戸の生成
 	void CreateEdo(void);

@@ -1,7 +1,11 @@
 #include "../pch.h"
 #include "../Application.h"
+#include "../Common/FontController.h"
+#include "../Utility/UtilityDraw.h"
 #include "../Manager/Generic/InputManager.h"
 #include "../Manager/Game/GameRuleManager.h"
+#include "../Manager/Resource/FontManager.h"
+#include "../Manager/Resource/ResourceManager.h"
 #include "../Object/Common/Collider2D/Collider2D.h"
 #include "../Object/Common/Collider2D/Geometry2D/BoxGeo.h"
 #include "DissatisfactionBar.h"
@@ -11,6 +15,7 @@ DissatisfactionBar::DissatisfactionBar(void)
 	dissatisfaction_ = 0;
 	preState_ = STATE::STANDBY;
 	state_ = STATE::STANDBY;
+	selectMenuImg_ = -1;
 
 	update_.emplace(STATE::STANDBY, [this](void) {UpdateStandBy(); });
 	update_.emplace(STATE::NORMAL, [this](void) {UpdateNormal(); });
@@ -31,6 +36,9 @@ DissatisfactionBar::~DissatisfactionBar(void)
 
 void DissatisfactionBar::Load(void)
 {
+	font_ = std::make_unique<FontController>();
+	fontHandle_ = font_->GetFontHandle(FontManager::FONT_BOKUTATI, 24, 0);
+	selectMenuImg_ = ResourceManager::GetInstance().Load(ResourceManager::SRC::SELECT_MENU).handleId_;
 }
 
 void DissatisfactionBar::Init(void)
@@ -38,6 +46,9 @@ void DissatisfactionBar::Init(void)
 	dissatisfaction_ = 0;
 	preState_ = STATE::NORMAL;
 	state_ = STATE::STANDBY;
+
+	yesPos_ = { Application::SCREEN_HALF_X, Application::SCREEN_HALF_Y - SELECT_LOCAL_POS_Y };
+	noPos_ = { Application::SCREEN_HALF_X, Application::SCREEN_HALF_Y + SELECT_LOCAL_POS_Y };
 
 	ChangeState(STATE::NORMAL);
 }
@@ -58,35 +69,35 @@ void DissatisfactionBar::Release(void)
 
 void DissatisfactionBar::OnHit(const std::weak_ptr<Collider2D> _partner)
 {
-	//ÂÖ•Âäõ
+	//ì¸óÕ
 	const auto& input = InputManager::GetInstance();
 	const auto& partner = _partner.lock();
 	auto& gameMng = GameRuleManager::GetInstance();
 
-	//„ÅäÈáë„Åå„ÅÇ„Çã„Å™„Çâ
+	//Ç®ã‡Ç™Ç†ÇÈÇ»ÇÁ
 	if (input.IsTrgMouseLeft() && partner->GetTag() == Collider2D::TAG::CURSOR)
 	{
 		for (const auto& myCol : colliders_)
 		{
 			if (myCol->GetTag() == Collider2D::TAG::DISSATISFACTION_RECOVERY)
 			{
-				//Áä∂ÊÖãÈÅ∑Áßª
+				//èÛë‘ëJà⁄
 				ChangeState(STATE::SELECT);
 			}
 			else if (myCol->GetTag() == Collider2D::TAG::DISSATISFACTION_RECOVERY_YES && gameMng.HasEnoughMoney(NECESSARY_MONEY))
 			{
-				//‰∏ã„Åí„Çã
+				//â∫Ç∞ÇÈ
 				dissatisfaction_ -= SUB_VALUE;
 
-				//„ÅäÈáë„ÅÆÊ∂àË≤ª
+				//Ç®ã‡ÇÃè¡îÔ
 				gameMng.SubMoney(NECESSARY_MONEY);
 
-				//Áä∂ÊÖãÈÅ∑Áßª
+				//èÛë‘ëJà⁄
 				ChangeState(STATE::NORMAL);
 			}
 			else if (myCol->GetTag() == Collider2D::TAG::DISSATISFACTION_RECOVERY_NO)
 			{
-				//Áä∂ÊÖãÈÅ∑Áßª
+				//èÛë‘ëJà⁄
 				ChangeState(STATE::NORMAL);
 			}
 		}
@@ -101,28 +112,24 @@ void DissatisfactionBar::ChangeState(const STATE _state)
 
 void DissatisfactionBar::PreChangeStateNormal(void)
 {
-	//ÂΩì„Åü„ÇäÂà§ÂÆöÊ∂àÂéª
+	//ìñÇΩÇËîªíËè¡ãé
 	DeleteAllColliders();
 
-	//ÂΩì„Åü„ÇäÂà§ÂÆö
+	//ìñÇΩÇËîªíË
 	std::unique_ptr<Geometry2D> geo = std::make_unique<BoxGeo>(DIS_POS, DIS_POS, DIS_RADIUS, DIS_BOX_SIZE);
 	MakeCollider(Collider2D::TAG::DISSATISFACTION_RECOVERY, std::move(geo), {});
 }
 
 void DissatisfactionBar::PreChangeStateSelect(void)
 {
-	//ÂΩì„Åü„ÇäÂà§ÂÆöÊ∂àÂéª
+	//ìñÇΩÇËîªíËè¡ãé
 	DeleteAllColliders();
 
-	//ÈÅ∏ÊäûËÇ¢‰ΩçÁΩÆ
-	static const Vector2F yesPos = { Application::SCREEN_HALF_X, Application::SCREEN_HALF_Y - SELECT_LOCAL_POS_Y};
-	static const Vector2F noPos = { Application::SCREEN_HALF_X, Application::SCREEN_HALF_Y + SELECT_LOCAL_POS_Y};
-
-	//ÂΩì„Åü„ÇäÂà§ÂÆö
-	std::unique_ptr<Geometry2D> geo = std::make_unique<BoxGeo>(yesPos, yesPos, DIS_RADIUS, SELECT_BOX_SIZE);
+	//ìñÇΩÇËîªíË
+	std::unique_ptr<Geometry2D> geo = std::make_unique<BoxGeo>(yesPos_, yesPos_, DIS_RADIUS, SELECT_BOX_SIZE);
 	MakeCollider(Collider2D::TAG::DISSATISFACTION_RECOVERY_YES, std::move(geo), {});
 	
-	geo = std::make_unique<BoxGeo>(noPos, noPos, DIS_RADIUS, SELECT_BOX_SIZE);
+	geo = std::make_unique<BoxGeo>(noPos_, noPos_, DIS_RADIUS, SELECT_BOX_SIZE);
 	MakeCollider(Collider2D::TAG::DISSATISFACTION_RECOVERY_NO, std::move(geo), {});
 }
 
@@ -142,7 +149,7 @@ void DissatisfactionBar::UpdateSelect(void)
 
 void DissatisfactionBar::DrawNormal(void)
 {
-	//‰∏çÊ∫ÄÂ∫¶
+	//ïsñûìx
 	DrawBox(DIS_POS.x - DIS_BOX_SIZE.x, DIS_POS.y - DIS_BOX_SIZE.y, DIS_POS.x + DIS_BOX_SIZE.x, DIS_POS.y + DIS_BOX_SIZE.y, 0x666666, true);
 	if (dissatisfaction_ > 0)
 		DrawBox(DIS_POS.x - DIS_BOX_SIZE.x, DIS_POS.y + DIS_BOX_SIZE.y, DIS_POS.x + DIS_BOX_SIZE.x, DIS_POS.y + DIS_BOX_SIZE.y - (DIS_BOX_SIZE.y * 2) * (static_cast<float>(dissatisfaction_) / static_cast<float>(DISSATISFACTION_MAX)), 0xff00ff, true);
@@ -153,8 +160,11 @@ void DissatisfactionBar::DrawSelect(void)
 {
 	DrawNormal();
 
-	for (const auto& col : colliders_)
-	{
-		col->GetGeometry().Draw();
-	}
+	//ÇÕÇ¢
+	DrawExtendGraph(yesPos_.x - SELECT_BOX_SIZE.x, yesPos_.y - SELECT_BOX_SIZE.y, yesPos_.x + SELECT_BOX_SIZE.x, yesPos_.y + SELECT_BOX_SIZE.y, selectMenuImg_, true);
+	UtilityDraw::DrawStringCenterToFontHandle(yesPos_.x, yesPos_.y, 0x0, fontHandle_, L"ñØÇ…Ç®ã‡ÇÇŒÇÁÇ‹Ç¢ÇƒïsñûÇâ∫Ç∞ÇÈ\n1000ñúâ~ïKóv");
+
+	//Ç¢Ç¢Ç¶
+	DrawExtendGraph(noPos_.x - SELECT_BOX_SIZE.x, noPos_.y - SELECT_BOX_SIZE.y, noPos_.x + SELECT_BOX_SIZE.x, noPos_.y + SELECT_BOX_SIZE.y, selectMenuImg_, true);
+	UtilityDraw::DrawStringCenterToFontHandle(noPos_.x, noPos_.y, 0x0, fontHandle_, L"ãñØÇ«Ç‡Ç…ã‡Ç»Ç«Ç‚ÇÁÇÒ");
 }

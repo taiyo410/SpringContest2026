@@ -50,7 +50,10 @@ void GameRuleManager::Draw(void)
 	DrawExtendGraph(moneyPos.x - moneyBox.x, moneyPos.y - moneyBox.y, moneyPos.x + moneyBox.x, moneyPos.y + moneyBox.y, imageId_, true);
 
 	std::wstring str = L"èäéùã‡ : ";
-	str += std::to_wstring(nowMoney_ * UNITS);
+	std::wstringstream ss;
+	ss.imbue(std::locale(""));
+	ss << nowMoney_ * UNITS;
+	str += ss.str();
 	str += L"â~";
 	UtilityDraw::DrawStringCenterToFontHandle(moneyPos.x, moneyPos.y, 0xffffff, moneyFont_, str);
 

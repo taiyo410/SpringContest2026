@@ -24,6 +24,9 @@ void ResourceManager::Init(void)
 
 	//‰æ‘œ“o˜^
 	res = std::make_unique<ResourceData>(ResourceData::TYPE::IMG, PATH_IMG + L"Map.png");
+	resourcesMap_.emplace(SRC::MAP_BACK, std::move(res));
+
+	res = std::make_unique<ResourceData>(ResourceData::TYPE::IMG, PATH_IMG + L"Japan.png");
 	resourcesMap_.emplace(SRC::MAP, std::move(res));
 
 	res = std::make_unique<ResourceData>(ResourceData::TYPE::IMG, PATH_IMG + L"Castle.png");
