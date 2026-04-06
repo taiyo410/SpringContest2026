@@ -5,6 +5,7 @@
 #include "../Utility/UtilityDraw.h"
 #include "../Manager/Resource/FontManager.h"
 #include "../Manager/Resource/ResourceManager.h"
+#include "../Manager/Resource/SoundManager.h"
 #include "../Manager/Game/CharacterManager.h"
 #include "../Object/Character/UIData/DissatisfactionBar.h"
 #include "GameRuleManager.h"
@@ -86,6 +87,25 @@ void GameRuleManager::AddDissatisfaction(const int _value)
 const int GameRuleManager::GetDissatisfaction(void) const
 {
 	return dissatifactionBar_->GetDissatisfaction();
+}
+
+void GameRuleManager::AddYear(const int _year)
+{
+	int oldYear = elapsedYear_;
+	elapsedYear_ += _year;
+
+	// 20年に到達、あるいはまたいだ瞬間にSEを鳴らす
+	if (oldYear < 20 && elapsedYear_ >= 20)
+	{
+		SoundManager::GetInstance().Play(SoundManager::SRC::EVENT_SE, SoundManager::PLAYTYPE::BACK);
+	}
+
+	// 40年に到達、あるいはまたいだ瞬間にSEを鳴らす
+	if (oldYear < 40 && elapsedYear_ >= 40)
+	{
+		SoundManager::GetInstance().Play(SoundManager::SRC::EVENT_SE, SoundManager::PLAYTYPE::BACK);
+	}
+
 }
 
 const bool GameRuleManager::IsGameOver(void)const

@@ -35,6 +35,7 @@ public:
 		ALTERNATE_FAIL,
 		ENHANCEMENT,
 		ALTERNATE_SE,
+		EVENT_SE,					//ƒCƒxƒ“ƒgSE
 		MAX
 
 	};

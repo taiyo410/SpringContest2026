@@ -20,6 +20,11 @@
 
 GameScene::GameScene(void)
 {
+	// 初期化
+	isShowDescriptionText_ = true;
+	oldRightClick_ = false;
+	descFontHandle_ = -1;
+
 	//更新関数のセット
 	updateFunc_ = [this]() {LoadingUpdate(); };
 	//描画関数のセット
@@ -34,6 +39,12 @@ GameScene::GameScene(void)
 
 GameScene::~GameScene(void)
 {
+	// フォントハンドルの削除
+	if (descFontHandle_ != -1)
+	{
+		DeleteFontToHandle(descFontHandle_);
+	}
+
 	//インスタンスの削除
 	CollisionManager2D::GetInstance().Destroy();
 	cursor_->Release();
@@ -64,6 +75,9 @@ void GameScene::Load(void)
 	changeUpdate_.emplace(UPDATE_PHASE::FADE, [this]() {ChangeFade(); });
 	changeUpdate_.emplace(UPDATE_PHASE::NORMAL, [this]() {ChangeNormal(); });
 	changeUpdate_.emplace(UPDATE_PHASE::SLOW, [this]() {ChangeSlow(); });
+
+	// 説明テキスト用のフォントハンドルを作成
+	descFontHandle_ = CreateFontToHandle(FontManager::FONT_BOKUTATI, 24, 3, DX_FONTTYPE_EDGE);
 }
 
 void GameScene::Init(void)
@@ -126,6 +140,15 @@ void GameScene::NormalUpdate(void)
 		SceneManager::GetInstance().CreateScene(pauseScene_);
 	}
 
+	// 右クリックによる説明テキストの表示切り替え処理
+	bool currentRightClick = (GetMouseInput() & MOUSE_INPUT_RIGHT) != 0;
+	if (currentRightClick && !oldRightClick_)
+	{
+		// 押された瞬間にフラグを反転させる
+		isShowDescriptionText_ = !isShowDescriptionText_;
+	}
+	oldRightClick_ = currentRightClick;
+
 }
 
 
@@ -150,7 +173,26 @@ void GameScene::NormalDraw(void)
 	}
 
 	cursor_->Draw();
-}
+
+	// 説明テキストの描画
+	const TCHAR* baseText = TEXT("右クリックで説明テキスト");
+	const TCHAR* stateText = isShowDescriptionText_ ? TEXT("非表示") : TEXT("表示");
+
+	// 作成した縁取り付きフォントハンドルを使って文字の描画幅を計算
+	int baseTextW = GetDrawStringWidthToHandle(baseText, -1, descFontHandle_);
+	int stateTextW = GetDrawStringWidthToHandle(baseText, -1, descFontHandle_);
+	int totalW = baseTextW + stateTextW;
+
+	// 描画開始の座標を計算
+	int startX = Application::SCREEN_SIZE_X - totalW + 200;
+	int startY = Application::SCREEN_SIZE_Y - 30;
+
+	// 前半部分を白色で描画
+	DrawStringToHandle(startX, startY, baseText, GetColor(255, 255, 255), descFontHandle_);
+
+	// 後半部分(表示/非表示)を赤色で、前半の幅分だけずらして描画
+	DrawStringToHandle(startX + baseTextW, startY, stateText, GetColor(255, 50, 50), descFontHandle_);
+	}
 
 
 void GameScene::ChangeUpdatePhase(const UPDATE_PHASE _phase)
@@ -182,8 +224,6 @@ void GameScene::ChangeSlow(void)
 	CharacterManager::GetInstance().Update();
 	updateFunc_ = [this]() {SlowUpdate(); };
 }
-
-
 
 void GameScene::SlowUpdate(void)
 {
