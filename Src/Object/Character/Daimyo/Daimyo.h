@@ -89,8 +89,6 @@ public:
 	static constexpr float ENHANCEMENT_MENU_LOCAL_POS_X = 330.0f;
 	static constexpr float ENHANCEMENT_MENU_LOCAL_POS_Y = 120.0f;
 
-
-
 	//難易度ごとの所要時間
 	static constexpr float REQUIRED_TIME_SAFETY = 15.0f;
 	static constexpr float REQUIRED_TIME_NORMAL = 10.0f;
@@ -119,6 +117,13 @@ public:
 
 	//所持できる資金の上限
 	static constexpr int FUNDS_MAX = 50;
+
+	//お金の上昇年月
+	static constexpr int PHASE_2_YEAR = 20;
+	static constexpr int PHASE_3_YEAR = 40;
+
+	static constexpr int PHASE_2_MONEY_MULTI = 2;
+	static constexpr int PHASE_3_MONEY_MULTI = 3;
 
 	//不満度上昇値
 	static constexpr int SUCCESS_DISSATISFACTION = 2;

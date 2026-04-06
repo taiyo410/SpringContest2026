@@ -42,8 +42,6 @@ GameScene::~GameScene(void)
 
 void GameScene::Load(void)
 {
-	ResourceManager::GetInstance().Load(ResourceManager::SRC::MAP);
-
 	GameRuleManager::GetInstance().Load();
 	CharacterManager::GetInstance().Load();
 	UIManager::GetInstance().Load();
@@ -53,6 +51,7 @@ void GameScene::Load(void)
 	pauseScene_->Load();
 
 	//マップ
+	mapBackImage_ = resMng_.Load(ResourceManager::SRC::MAP_BACK).handleId_;
 	mapImage_ = resMng_.Load(ResourceManager::SRC::MAP).handleId_;
 	//フェーズ遷移用
 	changeUpdate_.emplace(UPDATE_PHASE::NONE, [this]() {ChangeNone(); });
@@ -125,7 +124,8 @@ void GameScene::NormalDraw(void)
 	DebagDraw();
 #endif // _DEBUG
 
-	DrawExtendGraph(0, 0, Application::SCREEN_SIZE_X, Application::SCREEN_SIZE_Y, mapImage_, true);
+	DrawExtendGraph(0, 0, Application::SCREEN_SIZE_X, Application::SCREEN_SIZE_Y, mapBackImage_, true);
+	DrawRotaGraph(Application::SCREEN_HALF_X, 400, 0.5, 0.0, mapImage_, true);
 
 	CharacterManager::GetInstance().Draw();
 

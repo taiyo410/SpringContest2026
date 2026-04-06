@@ -103,14 +103,9 @@ void CharacterManager::CreateEdo(void)
 
 void CharacterManager::CreateDaimyo(void)
 {
-
-	int a = 0;
-
 	//êlêîï™
 	for (auto& daimyoImport : daimyoImportData_)
 	{
-		if (a >= 3)break;
-
 		//ê∂ê¨
 		std::unique_ptr<Daimyo> daimyo = std::make_unique<Daimyo>(daimyoImport);
 		
@@ -120,8 +115,5 @@ void CharacterManager::CreateDaimyo(void)
 
 		//äiî[
 		daimyo_.push_back(std::move(daimyo));
-
-		a++;
 	}
-
 }

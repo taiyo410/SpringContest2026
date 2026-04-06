@@ -60,6 +60,7 @@ private:
 	int postEffectScreen_;
 
 	//ƒ}ƒbƒv
+	int mapBackImage_;
 	int mapImage_;
 
 	int frame_;

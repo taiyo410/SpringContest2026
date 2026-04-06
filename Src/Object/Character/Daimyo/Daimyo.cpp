@@ -451,7 +451,21 @@ void Daimyo::UpdateStandby(void)
 void Daimyo::UpdateNormal(void)
 {
 	//‚¨‹à‚ğ‘‚â‚·
-	money_ += SceneManager::GetInstance().GetDeltaTime() * import_.accumulationSpeed_;
+	const auto& rule = GameRuleManager::GetInstance();
+	const int year = rule.GetElapsedYear();
+	float time = SceneManager::GetInstance().GetDeltaTime() * import_.accumulationSpeed_;
+
+	//Œo‰ß”N”‚É‚æ‚Á‚Ä”{—¦•Ï‰»
+	if (PHASE_2_YEAR < year)
+	{
+		time *= PHASE_2_MONEY_MULTI;
+	}
+	else if (PHASE_3_YEAR < year)
+	{
+		time *= PHASE_3_MONEY_MULTI;
+	}
+
+	money_ += time;
 	if (money_ > FUNDS_MIN)
 	{
 		const FLOAT4 yellow = UtilityCommon::GetColorF(UtilityCommon::YELLOW);

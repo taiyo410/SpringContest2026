@@ -18,6 +18,7 @@ public:
 		TEST,
 
 		//画像
+		MAP_BACK,			//マップ背景
 		MAP,				//マップ
 		CASTLE,				//城
 		GAUGE,				//ゲージ
