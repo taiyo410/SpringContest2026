@@ -74,15 +74,27 @@ Daimyo::Daimyo(const DaimyoImport _import)
 	//ï`âÊ
 	draw_.emplace(STATE::STANDBY, [this](void) {DrawStandby(); });
 	draw_.emplace(STATE::NORMAL, [this](void) {DrawNormal(); });
-	draw_.emplace(STATE::SELECT_DIRECTION, [this](void) {DrawSelectDirection(); });
-	draw_.emplace(STATE::DELETE_SELECT_DIRECTION, [this](void) {DrawSelectDirection(); });
-	draw_.emplace(STATE::SELECT, [this](void) {DrawSelect(); });
-	draw_.emplace(STATE::SELECT_ALTERNATE, [this](void) {DrawSelectAlternate(); });
-	draw_.emplace(STATE::NO_MONEY, [this](void) {DrawNoMoney(); });
+	draw_.emplace(STATE::SELECT_DIRECTION, [this](void) {DrawNormal(); });
+	draw_.emplace(STATE::DELETE_SELECT_DIRECTION, [this](void) {DrawNormal(); });
+	draw_.emplace(STATE::SELECT, [this](void) {DrawNormal(); });
+	draw_.emplace(STATE::SELECT_ALTERNATE, [this](void) {DrawNormal(); });
+	draw_.emplace(STATE::NO_MONEY, [this](void) {DrawNormal(); });
 	draw_.emplace(STATE::ACTION_ALTERNATE, [this](void) {DrawActionAlternate(); });
-	draw_.emplace(STATE::RESULT_ALTERNATE, [this](void) {DrawResultAlternate(); });
-	draw_.emplace(STATE::ENHANCEMENT, [this](void) {DrawEnhancement(); });
-	draw_.emplace(STATE::DETAILS, [this](void) {DrawDetails(); });
+	draw_.emplace(STATE::RESULT_ALTERNATE, [this](void) {DrawNormal(); });
+	draw_.emplace(STATE::ENHANCEMENT, [this](void) {DrawNormal(); });
+	draw_.emplace(STATE::DETAILS, [this](void) {DrawNormal(); });
+
+	drawAfter_.emplace(STATE::STANDBY, [this](void) {});
+	drawAfter_.emplace(STATE::NORMAL, [this](void) {});
+	drawAfter_.emplace(STATE::SELECT_DIRECTION, [this](void) {DrawSelectDirection(); });
+	drawAfter_.emplace(STATE::DELETE_SELECT_DIRECTION, [this](void) {DrawSelectDirection(); });
+	drawAfter_.emplace(STATE::SELECT, [this](void) {DrawSelect(); });
+	drawAfter_.emplace(STATE::SELECT_ALTERNATE, [this](void) {DrawSelectAlternate(); });
+	drawAfter_.emplace(STATE::NO_MONEY, [this](void) {DrawNoMoney(); });
+	drawAfter_.emplace(STATE::ACTION_ALTERNATE, [this](void) {});
+	drawAfter_.emplace(STATE::RESULT_ALTERNATE, [this](void) {DrawResultAlternate(); });
+	drawAfter_.emplace(STATE::ENHANCEMENT, [this](void) {DrawEnhancement(); });
+	drawAfter_.emplace(STATE::DETAILS, [this](void) {DrawDetails(); });
 
 	//ÉRÉâÉCÉ_ê∂ê¨
 	changeSetting_.emplace(STATE::STANDBY, [this](void) {});
@@ -194,6 +206,12 @@ void Daimyo::Draw(void)
 
 	//èÛë‘Ç≤Ç∆ÇÃï`âÊ
 	draw_[state_]();
+}
+
+void Daimyo::DrawAfter(void)
+{
+	//èÛë‘Ç≤Ç∆ÇÃï`âÊ
+	drawAfter_[state_]();
 }
 
 void Daimyo::Release(void)
@@ -645,7 +663,6 @@ void Daimyo::UpdateDetails(void)
 
 void Daimyo::DrawStandby(void)
 {
-	DrawNormal();
 }
 
 void Daimyo::DrawNormal(void)
@@ -655,7 +672,6 @@ void Daimyo::DrawNormal(void)
 		col.get()->GetGeometry().Draw();
 	}
 
-	
 	//ñºëO
 	DrawFormatString(pos_.x, pos_.y, 0xffffff, L"%ls", UtilityCommon::GetWStringFromString(import_.name).c_str());
 
@@ -668,9 +684,6 @@ void Daimyo::DrawNormal(void)
 
 void Daimyo::DrawSelect(void)
 {
-	//í èÌï`âÊ
-	DrawNormal();
-
 	Vector2F alternate = pos_ + ALTERNATE_LOCAL_POS;
 	Vector2F enhancement = pos_ + ENHANCEMENT_LOCAL_POS;
 	Vector2F details = pos_ + DETAILS_LOCAL_POS;
@@ -704,8 +717,6 @@ void Daimyo::DrawSelect(void)
 
 void Daimyo::DrawSelectDirection(void)
 {
-	//í èÌï`âÊ
-	DrawNormal();
 	Vector2F alternate = pos_ + ALTERNATE_LOCAL_POS;
 	Vector2F enhancement = pos_ + ENHANCEMENT_LOCAL_POS;
 	Vector2F details = pos_ + DETAILS_LOCAL_POS;
@@ -744,9 +755,6 @@ void Daimyo::DrawSelectDirection(void)
 
 void Daimyo::DrawSelectAlternate(void)
 {
-	//í èÌï`âÊ
-	DrawNormal();
-
 	for (auto pos : alternateMenuPos_)
 	{
 		//ëIëéà
@@ -834,15 +842,11 @@ void Daimyo::DrawSelectAlternate(void)
 
 void Daimyo::DrawNoMoney(void)
 {
-	//í èÌï`âÊ
-	DrawNormal();
-
 	DrawString(pos_.x + 50, pos_.y, L"NoMoney", 0xffffff);
 }
 
 void Daimyo::DrawActionAlternate(void)
 {
-	//í èÌï`âÊ
 	DrawNormal();
 
 	DrawFormatString(0, 0, 0xffffff, L"%.2f", cnt_);
@@ -854,17 +858,11 @@ void Daimyo::DrawActionAlternate(void)
 
 void Daimyo::DrawResultAlternate(void)
 {
-	//í èÌï`âÊ
-	DrawNormal();
-
 	DrawString(pos_.x + 50, pos_.y, isSuccess_ ? L"Success" : L"Failure", 0xffffff);
 }
 
 void Daimyo::DrawEnhancement(void)
 {
-	//í èÌï`âÊ
-	//DrawNormal();
-
 	SetDrawBlendMode(DX_BLENDMODE_ALPHA, 100);
 	DrawBox(ENHANCEMENT_MENU_LOCAL_BOX_POS, ENHANCEMENT_MENU_LOCAL_BOX_POS,
 		 Application::SCREEN_SIZE_X- ENHANCEMENT_MENU_LOCAL_BOX_POS,Application::SCREEN_SIZE_Y- ENHANCEMENT_MENU_LOCAL_BOX_POS,0x000000, true);
@@ -911,8 +909,6 @@ void Daimyo::DrawEnhancement(void)
 
 void Daimyo::DrawDetails(void)
 {
-	//í èÌï`âÊ
-	DrawNormal();
 }
 
 void Daimyo::DrawKago(void)

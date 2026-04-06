@@ -14,6 +14,7 @@
 #include "../Manager/Game/GameRuleManager.h"
 #include "../Manager/Resource/SoundManager.h"
 #include "../Manager/Generic/DataBank.h"
+#include "../Object/Character/Cursor/Cursor.h"
 
 #include "PauseScene.h"
 
@@ -35,6 +36,7 @@ GameScene::~GameScene(void)
 {
 	//インスタンスの削除
 	CollisionManager2D::GetInstance().Destroy();
+	cursor_->Release();
 	CharacterManager::GetInstance().Destroy();
 	SoundManager::GetInstance().Release();
 	UIManager::GetInstance().Destroy();
@@ -45,6 +47,9 @@ void GameScene::Load(void)
 	GameRuleManager::GetInstance().Load();
 	CharacterManager::GetInstance().Load();
 	UIManager::GetInstance().Load();
+
+	//カーソル
+	CreateCursor();
 
 	//ポーズ
 	pauseScene_ = std::make_shared<PauseScene>();
@@ -104,6 +109,10 @@ void GameScene::NormalUpdate(void)
 
 	GameRuleManager::GetInstance().Update();
 	CharacterManager::GetInstance().Update();
+	
+	cursor_->Update();
+	cursor_->Sweep();
+
 	UIManager::GetInstance().Update();
 	CollisionManager2D::GetInstance().Update();
 	CollisionManager2D::GetInstance().Sweep();
@@ -125,7 +134,7 @@ void GameScene::NormalDraw(void)
 #endif // _DEBUG
 
 	DrawExtendGraph(0, 0, Application::SCREEN_SIZE_X, Application::SCREEN_SIZE_Y, mapBackImage_, true);
-	DrawRotaGraph(Application::SCREEN_HALF_X, 400, 0.5, 0.0, mapImage_, true);
+	DrawRotaGraph(Application::SCREEN_HALF_X, 380, 0.6, 0.0, mapImage_, true);
 
 	CharacterManager::GetInstance().Draw();
 
@@ -135,6 +144,8 @@ void GameScene::NormalDraw(void)
 	{
 		UIManager::GetInstance().DirectionDraw();
 	}
+
+	cursor_->Draw();
 }
 
 
@@ -181,6 +192,16 @@ void GameScene::OnSceneEnter(void)
 {
 	//演出状態へ移行
 	ChangeUpdatePhase(UPDATE_PHASE::NORMAL);
+}
+
+void GameScene::CreateCursor(void)
+{
+	//生成
+	cursor_ = std::make_unique<Cursor>();
+
+	//読み込みと初期化
+	cursor_->Load();
+	cursor_->Init();
 }
 
 #ifdef _DEBUG

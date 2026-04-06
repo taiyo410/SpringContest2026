@@ -13,6 +13,7 @@ class Player;
 class Enemy;
 class Stage;
 class CardSystem;
+class Cursor;
 
 class DrawUI3D;
 
@@ -51,7 +52,8 @@ public:
 
 private:
 
-
+	//カーソル
+	std::unique_ptr<Cursor> cursor_;
 
 	//スローの時、何フレームに1回更新するか
 	static constexpr int FRAME_PER_UPDATE = 2;
@@ -96,12 +98,14 @@ private:
 	//処理の変更
 	void OnSceneEnter(void) override;
 	
+	//カーソルの生成
+	void CreateCursor(void);
+
 #ifdef _DEBUG
 	//デバッグ処理
 	void DebagUpdate(void);
 	void DebagDraw(void);
 #endif // _DEBUG
-
 
 
 };

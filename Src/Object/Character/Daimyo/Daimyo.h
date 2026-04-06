@@ -147,6 +147,9 @@ public:
 	//描画
 	void Draw(void)override;
 
+	//後描画
+	void DrawAfter(void);
+
 	//解放
 	void Release(void)override;
 
@@ -305,6 +308,7 @@ private:
 
 	//状態ごとの描画
 	std::unordered_map<STATE, std::function<void(void)>>draw_;
+	std::unordered_map<STATE, std::function<void(void)>>drawAfter_;
 
 	//状態ごとの設定
 	std::unordered_map<STATE, std::function<void(void)>>changeSetting_;

@@ -5,7 +5,6 @@
 #include "../Manager/Resource/ResourceManager.h"
 #include "../Loader/LoaderManager.h"
 #include "../Object/Character/Base/CharacterBase2D.h"
-#include "../Object/Character/Cursor/Cursor.h"
 #include "../Object/Character/Daimyo/Daimyo.h"
 #include "CharacterManager.h"
 
@@ -19,7 +18,6 @@ void CharacterManager::Init(void)
 	//各オブジェクトの生成
 	CreateEdo();
 	CreateDaimyo();
-	CreateCursor();
 
 	//arrow_->Init();
 }
@@ -27,9 +25,6 @@ void CharacterManager::Init(void)
 void CharacterManager::Update(void)
 {
 	//キャラクターの更新
-	cursor_->Update();
-	cursor_->Sweep();
-
 	for (auto& daimyo : daimyo_)
 	{
 		daimyo->Update();
@@ -43,18 +38,18 @@ void CharacterManager::Draw(void)
 	for (auto& daimyo : daimyo_)
 	{
 		daimyo->Draw();
+	}	
+	for (auto& daimyo : daimyo_)
+	{
+		daimyo->DrawAfter();
 	}
-
-	cursor_->Draw();
 
 	DrawCircle(EDO_POS.x, EDO_POS.y, 50.0f, 0xFF0000, true);
 }
 
 void CharacterManager::Release(void)
 {
-	//キャラクターの更新
-	cursor_->Release();
-
+	//キャラクターの解放
 	for (auto& daimyo : daimyo_)
 	{
 		daimyo->Release();
@@ -84,16 +79,6 @@ CharacterManager::CharacterManager(void)
 }
 CharacterManager::~CharacterManager(void)
 {
-}
-
-void CharacterManager::CreateCursor(void)
-{
-	//生成
-	cursor_ = std::make_unique<Cursor>();
-
-	//読み込みと初期化
-	cursor_->Load();
-	cursor_->Init();
 }
 
 void CharacterManager::CreateEdo(void)
