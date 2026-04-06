@@ -119,12 +119,12 @@ void GameScene::NormalUpdate(void)
 	CollisionManager2D::GetInstance().Update();
 	CollisionManager2D::GetInstance().Sweep();
 
-	//ポーズ
-	InputManagerS& insS = InputManagerS::GetInstance();
-	if (insS.IsTrgDown(INPUT_EVENT::PAUSE))
-	{
-		SceneManager::GetInstance().CreateScene(pauseScene_);
-	}
+	////ポーズ
+	//InputManagerS& insS = InputManagerS::GetInstance();
+	//if (insS.IsTrgDown(INPUT_EVENT::PAUSE))
+	//{
+	//	SceneManager::GetInstance().PushScene(pauseScene_);
+	//}
 
 }
 

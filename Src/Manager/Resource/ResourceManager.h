@@ -4,6 +4,7 @@
 #include "../../Template/Singleton.h"
 #include "Resource.h"
 
+class Easing;
 class ResourceManager : public Singleton<ResourceManager>
 {
 
@@ -46,6 +47,7 @@ public:
 		ALTERNATE_DAILED_IMG,	//交代失敗
 
 		SPEECH_BUBBLE,		//吹き出し
+		DISSATISFACTION,		//不満度ゲージ消費した時の演出
 
 		//複数画像
 		CONTROLLER_UI_IMGS,
@@ -97,6 +99,7 @@ private:
 	std::map<SRC, ResourceData&> loadedMap_;
 
 	ResourceData dummy_;
+
 
 	// デフォルトコンストラクタをprivateにして、
 	// 外部から生成できない様にする

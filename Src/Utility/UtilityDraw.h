@@ -34,7 +34,5 @@ public:
 	/// @param _str •¶Žš—ñ
 	static void DrawStringCenter(const int _centerX, const int _centerY, unsigned int color,const std::wstring _str);
 	static void DrawStringCenter(const float _centerX, const float _centerY, unsigned int color,const std::wstring _str);
-
-
 };
 

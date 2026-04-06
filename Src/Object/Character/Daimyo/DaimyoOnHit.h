@@ -16,6 +16,8 @@ public:
 
 private:
 
+	SoundManager& soundMng_;
+
 	//Š—LÒ
 	Daimyo& parent_;
 

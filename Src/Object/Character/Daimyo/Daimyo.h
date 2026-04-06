@@ -389,6 +389,8 @@ private:
 	//かごの描画
 	void DrawKago(void);
 
+
+
 	//かごの更新
 	void KagoUpdate(void);
 

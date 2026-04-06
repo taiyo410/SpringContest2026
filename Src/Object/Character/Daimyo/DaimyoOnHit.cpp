@@ -1,10 +1,12 @@
 #include "../pch.h"
 #include "../Manager/Generic/InputManager.h"
 #include "../Manager/Game/GameRuleManager.h"
+#include "../Manager/Resource/SoundManager.h"
 #include "DaimyoOnHit.h"
 
 DaimyoOnHit::DaimyoOnHit(Daimyo& _parent)
-	: parent_(_parent)
+	: parent_(_parent),
+	soundMng_(SoundManager::GetInstance())
 {
 	//タグごとの当たり判定
 	hit_.emplace(Collider2D::TAG::CURSOR, [this](const std::weak_ptr<Collider2D> _partner) {HitCursor(_partner); });
@@ -67,12 +69,16 @@ void DaimyoOnHit::HitCursor(const std::weak_ptr<Collider2D> _partner)
 				{
 					//状態遷移
 					parent_.ChangeState(Daimyo::STATE::NO_MONEY);
+
+					soundMng_.Play(SoundManager::SRC::ENHANCEMENT_FAIL, SoundManager::PLAYTYPE::BACK);
 				}
 			}
 			else if (myCol->IsHit() && myCol->GetTag() == Collider2D::TAG::CHOICE_ENHANCEMENT)
 			{
 				//状態遷移
 				parent_.ChangeState(Daimyo::STATE::ENHANCEMENT);
+
+
 			}
 			else if (myCol->IsHit() && myCol->GetTag() == Collider2D::TAG::CHOICE_DETAILS)
 			{
@@ -84,6 +90,8 @@ void DaimyoOnHit::HitCursor(const std::weak_ptr<Collider2D> _partner)
 				//難易度設定
 				parent_.SetAlternateDiff(Daimyo::ALTERNATE_DIFF::SAFETY);
 				parent_.ChangeState(Daimyo::STATE::ACTION_ALTERNATE);
+				soundMng_.Play(SoundManager::SRC::DESIDE_BTN_SE, SoundManager::PLAYTYPE::BACK);
+			
 
 				// 参勤交代を実行する度に1年経過
 				rule.AddYear(1);
@@ -93,6 +101,7 @@ void DaimyoOnHit::HitCursor(const std::weak_ptr<Collider2D> _partner)
 				//難易度設定
 				parent_.SetAlternateDiff(Daimyo::ALTERNATE_DIFF::NORMAL);
 				parent_.ChangeState(Daimyo::STATE::ACTION_ALTERNATE);
+				soundMng_.Play(SoundManager::SRC::DESIDE_BTN_SE, SoundManager::PLAYTYPE::BACK);
 
 				// 参勤交代を実行する度に1年経過
 				rule.AddYear(1);
@@ -102,6 +111,7 @@ void DaimyoOnHit::HitCursor(const std::weak_ptr<Collider2D> _partner)
 				//難易度設定
 				parent_.SetAlternateDiff(Daimyo::ALTERNATE_DIFF::DENGER);
 				parent_.ChangeState(Daimyo::STATE::ACTION_ALTERNATE);
+				soundMng_.Play(SoundManager::SRC::DESIDE_BTN_SE, SoundManager::PLAYTYPE::BACK);
 
 				// 参勤交代を実行する度に1年経過
 				rule.AddYear(1);
@@ -126,6 +136,8 @@ void DaimyoOnHit::HitCursor(const std::weak_ptr<Collider2D> _partner)
 				}
 				else
 				{
+					soundMng_.Play(SoundManager::SRC::ENHANCEMENT_FAIL, SoundManager::PLAYTYPE::BACK);
+
 					//足りない
 					parent_.ChangeState(Daimyo::STATE::NO_MONEY);
 				}
@@ -135,6 +147,7 @@ void DaimyoOnHit::HitCursor(const std::weak_ptr<Collider2D> _partner)
 			{
 				if (parent_.GetEnhancementCnt(Daimyo::ENHANCEMENT_TYPE::PROBABILITY) >= Daimyo::ENHANCE_MAX)
 				{
+					soundMng_.Play(SoundManager::SRC::ENHANCEMENT_FAIL, SoundManager::PLAYTYPE::BACK);
 					//最大だった
 					parent_.ChangeState(Daimyo::STATE::ENHANCE_MAX);
 				}
@@ -146,6 +159,8 @@ void DaimyoOnHit::HitCursor(const std::weak_ptr<Collider2D> _partner)
 					//お金の消費
 					rule.SubMoney(Daimyo::ENHANCE_FUNDS * (parent_.GetEnhancementCnt(Daimyo::ENHANCEMENT_TYPE::PROBABILITY) + 1));
 
+					soundMng_.Play(SoundManager::SRC::ENHANCEMENT_SUCCESS, SoundManager::PLAYTYPE::BACK);
+
 					//強化
 					parent_.Enhancement(Daimyo::ENHANCEMENT_TYPE::PROBABILITY);
 				}
@@ -153,6 +168,8 @@ void DaimyoOnHit::HitCursor(const std::weak_ptr<Collider2D> _partner)
 				{
 					//足りない
 					parent_.ChangeState(Daimyo::STATE::NO_MONEY);
+
+					soundMng_.Play(SoundManager::SRC::ENHANCEMENT_FAIL, SoundManager::PLAYTYPE::BACK);
 				}
 			}
 			else if (myCol->IsHit() && myCol->GetTag() == Collider2D::TAG::ENHANCEMENT_INCOME)
@@ -175,6 +192,7 @@ void DaimyoOnHit::HitCursor(const std::weak_ptr<Collider2D> _partner)
 				}
 				else
 				{
+					soundMng_.Play(SoundManager::SRC::ENHANCEMENT_FAIL, SoundManager::PLAYTYPE::BACK);
 					//足りない
 					parent_.ChangeState(Daimyo::STATE::NO_MONEY);
 				}

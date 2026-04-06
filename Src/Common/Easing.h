@@ -126,6 +126,9 @@ public:
 	float EaseFuncRad(float& start, float& end, const float t, const EASING_TYPE type);
 
 
+	void StampInDirection(float& _easeCnt, int& _alphaCnt, float& _scl, const float _time = 0.2f);
+	void StampOutDirection(float& _easeCnt, int& _alphaCnt, float& _scl, const float _time = 0.2f);
+
 
 
 

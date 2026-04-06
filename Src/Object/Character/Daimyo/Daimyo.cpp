@@ -169,7 +169,10 @@ void Daimyo::Load(void)
 	soundMng_.LoadResource(SoundManager::SRC::ALTERNATE_START);
 	soundMng_.LoadResource(SoundManager::SRC::ALTERNATE_FAIL);
 	soundMng_.LoadResource(SoundManager::SRC::ALTERNATE_SUCCESS);
-	soundMng_.LoadResource(SoundManager::SRC::ENHANCEMENT);
+	soundMng_.LoadResource(SoundManager::SRC::ENHANCEMENT_SUCCESS);
+	soundMng_.LoadResource(SoundManager::SRC::ENHANCEMENT_FAIL);
+	soundMng_.LoadResource(SoundManager::SRC::DESIDE_BTN_SE);
+
 
 	alternateSuccessStr_.emplace_back(L"今回はドブカスおらん\nかったな。成功や。");
 	alternateSuccessStr_.emplace_back(L"参勤交代成功！\nこれで民も安心だ！");
@@ -415,6 +418,12 @@ void Daimyo::CreateEnhancementCol(void)
 	//コライダの初期化
 	DeleteAllColliders();
 
+	for (auto& alpha : enhancementMarkAlpha_)
+	{
+		alpha.second = 0.0f;
+	}
+	enhancementMarkAlphaCnt_ = 0.0f;
+
 	//当たり判定
 	std::unique_ptr<Geometry2D> geo = std::make_unique<BoxGeo>(enhancementPos_[ENHANCEMENT_TYPE::TIME], enhancementPos_[ENHANCEMENT_TYPE::TIME], ALTERNATE_PRE_RADIUS, ENHANCE_MENU_MIN, ENHANCE_MENU_MAX);
 	MakeCollider(Collider2D::TAG::ENHANCEMENT_TIME, std::move(geo), { Collider2D::TAG::DAIMYO,Collider2D::TAG::ALTERNATE_SAFETY,Collider2D::TAG::ALTERNATE_NORMAL,Collider2D::TAG::ALTERNATE_DENGER });
@@ -652,6 +661,8 @@ void Daimyo::UpdateActionAlternate(void)
 
 	arrow_->Update();
 
+	moneyGaugeCol_ = UtilityCommon::GetColorF(UtilityCommon::YELLOW);
+
 	if (!soundMng_.IsPlay(SoundManager::SRC::ALTERNATE_SE))
 	{
 		soundMng_.Play(SoundManager::SRC::ALTERNATE_SE, SoundManager::PLAYTYPE::LOOP);
@@ -688,6 +699,11 @@ void Daimyo::UpdateEnhancement(void)
 	//お金の上昇
 	UpdateNormal();
 
+	for (auto& alpha : enhancementMarkAlpha_)
+	{
+		alpha.second = 0.0f;
+	}
+
 	//入力
 	const auto& input = InputManager::GetInstance();
 
@@ -713,7 +729,6 @@ void Daimyo::UpdateEnhancementMax(void)
 	//項目を選択せずに左クリック
 	if (isBackMenu_ && input.IsTrgMouseLeft())
 	{
-		soundMng_.Play(SoundManager::SRC::ENHANCEMENT, SoundManager::PLAYTYPE::BACK);
 		//通常に戻る
 		ChangeState(STATE::NORMAL);
 	}
@@ -747,6 +762,7 @@ void Daimyo::UpdateDetails(void)
 
 void Daimyo::DrawStandby(void)
 {
+	DrawNormal();
 }
 
 void Daimyo::DrawNormal(void)
@@ -816,7 +832,7 @@ void Daimyo::DrawSelectDirection(void)
 	//	, selectPos_[SELECT::DETAILS].y + SELECT_MAX.y
 	//	, selectMenuImg_, true);
 	//UtilityDraw::DrawStringCenter(selectPos_[SELECT::SELECT_ALTERNATE].x, selectPos_[SELECT::SELECT_ALTERNATE].y, 0x0, L"alternate");
-	//UtilityDraw::DrawStringCenter(selectPos_[SELECT::ENHANCEMENT].x, selectPos_[SELECT::ENHANCEMENT].y, 0x0, L"enhancement");
+	//UtilityDraw::DrawStringCenter(selectPos_[SELECT::ENHANCEMENT_SUCCESS].x, selectPos_[SELECT::ENHANCEMENT_SUCCESS].y, 0x0, L"enhancement");
 	//UtilityDraw::DrawStringCenter(selectPos_[SELECT::DETAILS].x, selectPos_[SELECT::DETAILS].y, 0x0, L"details");
 	UtilityDraw::DrawStringCenterToFontHandle(selectPos_[SELECT::SELECT_ALTERNATE].x, selectPos_[SELECT::SELECT_ALTERNATE].y, 0x0, selectFontHandle_, L"参勤交代");
 	UtilityDraw::DrawStringCenterToFontHandle(selectPos_[SELECT::ENHANCEMENT].x, selectPos_[SELECT::ENHANCEMENT].y, 0x0, selectFontHandle_, L"強化");
@@ -845,13 +861,28 @@ void Daimyo::DrawSelectAlternate(void)
 	float incomeValue = INCOME_SAFETY + (INCOME_SAFETY / ENHANCE_PER) * enhancementCnt_[ENHANCEMENT_TYPE::INCOME];
 	incomeValue *= GameRuleManager::UNITS;
 
+
+
+	//ss.imbue(std::locale(""));
+	//ss << incomeValue * GameRuleManager::UNITS;
+
 	//安全な道
 	swprintf(buf,32,L"%.1f", timeValue);
 	std::wstring time = timeStr + buf + L"秒";
 	swprintf(buf, 32, L"%.1f", probabilityValue);
 	std::wstring probability = probabilityStr + buf + L"％";
 	//swprintf(buf, 32, L"%.1f", incomeValue);
-	std::wstring income = incomeStr + std::to_wstring(static_cast<int>(incomeValue)) + L"円";
+	std::wstringstream ss1;
+	ss1.imbue(std::locale(""));
+	ss1 << static_cast<int>(incomeValue);
+	std::wstring income = incomeStr + ss1.str() + L"円";
+
+	//std::wstringstream ss;
+	//ss.imbue(std::locale(""));
+	//ss << _value * GameRuleManager::UNITS;
+	//std::wstring str = L"\n" + ss.str();
+
+
 	UtilityDraw::DrawStringCenterToFontHandle(alternateMenuPos_[ALTERNATE_DIFF::SAFETY].x
 		, alternateMenuPos_[ALTERNATE_DIFF::SAFETY].y + FONT_ALTERNATE_LOCAL_POS_Y
 		, UtilityCommon::GREEN
@@ -870,13 +901,15 @@ void Daimyo::DrawSelectAlternate(void)
 	if (probabilityValue > 100.0f)probabilityValue = 100.0f;
 	incomeValue = INCOME_NORMAL + (INCOME_NORMAL / ENHANCE_PER) * enhancementCnt_[ENHANCEMENT_TYPE::INCOME];
 	incomeValue *= GameRuleManager::UNITS;
-
+	std::wstringstream ss2;
+	ss2.imbue(std::locale(""));
+	ss2 << static_cast<int>(incomeValue);;
 	swprintf(buf, 32, L"%.1f", timeValue);
 	time = timeStr + buf + L"秒";
 	swprintf(buf, 32, L"%.1f", probabilityValue);
 	probability = probabilityStr + buf + L"％";
-	//swprintf(buf, 32, L"%.1f", incomeValue);
-	income = incomeStr + std::to_wstring(static_cast<int>(incomeValue)) + L"円";
+
+	income = incomeStr + ss2.str() + L"円";
 	UtilityDraw::DrawStringCenterToFontHandle(alternateMenuPos_[ALTERNATE_DIFF::NORMAL].x
 		, alternateMenuPos_[ALTERNATE_DIFF::NORMAL].y + FONT_ALTERNATE_LOCAL_POS_Y
 		, UtilityCommon::YELLOW
@@ -894,13 +927,16 @@ void Daimyo::DrawSelectAlternate(void)
 	if (probabilityValue > 100.0f)probabilityValue = 100.0f;
 	incomeValue = INCOME_DENGER + (INCOME_DENGER / ENHANCE_PER) * enhancementCnt_[ENHANCEMENT_TYPE::INCOME];
 	incomeValue *= GameRuleManager::UNITS;
-
+	std::wstringstream ss3;
+	ss3.imbue(std::locale(""));
+	ss3 << static_cast<int>(incomeValue);
 	swprintf(buf, 32, L"%.1f", timeValue);
 	time = timeStr + buf + L"秒";
 	swprintf(buf, 32, L"%.1f", probabilityValue);
 	probability = probabilityStr + buf + L"％";
 	//swprintf(buf, 32, L"%.1f", incomeValue);
-	income = incomeStr + std::to_wstring(static_cast<int>(incomeValue)) + L"円";
+
+	income = incomeStr + ss3.str() + L"円";
 	UtilityDraw::DrawStringCenterToFontHandle(alternateMenuPos_[ALTERNATE_DIFF::DENGER].x
 		, alternateMenuPos_[ALTERNATE_DIFF::DENGER].y + FONT_ALTERNATE_LOCAL_POS_Y
 		, UtilityCommon::RED
@@ -930,7 +966,7 @@ void Daimyo::DrawActionAlternate(void)
 {
 	DrawNormal();
 
-	DrawFormatString(0, 0, 0xffffff, L"%.2f", cnt_);
+	//DrawFormatString(0, 0, 0xffffff, L"%.2f", cnt_);
 
 	arrow_->Draw();
 
@@ -961,20 +997,22 @@ void Daimyo::DrawResultAlternate(void)
 	// 吹き出しが表示されている間だけ、画像を画面中央やや左に描画する
 	if (alternateResultCnt_ > 0.0f)
 	{
-		// スタンプ演出のイージング計算
-		if (alternateSrampEaseCnt_ > 0.0f)
-		{
-			alternateSrampEaseCnt_ -= SceneManager::GetInstance().GetDeltaTime();
-			if (alternateSrampEaseCnt_ < 0.0f) alternateSrampEaseCnt_ = 0.0f;
+		//// スタンプ演出のイージング計算
+		//if (alternateSrampEaseCnt_ > 0.0f)
+		//{
+		//	alternateSrampEaseCnt_ -= SceneManager::GetInstance().GetDeltaTime();
+		//	if (alternateSrampEaseCnt_ < 0.0f) alternateSrampEaseCnt_ = 0.0f;
 
-			float t = (ALTERNATE_STAMP_TIME - alternateSrampEaseCnt_) / ALTERNATE_STAMP_TIME;
+		//	float t = (ALTERNATE_STAMP_TIME - alternateSrampEaseCnt_) / ALTERNATE_STAMP_TIME;
 
-			// 3.0倍(0.3f)から元のサイズ(0.1f)に向かってイージング
-			alternateResultScale_ = easing_->EaseFunc(0.3f, 0.1f, t, Easing::EASING_TYPE::QUAD_IN);
+		//	// 3.0倍(0.3f)から元のサイズ(0.1f)に向かってイージング
+		//	alternateResultScale_ = easing_->EaseFunc(0.3f, 0.1f, t, Easing::EASING_TYPE::QUAD_IN);
 
-			// 0から255に向かってフェードイン
-			alternateResultAlpha_ = easing_->EaseFunc(0, 255, t, Easing::EASING_TYPE::LERP);
-		}
+		//	// 0から255に向かってフェードイン
+		//	alternateResultAlpha_ = easing_->EaseFunc(0, 255, t, Easing::EASING_TYPE::LERP);
+		//}
+
+		easing_->StampInDirection(alternateSrampEaseCnt_, alternateResultAlpha_, alternateResultScale_);
 
 		// 参勤交代の結果に応じて画像を描画
 		int resultImg = isSuccess_ ? alternateSuccessImg_ : alternateFailedImg_;
@@ -1007,8 +1045,6 @@ void Daimyo::DrawEnhancement(void)
 		Vector2 boxCenter = { 530,enhancePos.second.y };
 		DrawBox(boxCenter.x - 530 / 2, enhancePos.second.y + ENHANCE_MENU_MIN.y, boxCenter.x + 530 / 2, enhancePos.second.y + ENHANCE_MENU_MAX.y, enhancementCol_[enhancePos.first], true);
 
-
-		//DrawBox(enhancePos.x+)
 		UtilityDraw::DrawStringCenterToFontHandle(enhancePos.second.x, enhancePos.second.y, 0x0, fontHandle_, enhancementStr_[enhancePos.first]);
 
 		//ここで強化項目の家紋を描画
@@ -1059,6 +1095,7 @@ void Daimyo::DrawKago(void)
 	Vector2F dir = CharacterManager::EDO_POS - import_.pos;
 	DrawRotaGraph(kagoCenterPos_.x, kagoCenterPos_.y, 0.1f, atan2f(dir.y, dir.x), kagoImage_, true);
 }
+
 
 void Daimyo::KagoUpdate(void)
 {

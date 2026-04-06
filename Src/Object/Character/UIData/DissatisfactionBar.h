@@ -4,6 +4,7 @@
 #include<string>
 #include"../Object/ObjectBase2D.h"
 
+class SoundManager;
 class FontController;
 
 class DissatisfactionBar : public ObjectBase2D
@@ -15,7 +16,9 @@ public:
 	{
 		STANDBY,
 		NORMAL,
-		SELECT
+		DIERCTION_IN,
+		DIERCTION_OUT,
+		SELECT,
 	};
 
 	//最大不満度
@@ -69,6 +72,11 @@ private:
 	static constexpr float SELECT_LOCAL_POS_Y = 150.0f;
 	static constexpr Vector2F SELECT_BOX_SIZE = { 200.0f,50.0f };
 
+	static constexpr float DRAW_TIME = 2.0f;
+
+	//サウンド
+	SoundManager& soundMng_;
+
 	//総不満度
 	int dissatisfaction_;
 
@@ -80,12 +88,21 @@ private:
 	Vector2F yesPos_;
 	Vector2F noPos_;
 
+	//不満度ゲージを消費する際の情報
+	float easeCnt_;
+	int alpha_;
+	float scl_;
+	float drawCnt_;
+	int mituguImg_;
+
 	//画像
 	int selectMenuImg_;
 
 	//フォント
 	std::unique_ptr<FontController> font_;
 	int fontHandle_;
+
+	std::unique_ptr<Easing>easing_;
 
 	//更新
 	std::unordered_map<STATE, std::function<void(void)>> update_;
@@ -102,13 +119,17 @@ private:
 	//状態遷移の前処理
 	void PreChangeStateNormal(void);
 	void PreChangeStateSelect(void);
-
+	void PreChangeStateDirectionIn(void);
+	void PreChangeStateDirectionOut(void);
 	//更新
 	void UpdateStandBy(void);
 	void UpdateNormal(void);
 	void UpdateSelect(void);
+	void UpdateDirectionIn(void);
+	void UpdateDirectionOut(void);
 
 	//描画
 	void DrawNormal(void);
 	void DrawSelect(void);
+	void DrawDirectrion(void);
 };

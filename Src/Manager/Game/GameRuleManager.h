@@ -1,6 +1,7 @@
 #pragma once
 #include "../Template/Singleton.h"
 
+class SoundManager;
 class FontController;
 class DissatisfactionBar;
 
@@ -85,6 +86,8 @@ private:
 
 	//フォント
 	std::unique_ptr<FontController>font_;
+
+	SoundManager& soundMng_;
 
 	//所持金
 	int nowMoney_;

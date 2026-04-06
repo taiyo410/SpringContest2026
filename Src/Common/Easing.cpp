@@ -1,4 +1,5 @@
 #include "../pch.h"
+#include "../Manager/Generic/SceneManager.h"
 #include "../Utility/UtilityCommon.h"
 #include "Easing.h"
 
@@ -198,6 +199,42 @@ float Easing::EaseFuncRad(float& start, float& end, const float t, const EASING_
     SetEasing(t, type);
     float diff = remainder(end - start, 2.0f * DX_PI_F);
     return start + diff * easingUpdate_(t);
+}
+
+void Easing::StampInDirection(float& _easeCnt, int& _alphaCnt, float& _scl, const float _time)
+{
+    // スタンプ演出のイージング計算
+    if (_easeCnt > 0.0f)
+    {
+        _easeCnt -= SceneManager::GetInstance().GetDeltaTime();
+        if (_easeCnt < 0.0f) _easeCnt = 0.0f;
+
+        float t = (_time - _easeCnt) / _time;
+
+        // 3.0倍(0.3f)から元のサイズ(0.1f)に向かってイージング
+        _scl = EaseFunc(0.3f, 0.1f, t, Easing::EASING_TYPE::QUAD_IN);
+
+        // 0から255に向かってフェードイン
+        _alphaCnt = EaseFunc(0, 255, t, Easing::EASING_TYPE::LERP);
+    }
+}
+
+void Easing::StampOutDirection(float& _easeCnt, int& _alphaCnt, float& _scl, const float _time)
+{
+    // スタンプ演出のイージング計算
+    if (_easeCnt > 0.0f)
+    {
+        _easeCnt -= SceneManager::GetInstance().GetDeltaTime();
+        if (_easeCnt < 0.0f) _easeCnt = 0.0f;
+
+        float t = (_time - _easeCnt) / _time;
+
+        // 3.0倍(0.3f)から元のサイズ(0.1f)に向かってイージング
+        _scl = EaseFunc(0.1f, 0.3f, t, Easing::EASING_TYPE::QUAD_IN);
+
+        // 0から255に向かってフェードイン
+        _alphaCnt = EaseFunc(255, 0, t, Easing::EASING_TYPE::LERP);
+    }
 }
 
 

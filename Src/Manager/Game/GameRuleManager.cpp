@@ -5,6 +5,7 @@
 #include "../Utility/UtilityDraw.h"
 #include "../Manager/Resource/FontManager.h"
 #include "../Manager/Resource/ResourceManager.h"
+#include "../Manager/Resource/SoundManager.h"
 #include "../Manager/Game/CharacterManager.h"
 #include "../Object/Character/UIData/DissatisfactionBar.h"
 #include "GameRuleManager.h"
@@ -20,8 +21,8 @@ void GameRuleManager::Load(void)
 	//フォントの登録
 	moneyFont_ = font_->GetFontHandle(FontManager::FONT_APRIL_GOTHIC, FONT_SIZE, 0);
 
-	//画像
-	imageId_ = res.Load(ResourceManager::SRC::SELECT_MENU).handleId_;
+
+	soundMng_.LoadResource(SoundManager::SRC::DISSATISFACTION_DOWN);
 
 	//不満度ゲージ
 	dissatifactionBar_ = std::make_unique<DissatisfactionBar>();
@@ -93,7 +94,8 @@ const bool GameRuleManager::IsGameOver(void)const
 	//不満度が溜まった　又は　大名のお金が溜まったか
 	return dissatifactionBar_->IsDissatisfactionMax() || CharacterManager::GetInstance().IsMoneyMax();
 }
-GameRuleManager::GameRuleManager(void)
+GameRuleManager::GameRuleManager(void):
+	soundMng_(SoundManager::GetInstance())
 {
 }
 

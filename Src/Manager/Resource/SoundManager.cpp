@@ -73,7 +73,11 @@ void SoundManager::Init(void)
 	resourcesMap_.emplace(SRC::ALTERNATE_SE, res);
 
 	res.path = path_Se + L"EnhanceSE.mp3";
-	resourcesMap_.emplace(SRC::ENHANCEMENT, res);
+	resourcesMap_.emplace(SRC::ENHANCEMENT_SUCCESS, res);
+	res.path = path_Se + L"Enhance_Fail.mp3";
+	resourcesMap_.emplace(SRC::ENHANCEMENT_FAIL, res);
+	res.path = path_Se + L"Dissatisfaction_DownSE.mp3";
+	resourcesMap_.emplace(SRC::DISSATISFACTION_DOWN, res);
 
 #pragma endregion
 

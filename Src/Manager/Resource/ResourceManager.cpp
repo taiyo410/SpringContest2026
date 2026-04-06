@@ -87,6 +87,9 @@ void ResourceManager::Init(void)
 	res = std::make_unique<ResourceData>(ResourceData::TYPE::IMG, PATH_IMG + L"SpeechBubble.png");
 	resourcesMap_.emplace(SRC::SPEECH_BUBBLE, std::move(res));
 
+	res = std::make_unique<ResourceData>(ResourceData::TYPE::IMG, PATH_IMG + L"mitugu.png");
+	resourcesMap_.emplace(SRC::DISSATISFACTION, std::move(res));
+
 	//ï°êîâÊëú
 	res = std::make_unique<ResourceData>(ResourceData::TYPE::IMGS, PATH_IMG + L"XboxControllerBotton128.png",
 		CONTROLLER_UI_NO_X, CONTROLLER_UI_NO_Y, CONTROLLER_UI_SIZE_X, CONTROLLER_UI_SIZE_Y);
