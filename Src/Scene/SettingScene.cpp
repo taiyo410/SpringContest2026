@@ -47,6 +47,9 @@ SettingScene::SettingScene(void):
 		{SETTING_STATE::EXIT_SETTING,[this]() {ChangeExitSetting(); }}
 	};
 
+	volume_[0] = dataBank_.GetBGMVolume();
+	volume_[1] = dataBank_.GetSEVolume();
+
 	menuMng_ = std::make_unique<MenuManager>();
 	cursor_ = std::make_unique<Cursor>();
 	sliderUIMng_ = std::make_unique<SliderUIManager>();
@@ -85,6 +88,8 @@ void SettingScene::Load(void)
 		Vector2F length = { 200.0f,20.0f };
 		VOLUME_TYPE type = GetVolumeFromString(menuStr);
 
+		volumePer_[static_cast<int>(type)] = static_cast<float>(volume_[static_cast<int>(type)]) / static_cast<float>(UtilityCommon::PERCENT_MAX);
+
 		sliderUIMng_->AddSliderUI(*cursor_, volumePer_[static_cast<int>(type)], sliderPos, length);
 	}
 	sliderUIMng_->Load();
@@ -103,6 +108,11 @@ void SettingScene::Init(void)
 
 void SettingScene::NormalUpdate(void)
 {
+	if (volume_[0] > 100)
+	{
+		int i = 0;
+	}
+
 	cursor_->Update();
 	updateSetting_();
 
@@ -300,8 +310,15 @@ const SettingScene::VOLUME_TYPE SettingScene::GetVolumeFromString(const std::wst
 
 void SettingScene::VolumeRefrect(void)
 {
+	if (volume_[0] > 100)
+	{
+		int i = 0;
+	}
+
+	dataBank_.SetBGMVolume(volume_[0]);
 	soundMng_.SetSystemVolume(volume_[static_cast<int>(VOLUME_TYPE::BGM)], static_cast<int>(SoundManager::TYPE::BGM));
 
+	dataBank_.SetSeVolume(volume_[1]);
 	soundMng_.SetSystemVolume(volume_[static_cast<int>(VOLUME_TYPE::SE)], static_cast<int>(SoundManager::TYPE::SE));
 
 	dataBank_.SetTextSpeed(volume_[static_cast<int>(VOLUME_TYPE::TEXT_SPD)]);

@@ -163,6 +163,7 @@ void MenuManager::DrawCenter(void)
 
 void MenuManager::SelectMenu(const SoundManager::SRC _src)
 {
+	beforeSelectMenuNum_ = selectMenuNum_;
 	if (insS_.IsTrgDown(INPUT_EVENT::UP) || ins_.IsTrgDown(KEY_INPUT_W))
 	{
 		soundMng_.Play(_src, SoundManager::PLAYTYPE::BACK);
@@ -178,6 +179,10 @@ void MenuManager::SelectMenu(const SoundManager::SRC _src)
 	if (itr != menuList_.end())
 	{
 		selectMenuNum_ = (*itr)->GetMenuNum();
+		if (beforeSelectMenuNum_ != selectMenuNum_)
+		{
+			soundMng_.Play(_src, SoundManager::PLAYTYPE::BACK);
+		}
 	}
 
 }

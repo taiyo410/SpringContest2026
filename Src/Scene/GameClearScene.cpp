@@ -58,7 +58,6 @@ void GameClearScene::Load(void)
 void GameClearScene::Init(void)
 {
 	soundMng_.Play(SoundManager::SRC::GAME_CLEAR_BGM, SoundManager::PLAYTYPE::LOOP);
-	SoundManager::GetInstance().SetSystemVolume(BGM_VOL, static_cast<int>(SoundManager::TYPE::BGM));
 
 	textEndTimer_ = 0.0f;
 	imgAlpha_ = 255;

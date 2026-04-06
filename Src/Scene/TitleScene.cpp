@@ -69,13 +69,16 @@ void TitleScene::Load(void)
 
 	menuMng_->LoadFont(FontManager::FONT_APRIL_GOTHIC, FONT_SIZE);
 	
+	SoundManager::GetInstance().SetSystemVolume(DataBank::GetInstance().GetBGMVolume(), static_cast<int>(SoundManager::TYPE::BGM));
+	SoundManager::GetInstance().SetSystemVolume(DataBank::GetInstance().GetSEVolume(), static_cast<int>(SoundManager::TYPE::SE));
+
 	//設定シーン
 	settingScn_->Load();
 	soundMng_.LoadResource(SoundManager::SRC::TITLE_BGM);
 	soundMng_.LoadResource(SoundManager::SRC::MOVE_BTN_SE);
 	soundMng_.LoadResource(SoundManager::SRC::DESIDE_BTN_SE);
-	soundMng_.LoadResource(SoundManager::SRC::GAME_START_SE);
-	
+	soundMng_.LoadResource(SoundManager::SRC::GAME_START_SE_1);
+	soundMng_.LoadResource(SoundManager::SRC::GAME_START_SE_2);
 	ButtonUIManager::GetInstance().Load();
 	cursor_->Load();
 	yesNoscn_->Load();
@@ -311,9 +314,14 @@ void TitleScene::UpdateMenu(void)
 	//OKボタンが押されたら
 	if (insS.IsTrgDown(INPUT_EVENT::OK))
 	{
-		SoundManager::SRC se;
+		SoundManager::SRC se = SoundManager::SRC::DESIDE_BTN_SE;
 		//ゲームスタート以外のボタンなら決定音、ゲームスタートならゲームスタート音を鳴らす
-		selectNum_ != static_cast<int>(TITLE_BTN::START_GAME) ? se = SoundManager::SRC::DESIDE_BTN_SE : se = SoundManager::SRC::GAME_START_SE;
+		if (selectNum_ == static_cast<int>(TITLE_BTN::START_GAME))
+		{
+			se = SoundManager::SRC::GAME_START_SE_1;
+			soundMng_.Play(se, SoundManager::PLAYTYPE::BACK);
+			soundMng_.Play(SoundManager::SRC::GAME_START_SE_2, SoundManager::PLAYTYPE::BACK);
+		}
 		soundMng_.Play(se, SoundManager::PLAYTYPE::BACK);
 		ChangeState(static_cast<TITLE_STATE>(selectNum_));
 	}
@@ -475,10 +483,11 @@ void TitleScene::DrawExit(void)
 
 void TitleScene::UpdateSelectGame(void)
 {
-	if (!soundMng_.IsPlay(SoundManager::SRC::GAME_START_SE))
-	{
-		soundMng_.Play(SoundManager::SRC::GAME_START_SE, SoundManager::PLAYTYPE::BACK);
-	}
+	//if (!soundMng_.IsPlay(SoundManager::SRC::GAME_START_SE_2))
+	//{
+	//	//soundMng_.Play(SoundManager::SRC::GAME_START_SE_1, SoundManager::PLAYTYPE::BACK);
+	//	//soundMng_.Play(SoundManager::SRC::GAME_START_SE_2, SoundManager::PLAYTYPE::BACK);
+	//}
 
 	//ゲームシーンに遷移
 	SceneManager::GetInstance().ChangeScene(SceneManager::SCENE_ID::GAME);

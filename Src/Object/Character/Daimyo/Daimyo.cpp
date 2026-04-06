@@ -10,7 +10,7 @@
 #include "../Manager/Resource/ResourceManager.h"
 #include "../Manager/Generic/InputManager.h"
 #include "../Manager/Game/GameRuleManager.h"
-#include "../Manager/Resource/FontManager.h"
+#include "../Manager/Resource/SoundManager.h"
 #include "../Object/Common/Collider2D/Collider2D.h"
 #include "../Object/Common/Collider2D/Geometry2D/BoxGeo.h"
 #include "../Object/Character/Daimyo/DaimyoOnHit.h"
@@ -19,7 +19,8 @@
 #include "Daimyo.h"
 
 Daimyo::Daimyo(const DaimyoImport _import)
-	: import_(_import)
+	: import_(_import),
+	soundMng_(SoundManager::GetInstance())
 {
 	state_ = STATE::STANDBY;
 	nextState_ = STATE::STANDBY;
@@ -32,12 +33,13 @@ Daimyo::Daimyo(const DaimyoImport _import)
 	edoPos_ = EDO_POS;
 	arrowPos_ = import_.pos;
 	alternateColor_ = import_.color;
-	dissatisfactionPer_ = 0.0f;
 	easing_ = std::make_unique<Easing>();
 	arrow_ = std::make_unique<ArrowController>(ResourceManager::SRC::ARROW_GAUGE
 		, arrowPos_, edoPos_
 		, ARROW_THICK, alternatePer_
 		, alternateColor_,EDO_COL,Vector2F(20.0f,5.0f),Vector2F(-50.0f, -5.0f));
+
+	dissatisfaction_ = 0;
 
 	float gaugeX = import_.pos.x + import_.hitBoxMin.x;
 	float gaugeY = import_.pos.y - import_.hitBoxMin.y+10.0f;
@@ -47,9 +49,7 @@ Daimyo::Daimyo(const DaimyoImport _import)
 	moneyPer_ = 0.0f;
 	moneyGauge_ = std::make_unique<GaugeController>(ResourceManager::SRC::GAUGE, moneyGaugePos_, moneyGaugeSize_, moneyPer_, moneyGaugeCol_, moneyGaugeCol_);
 	moneyGaugeColCnt_ = 0.0f;
-	dissatisfactionGaugeCol_ = { 1.0f,0.0f,0.0f,1.0f };
-	dissatisfactionGaugePos_ = { gaugeX ,gaugeY + moneyGaugeSize_.y + 5.0f };
-	dissatisfactionGauge_ = std::make_unique<GaugeController>(ResourceManager::SRC::GAUGE, dissatisfactionGaugePos_, moneyGaugeSize_, dissatisfactionPer_, dissatisfactionGaugeCol_, dissatisfactionGaugeCol_);
+
 	fontController_ = std::make_unique<FontController>();
 	enhancementMarkAlphaCnt_ = 0.0f;
 	enhancementCnt_[ENHANCEMENT_TYPE::TIME] = 0;
@@ -58,6 +58,9 @@ Daimyo::Daimyo(const DaimyoImport _import)
 	enhancementStr_.emplace(ENHANCEMENT_TYPE::TIME, L"時間");
 	enhancementStr_.emplace(ENHANCEMENT_TYPE::PROBABILITY, L"成功率");
 	enhancementStr_.emplace(ENHANCEMENT_TYPE::INCOME, L"収入");
+
+
+
 	//更新
 	update_.emplace(STATE::STANDBY, [this](void) {UpdateStandby(); });
 	update_.emplace(STATE::NORMAL, [this](void) {UpdateNormal(); });
@@ -141,8 +144,6 @@ void Daimyo::Load(void)
 	arrow_->Load();
 
 	moneyGauge_->Load();
-
-	dissatisfactionGauge_->Load();
 	//画像ID
 	imageId_ = ResourceManager::GetInstance().Load(ResourceManager::SRC::CASTLE).handleId_;
 	selectMenuImg_ = ResourceManager::GetInstance().Load(ResourceManager::SRC::SELECT_MENU).handleId_;
@@ -161,13 +162,17 @@ void Daimyo::Load(void)
 
 	alternateFailedStr_.emplace_back(L"ざけんなや...\n隊列乱すな...\nドブカスが...");
 	alternateFailedStr_.emplace_back(L"列があかんわ...");
-	alternateFailedStr_.emplace_back(L"しけてんにぇ...");
-	alternateFailedStr_.emplace_back(L"家臣ﾊﾞｯﾊﾞｲ...");
+
+	soundMng_.LoadResource(SoundManager::SRC::GAME_BGM);
+	soundMng_.LoadResource(SoundManager::SRC::ALTERNATE_SE);
+	soundMng_.LoadResource(SoundManager::SRC::ALTERNATE_START);
+	soundMng_.LoadResource(SoundManager::SRC::ALTERNATE_FAIL);
+	soundMng_.LoadResource(SoundManager::SRC::ALTERNATE_SUCCESS);
+	soundMng_.LoadResource(SoundManager::SRC::ENHANCEMENT);
 
 	alternateSuccessStr_.emplace_back(L"今回はドブカスおらん\nかったな。成功や。");
 	alternateSuccessStr_.emplace_back(L"参勤交代成功！\nこれで民も安心だ！");
 	alternateSuccessStr_.emplace_back(L"今回はスムーズに\n行けたわ");
-
 
 	kagoImage_ = ResourceManager::GetInstance().Load(ResourceManager::SRC::KAGO).handleId_;
 	speechBalloonImg_ = ResourceManager::GetInstance().Load(ResourceManager::SRC::SPEECH_BUBBLE).handleId_;
@@ -184,7 +189,6 @@ void Daimyo::Init(void)
 
 	arrow_->Init();
 	moneyGauge_->Init();
-	dissatisfactionGauge_->Init();
 	//初期化
 	pos_ = import_.pos;
 	selectPos_.emplace(SELECT::SELECT_ALTERNATE, pos_ + ALTERNATE_LOCAL_POS);
@@ -222,7 +226,6 @@ void Daimyo::Init(void)
 void Daimyo::Update(void)
 {
 	moneyGauge_->Update();
-	dissatisfactionGauge_->Update();
 	//状態ごとの更新
 	update_[state_]();
 }
@@ -230,7 +233,6 @@ void Daimyo::Update(void)
 void Daimyo::Draw(void)
 {
 	moneyGauge_->Draw();
-	dissatisfactionGauge_->Draw();
 
 	//状態ごとの描画
 	draw_[state_]();
@@ -462,6 +464,10 @@ void Daimyo::ResultAlternate(void)
 		//全体不満度を上昇
 		gameMng.AddDissatisfaction(FAILED_DISSATISFACTION);
 
+		dissatisfactionUp_ = FAILED_DISSATISFACTION;
+
+		//SE再生
+		soundMng_.Play(SoundManager::SRC::ALTERNATE_FAIL,SoundManager::PLAYTYPE::BACK);
 
 	}
 	else
@@ -471,6 +477,11 @@ void Daimyo::ResultAlternate(void)
 
 		//全体不満度を上昇
 		gameMng.AddDissatisfaction(SUCCESS_DISSATISFACTION);
+
+		dissatisfactionUp_ = SUCCESS_DISSATISFACTION;
+
+		//SE再生
+		soundMng_.Play(SoundManager::SRC::ALTERNATE_SUCCESS, SoundManager::PLAYTYPE::BACK);
 	}
 	alternateResultCnt_ = ALTERNATE_RESULT_TIME;
 	income_ = income*GameRuleManager::UNITS;
@@ -603,6 +614,8 @@ void Daimyo::UpdateActionAlternate(void)
 		//結果
 		ChangeState(STATE::RESULT_ALTERNATE);
 
+		soundMng_.Stop(SoundManager::SRC::ALTERNATE_SE);
+
 		//カウンタの初期化
 		cnt_ = 0.0f;
 
@@ -614,6 +627,11 @@ void Daimyo::UpdateActionAlternate(void)
 	KagoUpdate();
 
 	arrow_->Update();
+
+	if (!soundMng_.IsPlay(SoundManager::SRC::ALTERNATE_SE))
+	{
+		soundMng_.Play(SoundManager::SRC::ALTERNATE_SE, SoundManager::PLAYTYPE::LOOP);
+	}
 
 	//カウンタ
 	cnt_ += SceneManager::GetInstance().GetDeltaTime();
@@ -671,6 +689,7 @@ void Daimyo::UpdateEnhancementMax(void)
 	//項目を選択せずに左クリック
 	if (isBackMenu_ && input.IsTrgMouseLeft())
 	{
+		soundMng_.Play(SoundManager::SRC::ENHANCEMENT, SoundManager::PLAYTYPE::BACK);
 		//通常に戻る
 		ChangeState(STATE::NORMAL);
 	}
@@ -932,6 +951,10 @@ void Daimyo::DrawEnhancement(void)
 		//DrawBox(enhancePos.x+)
 		UtilityDraw::DrawStringCenterToFontHandle(enhancePos.second.x, enhancePos.second.y, 0x0, fontHandle_, enhancementStr_[enhancePos.first]);
 
+
+
+
+		//ここで強化項目の家紋を描画
 		float posX = enhancePos.second.x + ENHANCE_MENU_MAX.x + ENHANCE_MARK_OFFSET;
 		for (int i = 0; i < enhancementCnt_[enhancePos.first]; i++)
 		{
@@ -940,10 +963,12 @@ void Daimyo::DrawEnhancement(void)
 
 			posX += ENHANCE_MARK_SIZE + ENHANCE_MARK_OFFSET;
 		}
+
+		//強化予測でのマークを描画
 		posX = enhancePos.second.x + ENHANCE_MENU_MAX.x + ENHANCE_MARK_OFFSET;
 		for (int i = 0; i < enhancementCnt_[enhancePos.first] + 1; i++)
 		{
-
+			//if(enhancementCnt_>ENHANCE_MAX)
 			SetDrawBlendMode(DX_BLENDMODE_ALPHA, enhancementMarkAlpha_[enhancePos.first]);
 			DrawRotaGraphF(posX, enhancePos.second.y,
 				ENHANCE_MARK_SCL, 0.0f, enhancementMarkImg_, true);
