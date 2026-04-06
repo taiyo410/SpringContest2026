@@ -223,10 +223,15 @@ void GameClearScene::NormalDraw(void)
 		int statsPosY = Application::SCREEN_HALF_Y - 30;
 
 		int money = GameRuleManager::GetInstance().GetNowMoney() * GameRuleManager::UNITS;
+		std::wstringstream ss;
+		ss.imbue(std::locale(""));
+		ss << money;
+		std::wstring moneyStr = L"ŠŽ‹à : " + ss.str() + L"‰~";
+
 		int dissatisfaction = GameRuleManager::GetInstance().GetDissatisfaction();
 
 		DrawFormatStringToHandle(textStartX, statsPosY, UtilityCommon::WHITE, messageFontHandle_, L"¼—ï%d”N", currentYear_);
-		DrawFormatStringToHandle(textStartX, statsPosY + 50, UtilityCommon::WHITE, messageFontHandle_, L"ŠŽ‹à : %d", money);
+		DrawFormatStringToHandle(textStartX, statsPosY + 50, UtilityCommon::WHITE, messageFontHandle_, moneyStr.c_str());
 		DrawFormatStringToHandle(textStartX, statsPosY + 100, UtilityCommon::WHITE, messageFontHandle_, L"•s–ž“x : %d", dissatisfaction);
 
 		for (int i = 0; i < static_cast<int>(menuBtns_.size()); ++i)
