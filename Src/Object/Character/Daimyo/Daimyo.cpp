@@ -10,6 +10,7 @@
 #include "../Manager/Resource/ResourceManager.h"
 #include "../Manager/Generic/InputManager.h"
 #include "../Manager/Game/GameRuleManager.h"
+#include "../Manager/Game/CharacterManager.h"
 #include "../Manager/Resource/SoundManager.h"
 #include "../Object/Common/Collider2D/Collider2D.h"
 #include "../Object/Common/Collider2D/Geometry2D/BoxGeo.h"
@@ -504,6 +505,9 @@ void Daimyo::UpdateNormal(void)
 
 void Daimyo::UpdateSelectDirection(void)
 {
+	//お金の上昇
+	UpdateNormal();
+
 	EasingSelectDirection();
 	//イージングが終わったら
 	if (easingCnt_ >= EASEING_TIME)
@@ -515,6 +519,9 @@ void Daimyo::UpdateSelectDirection(void)
 
 void Daimyo::UpdateDeleteSelectDirection(void)
 {
+	//お金の上昇
+	UpdateNormal();
+
 	EasingSelectDirection();
 	//イージングが終わったら
 	if (easingCnt_ >= EASEING_TIME)
@@ -896,9 +903,6 @@ void Daimyo::DrawEnhancement(void)
 
 		//DrawBox(enhancePos.x+)
 		UtilityDraw::DrawStringCenterToFontHandle(enhancePos.second.x, enhancePos.second.y, 0x0, fontHandle_, enhancementStr_[enhancePos.first]);
-
-
-
 
 		//ここで強化項目の家紋を描画
 		float posX = enhancePos.second.x + ENHANCE_MENU_MAX.x + ENHANCE_MARK_OFFSET;
