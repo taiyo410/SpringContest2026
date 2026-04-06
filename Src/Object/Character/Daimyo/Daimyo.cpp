@@ -471,6 +471,8 @@ void Daimyo::ResultAlternate(void)
 	//‘å–¼‚Ì‚¨‹à‚ªŒ¸‚é
 	money_ -= FUNDS_MIN;
 
+	kagoCenterPos_ = import_.pos;
+
 	//ƒ‰ƒ“ƒ_ƒ€‚Ì’l(%)
 	int rand = UtilityCommon::GetRandomValue(1, 100);
 	if (alternateInfo_.probability < rand)
