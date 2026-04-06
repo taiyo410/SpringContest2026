@@ -43,9 +43,16 @@ void CharacterManager::Draw(void)
 
 	DrawRotaGraph(EDO_POS.x, EDO_POS.y, 0.05, 0.0, edoImg_, true);
 
+	//‚«o‚µŒn
 	for (auto& daimyo : daimyo_)
 	{
-		daimyo->DrawAfter();
+		daimyo->DrawSpeech();
+	}
+
+	//‘I‘ðŽˆŒn
+	for (auto& daimyo : daimyo_)
+	{
+		daimyo->DrawSelectBox();
 	}
 }
 

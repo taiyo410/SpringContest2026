@@ -155,7 +155,8 @@ public:
 	void Draw(void)override;
 
 	//後描画
-	void DrawAfter(void);
+	void DrawSpeech(void);
+	void DrawSelectBox(void);
 
 	//解放
 	void Release(void)override;
@@ -323,7 +324,8 @@ private:
 
 	//状態ごとの描画
 	std::unordered_map<STATE, std::function<void(void)>>draw_;
-	std::unordered_map<STATE, std::function<void(void)>>drawAfter_;
+	std::unordered_map<STATE, std::function<void(void)>>drawSpeech_;
+	std::unordered_map<STATE, std::function<void(void)>>drawSelect_;
 
 	//状態ごとの設定
 	std::unordered_map<STATE, std::function<void(void)>>changeSetting_;

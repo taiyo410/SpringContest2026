@@ -86,18 +86,31 @@ Daimyo::Daimyo(const DaimyoImport _import)
 	draw_.emplace(STATE::ENHANCE_MAX, [this](void) {DrawNormal(); });
 	draw_.emplace(STATE::DETAILS, [this](void) {DrawNormal(); });
 
-	drawAfter_.emplace(STATE::STANDBY, [this](void) {});
-	drawAfter_.emplace(STATE::NORMAL, [this](void) {});
-	drawAfter_.emplace(STATE::SELECT_DIRECTION, [this](void) {DrawSelectDirection(); });
-	drawAfter_.emplace(STATE::DELETE_SELECT_DIRECTION, [this](void) {DrawSelectDirection(); });
-	drawAfter_.emplace(STATE::SELECT, [this](void) {DrawSelect(); });
-	drawAfter_.emplace(STATE::SELECT_ALTERNATE, [this](void) {DrawSelectAlternate(); });
-	drawAfter_.emplace(STATE::NO_MONEY, [this](void) {DrawNoMoney(); });
-	drawAfter_.emplace(STATE::ACTION_ALTERNATE, [this](void) {});
-	drawAfter_.emplace(STATE::RESULT_ALTERNATE, [this](void) {DrawResultAlternate(); });
-	drawAfter_.emplace(STATE::ENHANCEMENT, [this](void) {DrawEnhancement(); });
-	drawAfter_.emplace(STATE::ENHANCE_MAX, [this](void) {DrawEnhancementMax(); });
-	drawAfter_.emplace(STATE::DETAILS, [this](void) {DrawDetails(); });
+	drawSpeech_.emplace(STATE::STANDBY, [this](void) {});
+	drawSpeech_.emplace(STATE::NORMAL, [this](void) {});
+	drawSpeech_.emplace(STATE::SELECT_DIRECTION, [this](void) { });
+	drawSpeech_.emplace(STATE::DELETE_SELECT_DIRECTION, [this](void) { });
+	drawSpeech_.emplace(STATE::SELECT, [this](void) {});
+	drawSpeech_.emplace(STATE::SELECT_ALTERNATE, [this](void) {});
+	drawSpeech_.emplace(STATE::NO_MONEY, [this](void) {DrawNoMoney(); });
+	drawSpeech_.emplace(STATE::ACTION_ALTERNATE, [this](void) {});
+	drawSpeech_.emplace(STATE::RESULT_ALTERNATE, [this](void) {DrawResultAlternate(); });
+	drawSpeech_.emplace(STATE::ENHANCEMENT, [this](void) { });
+	drawSpeech_.emplace(STATE::ENHANCE_MAX, [this](void) {DrawEnhancementMax(); });
+	drawSpeech_.emplace(STATE::DETAILS, [this](void) {});
+
+	drawSelect_.emplace(STATE::STANDBY, [this](void) {});
+	drawSelect_.emplace(STATE::NORMAL, [this](void) {});
+	drawSelect_.emplace(STATE::SELECT_DIRECTION, [this](void) {DrawSelectDirection(); });
+	drawSelect_.emplace(STATE::DELETE_SELECT_DIRECTION, [this](void) {DrawSelectDirection(); });
+	drawSelect_.emplace(STATE::SELECT, [this](void) {DrawSelect(); });
+	drawSelect_.emplace(STATE::SELECT_ALTERNATE, [this](void) {DrawSelectAlternate(); });
+	drawSelect_.emplace(STATE::NO_MONEY, [this](void) {});
+	drawSelect_.emplace(STATE::ACTION_ALTERNATE, [this](void) {});
+	drawSelect_.emplace(STATE::RESULT_ALTERNATE, [this](void) {});
+	drawSelect_.emplace(STATE::ENHANCEMENT, [this](void) {DrawEnhancement(); });
+	drawSelect_.emplace(STATE::ENHANCE_MAX, [this](void) {DrawEnhancementMax(); });
+	drawSelect_.emplace(STATE::DETAILS, [this](void) {DrawDetails(); });
 
 	//ÉRÉâÉCÉ_ê∂ê¨
 	changeSetting_.emplace(STATE::STANDBY, [this](void) {});
@@ -223,10 +236,16 @@ void Daimyo::Draw(void)
 	draw_[state_]();
 }
 
-void Daimyo::DrawAfter(void)
+void Daimyo::DrawSpeech(void)
 {
 	//èÛë‘Ç≤Ç∆ÇÃï`âÊ
-	drawAfter_[state_]();
+	drawSpeech_[state_]();
+}
+
+void Daimyo::DrawSelectBox(void)
+{
+	//ëIëéàånÇÃï`âÊ
+	drawSelect_[state_]();
 }
 
 void Daimyo::Release(void)
@@ -701,7 +720,7 @@ void Daimyo::DrawNormal(void)
 	DrawExtendGraph(pos_.x + import_.hitBoxMin.x, pos_.y + import_.hitBoxMin.y, pos_.x + import_.hitBoxMax.x, pos_.y + import_.hitBoxMax.y, imageId_, true);
 
 	//èäéùã‡
-	DrawFormatString(pos_.x, pos_.y + 50, 0x00ff00, L"%.2f", money_);
+	//DrawFormatString(pos_.x, pos_.y + 50, 0x00ff00, L"%.2f", money_);
 }
 
 void Daimyo::DrawSelect(void)
