@@ -950,7 +950,7 @@ void Daimyo::DrawResultAlternate(void)
 	//DrawString(pos_.x + 50, pos_.y, isSuccess_ ? L"Success" : L"Failure", 0xffffff);
 
 	// Šù‘¶‚Ì”wŒi‚âƒLƒƒƒ‰‚Ì•`‰æ‚ðæ‚És‚¤
-	DrawNormal();
+	//DrawNormal();
 
 	// ‚«o‚µ‚ª•\Ž¦‚³‚ê‚Ä‚¢‚éŠÔ‚¾‚¯A‰æ‘œ‚ð‰æ–Ê’†‰›‚â‚â¶‚É•`‰æ‚·‚é
 	if (alternateResultCnt_ > 0.0f)

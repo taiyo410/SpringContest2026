@@ -57,8 +57,6 @@ void GameRuleManager::Draw(void)
 	str += L"‰~";
 	UtilityDraw::DrawStringCenterToFontHandle(moneyPos.x, moneyPos.y, 0, moneyFont_, str);
 
-	dissatifactionBar_->Draw();
-
 	//”N”
 	Vector2F yearPos = { 150.0f,50.0f };
 	Vector2F yearBox = { 130.0f,40.0f };
@@ -68,6 +66,11 @@ void GameRuleManager::Draw(void)
 	yearStr += std::to_wstring(elapsedYear_);
 	yearStr += L"”N";
 	UtilityDraw::DrawStringCenterToFontHandle(yearPos.x, yearPos.y, 0, moneyFont_, yearStr);
+}
+
+void GameRuleManager::DrawSelect(void)
+{
+	dissatifactionBar_->Draw();
 }
 
 void GameRuleManager::Release(void)

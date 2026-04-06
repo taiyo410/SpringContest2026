@@ -142,6 +142,8 @@ void GameScene::NormalDraw(void)
 
 	CharacterManager::GetInstance().Draw();
 
+	GameRuleManager::GetInstance().DrawSelect();
+
 	if (updatePhase_ == UPDATE_PHASE::DIRECTION)
 	{
 		UIManager::GetInstance().DirectionDraw();

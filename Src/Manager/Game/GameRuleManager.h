@@ -44,6 +44,7 @@ public:
 	/// @brief 描画
 	/// @param  
 	void Draw(void);
+	void DrawSelect(void);
 
 	/// @brief 解放
 	/// @param  
