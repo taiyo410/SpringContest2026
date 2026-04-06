@@ -47,6 +47,25 @@ void ResourceManager::Init(void)
 	res = std::make_unique<ResourceData>(ResourceData::TYPE::IMG, PATH_IMG + L"GameClear.png");
 	resourcesMap_.emplace(SRC::GAME_CLEAR_IMG, std::move(res));
 
+	// タイトルシーン用の画像登録
+	res = std::make_unique<ResourceData>(ResourceData::TYPE::IMG, PATH_IMG + L"sky.png");
+	resourcesMap_.emplace(SRC::TITLE_SKY, std::move(res));
+
+	res = std::make_unique<ResourceData>(ResourceData::TYPE::IMG, PATH_IMG + L"mountain.png");
+	resourcesMap_.emplace(SRC::TITLE_MOUNTAIN, std::move(res));
+
+	res = std::make_unique<ResourceData>(ResourceData::TYPE::IMG, PATH_IMG + L"cloud.png");
+	resourcesMap_.emplace(SRC::TITLE_CLOUD, std::move(res));
+
+	res = std::make_unique<ResourceData>(ResourceData::TYPE::IMG, PATH_IMG + L"road.png");
+	resourcesMap_.emplace(SRC::TITLE_ROAD, std::move(res));
+
+	res = std::make_unique<ResourceData>(ResourceData::TYPE::IMG, PATH_IMG + L"kago.png");
+	resourcesMap_.emplace(SRC::TITLE_KAGO, std::move(res));
+
+	res = std::make_unique<ResourceData>(ResourceData::TYPE::IMG, PATH_IMG + L"title_logo.png");
+	resourcesMap_.emplace(SRC::TITLE_LOGO, std::move(res));
+
 	res = std::make_unique<ResourceData>(ResourceData::TYPE::IMG, PATH_IMG + L"Kago.png");
 	resourcesMap_.emplace(SRC::KAGO, std::move(res));
 
