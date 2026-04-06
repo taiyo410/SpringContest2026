@@ -36,6 +36,7 @@ void Cursor::Load(void)
 	explanStr_.emplace(EXPLAN::ENHANCE_TIME, L"実行時間を減らす\n一回につき10％減");
 	explanStr_.emplace(EXPLAN::ENHANCE_PROBABILITY, L"成功率を上げる\n一回につき10％増");
 	explanStr_.emplace(EXPLAN::ENHANCE_INCOME, L"収入を上げる\n一回につき10％増");
+	explanStr_.emplace(EXPLAN::ENHANCE_MAX, L"もう最大強化やで");
 	explanStr_.emplace(EXPLAN::DETAILS, L"現在の強化状況が分かる");
 	explanStr_.emplace(EXPLAN::DISSATISFACTION, L"不満度を下げる\nお金が1000万円かかる");
 
@@ -46,6 +47,7 @@ void Cursor::Load(void)
 	preChange_.emplace(EXPLAN::ENHANCE_TIME, [this](const int _value) {PreChangeEnhanceTime(_value); });
 	preChange_.emplace(EXPLAN::ENHANCE_PROBABILITY, [this](const int _value) {PreChangeEnhanceProbability(_value); });
 	preChange_.emplace(EXPLAN::ENHANCE_INCOME, [this](const int _value) {PreChangeEnhanceIncome(_value); });
+	preChange_.emplace(EXPLAN::ENHANCE_MAX, [this](const int _value) {});
 	preChange_.emplace(EXPLAN::DETAILS, [this](const int _value) {});
 	preChange_.emplace(EXPLAN::DISSATISFACTION, [this](const int _value) {});
 
@@ -86,10 +88,10 @@ void Cursor::Update(void)
 
 void Cursor::Draw(void)
 {
-	for (auto& col : colliders_)
-	{
-		col.get()->GetGeometry().Draw(0);
-	}
+	//for (auto& col : colliders_)
+	//{
+	//	col.get()->GetGeometry().Draw(0);
+	//}
 
 	//カーソル画像
 	DrawRotaGraph(pos_.x, pos_.y, 0.15, UtilityCommon::Deg2RadD(-30.0), imageId_, true);
@@ -104,7 +106,7 @@ void Cursor::Draw(void)
 		UtilityDraw::DrawStringCenterToFontHandle(speechPos_.x, speechPos_.y, 0x0, fontHandle_, explanStr_[explanType_]);
 	}
 
-	DrawFormatString(0, 0, 0xffffff, L"Cursor Pos:(%f,%f)", pos_.x, pos_.y);
+	//DrawFormatString(0, 0, 0xffffff, L"Cursor Pos:(%f,%f)", pos_.x, pos_.y);
 }
 
 void Cursor::Release(void)

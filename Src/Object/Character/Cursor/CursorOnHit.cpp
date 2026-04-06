@@ -54,22 +54,47 @@ void CursorOnHit::HitDaimyoEnhancement(const std::weak_ptr<Collider2D> _partner)
 void CursorOnHit::HitDaimyoEnhanceTime(const std::weak_ptr<Collider2D> _partner)
 {
 	const Daimyo& daimyo = dynamic_cast<const Daimyo&>(_partner.lock()->GetOwner());
-	int funds = (daimyo.GetEnhancementCnt(Daimyo::ENHANCEMENT_TYPE::TIME) + 1) * Daimyo::ENHANCE_FUNDS;
-	parent_.ChangeExplan(Cursor::EXPLAN::ENHANCE_TIME, funds);
+	
+	int cnt = daimyo.GetEnhancementCnt(Daimyo::ENHANCEMENT_TYPE::TIME) + 1;
+	if (cnt <= Daimyo::ENHANCE_MAX)
+	{
+		int funds = cnt * Daimyo::ENHANCE_FUNDS;
+		parent_.ChangeExplan(Cursor::EXPLAN::ENHANCE_TIME, funds);
+	}
+	else
+	{
+		parent_.ChangeExplan(Cursor::EXPLAN::ENHANCE_MAX);
+	}
 }
 
 void CursorOnHit::HitDaimyoEnhanceProbability(const std::weak_ptr<Collider2D> _partner)
 {
 	const Daimyo& daimyo = dynamic_cast<const Daimyo&>(_partner.lock()->GetOwner());
-	int funds = (daimyo.GetEnhancementCnt(Daimyo::ENHANCEMENT_TYPE::PROBABILITY) + 1) * Daimyo::ENHANCE_FUNDS;
-	parent_.ChangeExplan(Cursor::EXPLAN::ENHANCE_PROBABILITY, funds);
+	int cnt = daimyo.GetEnhancementCnt(Daimyo::ENHANCEMENT_TYPE::PROBABILITY) + 1;
+	if (cnt <= Daimyo::ENHANCE_MAX)
+	{
+		int funds = cnt * Daimyo::ENHANCE_FUNDS;
+		parent_.ChangeExplan(Cursor::EXPLAN::ENHANCE_PROBABILITY, funds);
+	}
+	else
+	{
+		parent_.ChangeExplan(Cursor::EXPLAN::ENHANCE_MAX);
+	}
 }
 
 void CursorOnHit::HitDaimyoEnhanceIncome(const std::weak_ptr<Collider2D> _partner)
 {
 	const Daimyo& daimyo = dynamic_cast<const Daimyo&>(_partner.lock()->GetOwner());
-	int funds = (daimyo.GetEnhancementCnt(Daimyo::ENHANCEMENT_TYPE::INCOME) + 1) * Daimyo::ENHANCE_FUNDS;
-	parent_.ChangeExplan(Cursor::EXPLAN::ENHANCE_INCOME, funds);
+	int cnt = daimyo.GetEnhancementCnt(Daimyo::ENHANCEMENT_TYPE::INCOME) + 1;
+	if (cnt <= Daimyo::ENHANCE_MAX)
+	{
+		int funds = cnt * Daimyo::ENHANCE_FUNDS;
+		parent_.ChangeExplan(Cursor::EXPLAN::ENHANCE_INCOME, funds);
+	}
+	else
+	{
+		parent_.ChangeExplan(Cursor::EXPLAN::ENHANCE_MAX);
+	}
 }
 
 void CursorOnHit::HitDaimyoDetails(const std::weak_ptr<Collider2D> _partner)

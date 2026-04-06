@@ -608,8 +608,11 @@ void Daimyo::UpdateResultAlternate(void)
 	//入力
 	const auto& input = InputManager::GetInstance();
 
+	//カウントダウン
+	UtilityCommon::CountDown(alternateResultCnt_, 0.0f, false, SceneManager::GetInstance().GetDeltaTime());
+
 	//項目を選択せずに左クリック
-	if (isBackMenu_ && input.IsTrgMouseLeft())
+	if (isBackMenu_ && input.IsTrgMouseLeft() || alternateResultCnt_ < 0.0f)
 	{
 		//通常に戻る
 		ChangeState(STATE::NORMAL);
@@ -699,24 +702,6 @@ void Daimyo::DrawNormal(void)
 
 	//所持金
 	DrawFormatString(pos_.x, pos_.y + 50, 0x00ff00, L"%.2f", money_);
-
-	if (alternateResultCnt_ > 0.0f)
-	{
-		Vector2F baloonPos = { pos_.x + import_.hitBoxMax.x, pos_.y + import_.hitBoxMin.y };
-		int LOCAL_POS_Y = 40;
-		float SCALE = 1.1f;
-		baloonPos += Vector2F(BALOON_SIZE.x * SCALE / 2-60, -BALOON_SIZE.y * SCALE / 2+50);
-		DrawRotaGraph(baloonPos.x, baloonPos.y, SCALE, 0.0f, speechBalloonImg_, true);
-
-		std::wstring resultStr = isSuccess_ ? alternateSuccessStr_[alternateFailedNum_] : alternateFailedStr_[alternateFailedNum_];
-		//UtilityDraw::DrawStringCenterToFontHandle(baloonPos.x, baloonPos.y-LOCAL_POS_Y, 0x0, alternateExplanFontHandle_, resultStr);
-		UtilityDraw::DrawFormatStringCenterToFontHandle(baloonPos.x, baloonPos.y, 0x0, alternateExplanFontHandle_, (resultStr + L"\n収入：%d\n不満ゲージ：%d").c_str(),
-			income_, SUCCESS_DISSATISFACTION);
-		alternateResultCnt_ -= SceneManager::GetInstance().GetDeltaTime();
-		UtilityCommon::CountDown(alternateResultCnt_, 0.0f, false, SceneManager::GetInstance().GetDeltaTime());
-	}
-
-
 }
 
 void Daimyo::DrawSelect(void)
@@ -892,7 +877,20 @@ void Daimyo::DrawActionAlternate(void)
 
 void Daimyo::DrawResultAlternate(void)
 {
-	//DrawString(pos_.x + 50, pos_.y, isSuccess_ ? L"Success" : L"Failure", 0xffffff);
+	if (alternateResultCnt_ > 0.0f)
+	{
+		Vector2F baloonPos = { pos_.x + import_.hitBoxMax.x, pos_.y + import_.hitBoxMin.y };
+		int LOCAL_POS_Y = 40;
+		float SCALE = 1.1f;
+		baloonPos += Vector2F(BALOON_SIZE.x * SCALE / 2 - 60, -BALOON_SIZE.y * SCALE / 2 + 50);
+		DrawRotaGraph(baloonPos.x, baloonPos.y, SCALE, 0.0f, speechBalloonImg_, true);
+
+		std::wstring resultStr = isSuccess_ ? alternateSuccessStr_[alternateFailedNum_] : alternateFailedStr_[alternateFailedNum_];
+		//UtilityDraw::DrawStringCenterToFontHandle(baloonPos.x, baloonPos.y-LOCAL_POS_Y, 0x0, alternateExplanFontHandle_, resultStr);
+		UtilityDraw::DrawFormatStringCenterToFontHandle(baloonPos.x, baloonPos.y, 0x0, alternateExplanFontHandle_, (resultStr + L"\n収入：%d\n不満ゲージ：%d").c_str(),
+			income_, SUCCESS_DISSATISFACTION);
+	}
+
 }
 
 void Daimyo::DrawEnhancement(void)

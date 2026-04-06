@@ -18,7 +18,7 @@ void GameRuleManager::Load(void)
 	font_ = std::make_unique<FontController>();
 
 	//フォントの登録
-	moneyFont_ = font_->GetFontHandle(FontManager::FONT_APRIL_GOTHIC, FONT_SIZE, 16, DX_FONTTYPE_EDGE);
+	moneyFont_ = font_->GetFontHandle(FontManager::FONT_APRIL_GOTHIC, FONT_SIZE, 0);
 
 	//画像
 	imageId_ = res.Load(ResourceManager::SRC::SELECT_MENU).handleId_;
@@ -55,7 +55,7 @@ void GameRuleManager::Draw(void)
 	ss << nowMoney_ * UNITS;
 	str += ss.str();
 	str += L"円";
-	UtilityDraw::DrawStringCenterToFontHandle(moneyPos.x, moneyPos.y, 0xffffff, moneyFont_, str);
+	UtilityDraw::DrawStringCenterToFontHandle(moneyPos.x, moneyPos.y, 0, moneyFont_, str);
 
 	dissatifactionBar_->Draw();
 
@@ -67,7 +67,7 @@ void GameRuleManager::Draw(void)
 	std::wstring yearStr = L"経過年数：";
 	yearStr += std::to_wstring(elapsedYear_);
 	yearStr += L"年";
-	UtilityDraw::DrawStringCenterToFontHandle(yearPos.x, yearPos.y, 0xffffff, moneyFont_, yearStr);
+	UtilityDraw::DrawStringCenterToFontHandle(yearPos.x, yearPos.y, 0, moneyFont_, yearStr);
 }
 
 void GameRuleManager::Release(void)

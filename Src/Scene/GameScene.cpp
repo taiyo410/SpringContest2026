@@ -136,9 +136,9 @@ void GameScene::NormalDraw(void)
 	DrawExtendGraph(0, 0, Application::SCREEN_SIZE_X, Application::SCREEN_SIZE_Y, mapBackImage_, true);
 	DrawRotaGraph(Application::SCREEN_HALF_X, 380, 0.6, 0.0, mapImage_, true);
 
-	CharacterManager::GetInstance().Draw();
-
 	GameRuleManager::GetInstance().Draw();
+
+	CharacterManager::GetInstance().Draw();
 
 	if (updatePhase_ == UPDATE_PHASE::DIRECTION)
 	{

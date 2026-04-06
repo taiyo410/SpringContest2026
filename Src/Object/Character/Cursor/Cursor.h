@@ -17,9 +17,10 @@ public:
 		DAIMYO,					//‘å–¼
 		DAIMYO_ALTERNATE,		//ŽQ‹Î
 		ENHANCEMENT,			//‹­‰»
-		ENHANCE_TIME,			//‹­‰»
-		ENHANCE_PROBABILITY,	//‹­‰»
-		ENHANCE_INCOME,			//‹­‰»
+		ENHANCE_TIME,			//‹­‰»(ŽžŠÔ)
+		ENHANCE_PROBABILITY,	//‹­‰»(¬Œ÷—¦)
+		ENHANCE_INCOME,			//‹­‰»(Žû“ü)
+		ENHANCE_MAX,			//‹­‰»(Å‘å)
 		DETAILS,				//Ú×
 		DISSATISFACTION,		//•s–ž
 	};
