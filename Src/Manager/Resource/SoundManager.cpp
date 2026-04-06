@@ -72,6 +72,9 @@ void SoundManager::Init(void)
 	res.path = path_Se + L"AlternateSe.mp3";
 	resourcesMap_.emplace(SRC::ALTERNATE_SE, res);
 
+	res.path = path_Se + L"Event.mp3";
+	resourcesMap_.emplace(SRC::EVENT_SE, res);
+
 	res.path = path_Se + L"EnhanceSE.mp3";
 	resourcesMap_.emplace(SRC::ENHANCEMENT_SUCCESS, res);
 	res.path = path_Se + L"Enhance_Fail.mp3";

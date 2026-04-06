@@ -74,7 +74,7 @@ public:
 	const int GetElapsedYear(void)const { return elapsedYear_; }
 
 	//経過年数を進める（※ゲーム内の適切なタイミングでこの関数を呼んでください）
-	void AddYear(const int _year) { elapsedYear_ += _year; }
+	void AddYear(const int _year);
 
 	//ゲームクリア条件を満たしているか
 	const bool IsGameClear(void)const { return elapsedYear_ >= CLEAR_YEAR_LIMIT; }

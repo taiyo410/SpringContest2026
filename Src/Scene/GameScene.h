@@ -76,6 +76,11 @@ private:
 	//ポーズ画面
 	std::shared_ptr<PauseScene> pauseScene_;
 
+	// 説明テキスト表示用の状態管理変数
+	bool isShowDescriptionText_;	// 説明テキストを表示するかどうかのフラグ
+	bool oldRightClick_;			// 前回フレームの右クリック入力状態
+	int descFontHandle_;			// 説明テキストのフォントハンドル
+
 	//更新関数
 	void NoneUpdate(void);				//何もしない
 	void FadeUpdate(void);				//フェード

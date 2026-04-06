@@ -38,6 +38,7 @@ public:
 		DISSATISFACTION_DOWN,
 
 		ALTERNATE_SE,
+		EVENT_SE,					//ƒCƒxƒ“ƒgSE
 		MAX
 
 	};
