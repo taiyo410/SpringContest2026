@@ -23,7 +23,7 @@ void GameRuleManager::Load(void)
 
 
 	soundMng_.LoadResource(SoundManager::SRC::DISSATISFACTION_DOWN);
-
+	soundMng_.LoadResource(SoundManager::SRC::EVENT_SE);
 	//不満度ゲージ
 	dissatifactionBar_ = std::make_unique<DissatisfactionBar>();
 	dissatifactionBar_->Load();

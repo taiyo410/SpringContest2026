@@ -121,6 +121,8 @@ void DaimyoOnHit::HitCursor(const std::weak_ptr<Collider2D> _partner)
 					//ë´ÇËÇΩ
 					parent_.ChangeState(Daimyo::STATE::NORMAL);
 
+					soundMng_.Play(SoundManager::SRC::ENHANCEMENT_SUCCESS, SoundManager::PLAYTYPE::BACK);
+
 					//Ç®ã‡ÇÃè¡îÔ
 					rule.SubMoney(Daimyo::ENHANCE_FUNDS * (parent_.GetEnhancementCnt(Daimyo::ENHANCEMENT_TYPE::TIME) + 1));
 
@@ -176,6 +178,8 @@ void DaimyoOnHit::HitCursor(const std::weak_ptr<Collider2D> _partner)
 				{
 					//ë´ÇËÇΩ
 					parent_.ChangeState(Daimyo::STATE::NORMAL);
+
+					soundMng_.Play(SoundManager::SRC::ENHANCEMENT_SUCCESS, SoundManager::PLAYTYPE::BACK);
 
 					//Ç®ã‡ÇÃè¡îÔ
 					rule.SubMoney(Daimyo::ENHANCE_FUNDS * (parent_.GetEnhancementCnt(Daimyo::ENHANCEMENT_TYPE::INCOME) + 1));
