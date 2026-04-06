@@ -49,7 +49,7 @@ public:
 	void OnHit(const std::weak_ptr<Collider2D> _partner)override;
 
 	//説明吹き出しの変更
-	void ChangeExplan(const EXPLAN _type);
+	void ChangeExplan(const EXPLAN _type, const int _value = -1);
 
 private:
 
@@ -70,6 +70,8 @@ private:
 	//説明文字列
 	std::unordered_map<EXPLAN, std::wstring> explanStr_;
 
+	std::unordered_map<EXPLAN, std::function<void(int)>> preChange_;
+
 	//説明画像
 	std::unordered_map<EXPLAN, int> explanImg_;
 
@@ -82,5 +84,10 @@ private:
 
 	//説明画像を出すかどうか
 	bool isExplanImg_;
+
+	//変更
+	void PreChangeEnhanceTime(const int _value);
+	void PreChangeEnhanceProbability(const int _value);
+	void PreChangeEnhanceIncome(const int _value);
 };
 

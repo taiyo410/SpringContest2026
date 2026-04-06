@@ -43,9 +43,7 @@ void DaimyoOnHit::HitCursor(const std::weak_ptr<Collider2D> _partner)
 {
 	//入力
 	const auto& input = InputManager::GetInstance();
-
-
-
+	auto& rule = GameRuleManager::GetInstance();
 
 	//左クリック
 	if (input.IsTrgMouseLeft())
@@ -88,7 +86,7 @@ void DaimyoOnHit::HitCursor(const std::weak_ptr<Collider2D> _partner)
 				parent_.ChangeState(Daimyo::STATE::ACTION_ALTERNATE);
 
 				// 参勤交代を実行する度に1年経過
-				GameRuleManager::GetInstance().AddYear(1);
+				rule.AddYear(1);
 			}
 			else if (myCol->IsHit() && myCol->GetTag() == Collider2D::TAG::ALTERNATE_NORMAL)
 			{
@@ -96,7 +94,8 @@ void DaimyoOnHit::HitCursor(const std::weak_ptr<Collider2D> _partner)
 				parent_.SetAlternateDiff(Daimyo::ALTERNATE_DIFF::NORMAL);
 				parent_.ChangeState(Daimyo::STATE::ACTION_ALTERNATE);
 
-				GameRuleManager::GetInstance().AddYear(1);
+				// 参勤交代を実行する度に1年経過
+				rule.AddYear(1);
 			}
 			else if (myCol->IsHit() && myCol->GetTag() == Collider2D::TAG::ALTERNATE_DENGER)
 			{
@@ -104,32 +103,81 @@ void DaimyoOnHit::HitCursor(const std::weak_ptr<Collider2D> _partner)
 				parent_.SetAlternateDiff(Daimyo::ALTERNATE_DIFF::DENGER);
 				parent_.ChangeState(Daimyo::STATE::ACTION_ALTERNATE);
 
-				//状態遷移
-				parent_.ChangeState(Daimyo::STATE::ACTION_ALTERNATE);
+				// 参勤交代を実行する度に1年経過
+				rule.AddYear(1);
 			}
 			else if (myCol->IsHit() && myCol->GetTag() == Collider2D::TAG::ENHANCEMENT_TIME)
 			{
-				//状態遷移
-				parent_.ChangeState(Daimyo::STATE::NORMAL);
+				if (parent_.GetEnhancementCnt(Daimyo::ENHANCEMENT_TYPE::TIME) >= Daimyo::ENHANCE_MAX)
+				{
+					//最大だった
+					parent_.ChangeState(Daimyo::STATE::ENHANCE_MAX);
+				}
+				else if (rule.HasEnoughMoney(Daimyo::ENHANCE_FUNDS * (parent_.GetEnhancementCnt(Daimyo::ENHANCEMENT_TYPE::TIME) + 1)))
+				{
+					//足りた
+					parent_.ChangeState(Daimyo::STATE::NORMAL);
 
-				//強化
-				parent_.Enhancement(Daimyo::ENHANCEMENT_TYPE::TIME);
+					//お金の消費
+					rule.SubMoney(Daimyo::ENHANCE_FUNDS * (parent_.GetEnhancementCnt(Daimyo::ENHANCEMENT_TYPE::TIME) + 1));
+
+					//強化
+					parent_.Enhancement(Daimyo::ENHANCEMENT_TYPE::TIME);
+				}
+				else
+				{
+					//足りない
+					parent_.ChangeState(Daimyo::STATE::NO_MONEY);
+				}
+
 			}
 			else if (myCol->IsHit() && myCol->GetTag() == Collider2D::TAG::ENHANCEMENT_PROBABILITY)
 			{
-				//状態遷移
-				parent_.ChangeState(Daimyo::STATE::NORMAL);
+				if (parent_.GetEnhancementCnt(Daimyo::ENHANCEMENT_TYPE::PROBABILITY) >= Daimyo::ENHANCE_MAX)
+				{
+					//最大だった
+					parent_.ChangeState(Daimyo::STATE::ENHANCE_MAX);
+				}
+				else if (rule.HasEnoughMoney(Daimyo::ENHANCE_FUNDS * (parent_.GetEnhancementCnt(Daimyo::ENHANCEMENT_TYPE::PROBABILITY) + 1)))
+				{
+					//足りた
+					parent_.ChangeState(Daimyo::STATE::NORMAL);
 
-				//強化
-				parent_.Enhancement(Daimyo::ENHANCEMENT_TYPE::PROBABILITY);
+					//お金の消費
+					rule.SubMoney(Daimyo::ENHANCE_FUNDS * (parent_.GetEnhancementCnt(Daimyo::ENHANCEMENT_TYPE::PROBABILITY) + 1));
+
+					//強化
+					parent_.Enhancement(Daimyo::ENHANCEMENT_TYPE::PROBABILITY);
+				}
+				else
+				{
+					//足りない
+					parent_.ChangeState(Daimyo::STATE::NO_MONEY);
+				}
 			}
 			else if (myCol->IsHit() && myCol->GetTag() == Collider2D::TAG::ENHANCEMENT_INCOME)
 			{
-				//状態遷移
-				parent_.ChangeState(Daimyo::STATE::NORMAL);
+				if (parent_.GetEnhancementCnt(Daimyo::ENHANCEMENT_TYPE::INCOME) >= Daimyo::ENHANCE_MAX)
+				{
+					//最大だった
+					parent_.ChangeState(Daimyo::STATE::ENHANCE_MAX);
+				}
+				else if (rule.HasEnoughMoney(Daimyo::ENHANCE_FUNDS * (parent_.GetEnhancementCnt(Daimyo::ENHANCEMENT_TYPE::INCOME) + 1)))
+				{
+					//足りた
+					parent_.ChangeState(Daimyo::STATE::NORMAL);
 
-				//強化
-				parent_.Enhancement(Daimyo::ENHANCEMENT_TYPE::INCOME);
+					//お金の消費
+					rule.SubMoney(Daimyo::ENHANCE_FUNDS * (parent_.GetEnhancementCnt(Daimyo::ENHANCEMENT_TYPE::INCOME) + 1));
+
+					//強化
+					parent_.Enhancement(Daimyo::ENHANCEMENT_TYPE::INCOME);
+				}
+				else
+				{
+					//足りない
+					parent_.ChangeState(Daimyo::STATE::NO_MONEY);
+				}
 			}
 		}
 

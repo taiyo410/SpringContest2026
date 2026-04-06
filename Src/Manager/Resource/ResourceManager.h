@@ -21,10 +21,12 @@ public:
 		MAP_BACK,			//マップ背景
 		MAP,				//マップ
 		CASTLE,				//城
+		EDO,				//江戸
 		GAUGE,				//ゲージ
 		KAGO,				//駕籠
 		FAMIRY_CREST,		//家紋
 		ARROW_GAUGE,		//矢印ゲージ
+		CURSOR,				//カーソル
 
 		// タイトルシーン用追加素材
 		TITLE_SKY,				//空

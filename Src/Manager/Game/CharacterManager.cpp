@@ -11,6 +11,7 @@
 void CharacterManager::Load(void)
 {
 	daimyoImportData_ = LoaderManager<DaimyoImport>::GetInstance().GetfileData(UtilityCommon::GetStringFromWString(Application::PATH_JSON + L"Daimyo.json"));
+	edoImg_ = ResourceManager::GetInstance().Load(ResourceManager::SRC::EDO).handleId_;
 }
 
 void CharacterManager::Init(void)
@@ -39,12 +40,13 @@ void CharacterManager::Draw(void)
 	{
 		daimyo->Draw();
 	}	
+
+	DrawRotaGraph(EDO_POS.x, EDO_POS.y, 0.05, 0.0, edoImg_, true);
+
 	for (auto& daimyo : daimyo_)
 	{
 		daimyo->DrawAfter();
 	}
-
-	DrawCircle(EDO_POS.x, EDO_POS.y, 50.0f, 0xFF0000, true);
 }
 
 void CharacterManager::Release(void)

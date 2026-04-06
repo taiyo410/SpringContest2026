@@ -1,4 +1,5 @@
 #include "../pch.h"
+#include "../Daimyo/Daimyo.h"
 #include "CursorOnHit.h"
 
 CursorOnHit::CursorOnHit(Cursor& _parent)
@@ -52,17 +53,23 @@ void CursorOnHit::HitDaimyoEnhancement(const std::weak_ptr<Collider2D> _partner)
 
 void CursorOnHit::HitDaimyoEnhanceTime(const std::weak_ptr<Collider2D> _partner)
 {
-	parent_.ChangeExplan(Cursor::EXPLAN::ENHANCE_TIME);
+	const Daimyo& daimyo = dynamic_cast<const Daimyo&>(_partner.lock()->GetOwner());
+	int funds = (daimyo.GetEnhancementCnt(Daimyo::ENHANCEMENT_TYPE::TIME) + 1) * Daimyo::ENHANCE_FUNDS;
+	parent_.ChangeExplan(Cursor::EXPLAN::ENHANCE_TIME, funds);
 }
 
 void CursorOnHit::HitDaimyoEnhanceProbability(const std::weak_ptr<Collider2D> _partner)
 {
-	parent_.ChangeExplan(Cursor::EXPLAN::ENHANCE_PROBABILITY);
+	const Daimyo& daimyo = dynamic_cast<const Daimyo&>(_partner.lock()->GetOwner());
+	int funds = (daimyo.GetEnhancementCnt(Daimyo::ENHANCEMENT_TYPE::PROBABILITY) + 1) * Daimyo::ENHANCE_FUNDS;
+	parent_.ChangeExplan(Cursor::EXPLAN::ENHANCE_PROBABILITY, funds);
 }
 
 void CursorOnHit::HitDaimyoEnhanceIncome(const std::weak_ptr<Collider2D> _partner)
 {
-	parent_.ChangeExplan(Cursor::EXPLAN::ENHANCE_INCOME);
+	const Daimyo& daimyo = dynamic_cast<const Daimyo&>(_partner.lock()->GetOwner());
+	int funds = (daimyo.GetEnhancementCnt(Daimyo::ENHANCEMENT_TYPE::INCOME) + 1) * Daimyo::ENHANCE_FUNDS;
+	parent_.ChangeExplan(Cursor::EXPLAN::ENHANCE_INCOME, funds);
 }
 
 void CursorOnHit::HitDaimyoDetails(const std::weak_ptr<Collider2D> _partner)

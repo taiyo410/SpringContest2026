@@ -69,6 +69,7 @@ Daimyo::Daimyo(const DaimyoImport _import)
 	update_.emplace(STATE::ACTION_ALTERNATE, [this](void) {UpdateActionAlternate(); });
 	update_.emplace(STATE::RESULT_ALTERNATE, [this](void) {UpdateResultAlternate(); });
 	update_.emplace(STATE::ENHANCEMENT, [this](void) {UpdateEnhancement(); });
+	update_.emplace(STATE::ENHANCE_MAX, [this](void) {UpdateEnhancementMax(); });
 	update_.emplace(STATE::DETAILS, [this](void) {UpdateDetails(); });
 
 	//描画
@@ -82,6 +83,7 @@ Daimyo::Daimyo(const DaimyoImport _import)
 	draw_.emplace(STATE::ACTION_ALTERNATE, [this](void) {DrawActionAlternate(); });
 	draw_.emplace(STATE::RESULT_ALTERNATE, [this](void) {DrawNormal(); });
 	draw_.emplace(STATE::ENHANCEMENT, [this](void) {DrawNormal(); });
+	draw_.emplace(STATE::ENHANCE_MAX, [this](void) {DrawNormal(); });
 	draw_.emplace(STATE::DETAILS, [this](void) {DrawNormal(); });
 
 	drawAfter_.emplace(STATE::STANDBY, [this](void) {});
@@ -94,6 +96,7 @@ Daimyo::Daimyo(const DaimyoImport _import)
 	drawAfter_.emplace(STATE::ACTION_ALTERNATE, [this](void) {});
 	drawAfter_.emplace(STATE::RESULT_ALTERNATE, [this](void) {DrawResultAlternate(); });
 	drawAfter_.emplace(STATE::ENHANCEMENT, [this](void) {DrawEnhancement(); });
+	drawAfter_.emplace(STATE::ENHANCE_MAX, [this](void) {DrawEnhancementMax(); });
 	drawAfter_.emplace(STATE::DETAILS, [this](void) {DrawDetails(); });
 
 	//コライダ生成
@@ -107,6 +110,7 @@ Daimyo::Daimyo(const DaimyoImport _import)
 	changeSetting_.emplace(STATE::ACTION_ALTERNATE, [this](void) {DeleteAllColliders(); });
 	changeSetting_.emplace(STATE::RESULT_ALTERNATE, [this](void) {ResultAlternate(); });
 	changeSetting_.emplace(STATE::ENHANCEMENT, [this](void) {CreateEnhancementCol(); });
+	changeSetting_.emplace(STATE::ENHANCE_MAX, [this](void) {DeleteAllColliders(); });
 	changeSetting_.emplace(STATE::DETAILS, [this](void) {});
 
 	//難易度設定
@@ -251,6 +255,11 @@ void Daimyo::Enhancement(ENHANCEMENT_TYPE _type)
 {
 	//強化カウントの上昇
 	enhancementCnt_[_type]++;
+}
+
+const int Daimyo::GetEnhancementCnt(ENHANCEMENT_TYPE _type) const
+{
+	return enhancementCnt_.at(_type);
 }
 
 void Daimyo::UpdateEnhancementMarkAlpha(ENHANCEMENT_TYPE _type)
@@ -629,6 +638,25 @@ void Daimyo::UpdateEnhancement(void)
 	isBackMenu_ = true;
 }
 
+void Daimyo::UpdateEnhancementMax(void)
+{
+	//お金の上昇
+	UpdateNormal();
+
+	//入力
+	const auto& input = InputManager::GetInstance();
+
+	//項目を選択せずに左クリック
+	if (isBackMenu_ && input.IsTrgMouseLeft())
+	{
+		//通常に戻る
+		ChangeState(STATE::NORMAL);
+	}
+
+	//クリックで戻る
+	isBackMenu_ = true;
+}
+
 void Daimyo::UpdateEnhancementDirction(void)
 {
 }
@@ -658,13 +686,13 @@ void Daimyo::DrawStandby(void)
 
 void Daimyo::DrawNormal(void)
 {
-	for (auto& col : colliders_)
-	{
-		col.get()->GetGeometry().Draw();
-	}
+	//for (auto& col : colliders_)
+	//{
+	//	col.get()->GetGeometry().Draw();
+	//}
 
 	//名前
-	DrawFormatString(pos_.x, pos_.y, 0xffffff, L"%ls", UtilityCommon::GetWStringFromString(import_.name).c_str());
+	//DrawFormatString(pos_.x, pos_.y, 0xffffff, L"%ls", UtilityCommon::GetWStringFromString(import_.name).c_str());
 
 	//城画像
 	DrawExtendGraph(pos_.x + import_.hitBoxMin.x, pos_.y + import_.hitBoxMin.y, pos_.x + import_.hitBoxMax.x, pos_.y + import_.hitBoxMax.y, imageId_, true);
@@ -840,7 +868,15 @@ void Daimyo::DrawSelectAlternate(void)
 
 void Daimyo::DrawNoMoney(void)
 {
-	DrawString(pos_.x + 50, pos_.y, L"NoMoney", 0xffffff);
+	Vector2F baloonPos = { pos_.x + import_.hitBoxMax.x, pos_.y + import_.hitBoxMin.y };
+	int LOCAL_POS_Y = 40;
+	float SCALE = 0.8f;
+	baloonPos += Vector2F(BALOON_SIZE.x * SCALE / 2 - 60, -BALOON_SIZE.y * SCALE / 2 + 50);
+	DrawRotaGraph(baloonPos.x, baloonPos.y, SCALE, 0.0f, speechBalloonImg_, true);
+
+
+	UtilityDraw::DrawFormatStringCenterToFontHandle(baloonPos.x, baloonPos.y, 0x0, alternateExplanFontHandle_, L"お金足らへん…",
+		income_, SUCCESS_DISSATISFACTION);
 }
 
 void Daimyo::DrawActionAlternate(void)
@@ -856,7 +892,7 @@ void Daimyo::DrawActionAlternate(void)
 
 void Daimyo::DrawResultAlternate(void)
 {
-	DrawString(pos_.x + 50, pos_.y, isSuccess_ ? L"Success" : L"Failure", 0xffffff);
+	//DrawString(pos_.x + 50, pos_.y, isSuccess_ ? L"Success" : L"Failure", 0xffffff);
 }
 
 void Daimyo::DrawEnhancement(void)
@@ -901,6 +937,18 @@ void Daimyo::DrawEnhancement(void)
 	}
 
 
+}
+
+void Daimyo::DrawEnhancementMax(void)
+{
+	Vector2F baloonPos = { pos_.x + import_.hitBoxMax.x, pos_.y + import_.hitBoxMin.y };
+	int LOCAL_POS_Y = 40;
+	float SCALE = 0.8f;
+	baloonPos += Vector2F(BALOON_SIZE.x * SCALE / 2 - 60, -BALOON_SIZE.y * SCALE / 2 + 50);
+	DrawRotaGraph(baloonPos.x, baloonPos.y, SCALE, 0.0f, speechBalloonImg_, true);
+
+	UtilityDraw::DrawFormatStringCenterToFontHandle(baloonPos.x, baloonPos.y, 0x0, alternateExplanFontHandle_, L"もう限界やで",
+		income_, SUCCESS_DISSATISFACTION);
 }
 
 void Daimyo::DrawDetails(void)

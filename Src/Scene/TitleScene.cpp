@@ -143,7 +143,7 @@ void TitleScene::Init(void)
 	}
 	menuMng_->Init();
 	yesNoscn_->Init();
-	soundMng_.Play(SoundManager::SRC::TITLE_BGM, SoundManager::PLAYTYPE::LOOP);
+	//soundMng_.Play(SoundManager::SRC::TITLE_BGM, SoundManager::PLAYTYPE::LOOP);
 }
 
 void TitleScene::PopSceneAfter(void)

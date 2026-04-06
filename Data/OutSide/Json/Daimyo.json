@@ -18,7 +18,7 @@
             "green": 0,
             "blue": 255
         },
-        "accumulationSpeed": 0.5
+        "accumulationSpeed": 1.0
     },
     {
         "name": "choshu",
@@ -41,7 +41,7 @@
             "green": 0,
             "blue": 255
         },
-        "accumulationSpeed": 2.0
+        "accumulationSpeed": 1.0
     },
     {
         "name": "hizen",
@@ -83,6 +83,6 @@
             "green": 0,
             "blue": 0
         },
-        "accumulationSpeed": 1.2
+        "accumulationSpeed": 1.0
     }
 ]

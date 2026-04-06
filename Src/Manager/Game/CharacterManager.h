@@ -38,7 +38,7 @@ public:
 
 private:
 
-	static constexpr Vector2F EDO_POS = { 784.0f,359.0f};
+	static constexpr Vector2F EDO_POS = { 710.0f,410.0f};
 
 	//–îˆóƒQ[ƒW
 	std::unique_ptr<ArrowController>arrow_;
@@ -46,6 +46,9 @@ private:
 	FLOAT4 arrowCol_;
 	Vector2F arrowStartPos_;
 	Vector2F arrowEndPos_;
+
+	//]ŒË‰æ‘œ
+	int edoImg_;
 
 	//‘å–¼
 	std::vector<std::unique_ptr<Daimyo>> daimyo_;

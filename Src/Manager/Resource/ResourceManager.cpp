@@ -32,11 +32,17 @@ void ResourceManager::Init(void)
 	res = std::make_unique<ResourceData>(ResourceData::TYPE::IMG, PATH_IMG + L"Castle.png");
 	resourcesMap_.emplace(SRC::CASTLE, std::move(res));
 
+	res = std::make_unique<ResourceData>(ResourceData::TYPE::IMG, PATH_IMG + L"edo.png");
+	resourcesMap_.emplace(SRC::EDO, std::move(res));
+
 	res = std::make_unique<ResourceData>(ResourceData::TYPE::IMG, PATH_IMG + L"Gauge.png");
 	resourcesMap_.emplace(SRC::GAUGE, std::move(res));
 
 	res = std::make_unique<ResourceData>(ResourceData::TYPE::IMG, PATH_IMG + L"ArrowGauge.png");
 	resourcesMap_.emplace(SRC::ARROW_GAUGE, std::move(res));
+
+	res = std::make_unique<ResourceData>(ResourceData::TYPE::IMG, PATH_IMG + L"Cursor.png");
+	resourcesMap_.emplace(SRC::CURSOR, std::move(res));
 	
 	res = std::make_unique<ResourceData>(ResourceData::TYPE::IMG, PATH_IMG + L"SelectMenu.png");
 	resourcesMap_.emplace(SRC::SELECT_MENU, std::move(res));

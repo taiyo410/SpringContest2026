@@ -27,6 +27,7 @@ public:
 		ACTION_ALTERNATE,	//参勤(実行中)
 		RESULT_ALTERNATE,	//参勤(結果)
 		ENHANCEMENT,		//強化
+		ENHANCE_MAX,		//強化限界
 		DETAILS,			//詳細
 	};
 
@@ -100,9 +101,9 @@ public:
 	static constexpr int SUCCESS_DENGER = 50;
 
 	//難易度ごとの収入(100000単位)
-	static constexpr float INCOME_SAFETY = 3.0f;
-	static constexpr float INCOME_NORMAL = 5.0f;
-	static constexpr float INCOME_DENGER = 8.0f;
+	static constexpr float INCOME_SAFETY = 30.0f;
+	static constexpr float INCOME_NORMAL = 50.0f;
+	static constexpr float INCOME_DENGER = 80.0f;
 
 	//難易度ごとの失敗の没収割合
 	static constexpr float CONFISCATION_SAFETY = 0.5f;
@@ -111,6 +112,12 @@ public:
 
 	//各項目の強化倍率(%)
 	static constexpr float ENHANCE_PER = 10.0f;
+
+	//強化に必要な金額
+	static constexpr int ENHANCE_FUNDS = 20;
+
+	//強化回数制限
+	static constexpr int ENHANCE_MAX = 5;
 
 	//参勤交代に行ける最低資金
 	static constexpr int FUNDS_MIN = 10;
@@ -176,6 +183,9 @@ public:
 
 	//強化
 	void Enhancement(ENHANCEMENT_TYPE _type);
+
+	//強化の回数
+	const int GetEnhancementCnt(ENHANCEMENT_TYPE _type)const;
 
 	//強化マークのアルファ値の更新
 	void UpdateEnhancementMarkAlpha(ENHANCEMENT_TYPE _type);
@@ -344,6 +354,7 @@ private:
 	void UpdateActionAlternate(void);
 	void UpdateResultAlternate(void);
 	void UpdateEnhancement(void);
+	void UpdateEnhancementMax(void);
 	void UpdateEnhancementDirction(void);
 	void UpdateDetails(void);
 
@@ -357,6 +368,7 @@ private:
 	void DrawActionAlternate(void);
 	void DrawResultAlternate(void);
 	void DrawEnhancement(void);
+	void DrawEnhancementMax(void);
 	void DrawDetails(void);
 	//かごの描画
 	void DrawKago(void);
