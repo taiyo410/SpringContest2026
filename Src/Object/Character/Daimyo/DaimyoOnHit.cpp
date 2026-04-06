@@ -91,10 +91,7 @@ void DaimyoOnHit::HitCursor(const std::weak_ptr<Collider2D> _partner)
 				parent_.SetAlternateDiff(Daimyo::ALTERNATE_DIFF::SAFETY);
 				parent_.ChangeState(Daimyo::STATE::ACTION_ALTERNATE);
 				soundMng_.Play(SoundManager::SRC::DESIDE_BTN_SE, SoundManager::PLAYTYPE::BACK);
-			
 
-				// 参勤交代を実行する度に1年経過
-				rule.AddYear(1);
 			}
 			else if (myCol->IsHit() && myCol->GetTag() == Collider2D::TAG::ALTERNATE_NORMAL)
 			{
@@ -103,8 +100,6 @@ void DaimyoOnHit::HitCursor(const std::weak_ptr<Collider2D> _partner)
 				parent_.ChangeState(Daimyo::STATE::ACTION_ALTERNATE);
 				soundMng_.Play(SoundManager::SRC::DESIDE_BTN_SE, SoundManager::PLAYTYPE::BACK);
 
-				// 参勤交代を実行する度に1年経過
-				rule.AddYear(1);
 			}
 			else if (myCol->IsHit() && myCol->GetTag() == Collider2D::TAG::ALTERNATE_DENGER)
 			{
@@ -113,8 +108,6 @@ void DaimyoOnHit::HitCursor(const std::weak_ptr<Collider2D> _partner)
 				parent_.ChangeState(Daimyo::STATE::ACTION_ALTERNATE);
 				soundMng_.Play(SoundManager::SRC::DESIDE_BTN_SE, SoundManager::PLAYTYPE::BACK);
 
-				// 参勤交代を実行する度に1年経過
-				rule.AddYear(1);
 			}
 			else if (myCol->IsHit() && myCol->GetTag() == Collider2D::TAG::ENHANCEMENT_TIME)
 			{

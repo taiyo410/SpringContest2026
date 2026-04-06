@@ -652,6 +652,10 @@ void Daimyo::UpdateActionAlternate(void)
 		//カウンタの初期化
 		cnt_ = 0.0f;
 
+		// 参勤交代を実行する度に1年経過
+		auto& rule = GameRuleManager::GetInstance();
+		rule.AddYear(1);
+
 		//参勤交代終了
 		return;
 	}
