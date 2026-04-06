@@ -29,11 +29,14 @@ public:
 	/// @param  
 	/// @return 
 	const float GetBGMVolume(void)const { return bgmVol_; }
+	const float GetSEVolume(void)const { return seVol_; }
 
 	/// @brief BGMの音量のセット
 	/// @param _bgmVol 
 	/// @return 
 	void SetBGMVolume(const int _bgmVol) { bgmVol_ = _bgmVol; }
+
+	void SetSeVolume(const int _seVol) { seVol_ = _seVol; }
 
 	/// @brief テキスト速度のセット
 	/// @param _textSpd セットしたいテキスト速度
@@ -63,6 +66,7 @@ private:
 	int maxPlayerNum_;	//コントローラー数よりプレイヤー人数が多くならないようにする
 
 	float bgmVol_;
+	float seVol_;
 	int textSpdPer_;
 	//フルスクリーンの設定
 	bool isFullScreen_;

@@ -53,9 +53,27 @@ void SoundManager::Init(void)
 
 #pragma region SE
 	res.type = TYPE::SE;
-    res.path = path_Se + L"CardSelect2.mp3";
-    resourcesMap_.emplace(SRC::CARD_MOVE, res);
+	res.path = path_Se + L"GameStart_1.mp3";
+	resourcesMap_.emplace(SRC::GAME_START_SE_1, res);
+	res.path = path_Se + L"GameStart_2.mp3";
+	resourcesMap_.emplace(SRC::GAME_START_SE_2, res);
 
+	res.path = path_Se + L"Button.mp3";
+	resourcesMap_.emplace(SRC::MOVE_BTN_SE, res);
+	res.path = path_Se + L"Button.mp3";
+	resourcesMap_.emplace(SRC::DESIDE_BTN_SE, res);
+
+	res.path = path_Se + L"AlternateStart2SE.mp3";
+	resourcesMap_.emplace(SRC::ALTERNATE_START, res);
+	res.path = path_Se + L"AlternateSuccess.mp3";
+	resourcesMap_.emplace(SRC::ALTERNATE_SUCCESS, res);
+	res.path = path_Se + L"AltternateFiled_1.mp3";
+	resourcesMap_.emplace(SRC::ALTERNATE_FAIL, res);
+	res.path = path_Se + L"AlternateSe.mp3";
+	resourcesMap_.emplace(SRC::ALTERNATE_SE, res);
+
+	res.path = path_Se + L"EnhanceSE.mp3";
+	resourcesMap_.emplace(SRC::ENHANCEMENT, res);
 
 #pragma endregion
 
@@ -107,8 +125,12 @@ void SoundManager::SetSoundVolumeSRC(const SRC _src, const int _volumePercent)
     {
         return; // 見つからない場合は処理しない
     }
+
+    float srcVol = static_cast<float>(_volumePercent) / static_cast<float>(DIV);
+    float volPer = static_cast<float>(volume_[static_cast<int>((*lPair).second.type)])/ static_cast<float>(DIV) * srcVol;
+
     //音量設定
-	ChangeVolumeSoundMem(VOLUME_MAX * _volumePercent / DIV, lPair->second.handleId);
+	ChangeVolumeSoundMem(VOLUME_MAX * static_cast<int>(volPer), lPair->second.handleId);
 }
 
 void SoundManager::SetSystemVolume(const int _volumePercent, const int _type)
@@ -127,7 +149,10 @@ void SoundManager::SetSystemVolume(const int _volumePercent, const int _type)
         {
 			continue;
 		}
-        ChangeVolumeSoundMem(VOLUME_MAX * volume_[_type] / DIV, pair.second.handleId);
+
+        float vol = static_cast<float>(VOLUME_MAX) * (static_cast<float>(volume_[_type]) / static_cast<float>(DIV));
+
+        ChangeVolumeSoundMem(static_cast<int>(vol), pair.second.handleId);
 	}
 }
 
@@ -154,6 +179,10 @@ bool SoundManager::_Load(const SRC _src, const float _pitch)
     }
     // ロード処理
     rPair->second.handleId = LoadSoundMem(rPair->second.path.c_str());
+
+    constexpr int VOLUME_MAX = 255;  //最大音量
+    constexpr int DIV = 100;         //音量の割合を計算するための定数
+    ChangeVolumeSoundMem(VOLUME_MAX * volume_[static_cast<int>(rPair->second.type)] / DIV, rPair->second.handleId);
     loadedMap_.emplace(_src, rPair->second);
 
     //ピッチを元に戻す

@@ -64,7 +64,6 @@ private:
 	//マップ
 	int mapBackImage_;
 	int mapImage_;
-
 	int frame_;
 
 	//スローカウンタ(フレーム)

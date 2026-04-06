@@ -8,6 +8,7 @@ class ArrowController;
 class GaugeController;
 class DaimyoOnHit;
 class Easing;
+class SoundManager;
 class FontController;
 
 class Daimyo : public CharacterBase2D
@@ -188,7 +189,8 @@ private:
 	//江戸の色
 	static constexpr FLOAT4 EDO_COL = { 1.0f, 0.647f, 0.0f, 1.0f };
 
-	static constexpr float ARROW_THICK = 100.0f;
+	//矢印の太さ
+	static constexpr float ARROW_THICK = 40.0f;
 
 	//吹き出し相対座標
 	static constexpr Vector2F SPEECH_LOCAL_POS = { 120.0f,-120.0f };
@@ -226,6 +228,8 @@ private:
 
 	//当たり判定
 	std::unique_ptr<DaimyoOnHit> onHit_;
+	//サウンドマネージャー
+	SoundManager& soundMng_;
 
 	//インポート情報
 	DaimyoImport import_;
@@ -263,6 +267,8 @@ private:
 	//強化項目毎の色
 	std::unordered_map<ENHANCEMENT_TYPE, unsigned int> enhancementCol_;
 
+	
+
 	//参勤交代の時間
 	float cnt_;
 	float alternatePer_;
@@ -288,18 +294,12 @@ private:
 
 	//お金ゲージ
 	std::unique_ptr<GaugeController>moneyGauge_;
-	//不満度ゲージ
-	std::unique_ptr<GaugeController>dissatisfactionGauge_;
 	Vector2F moneyGaugePos_;
 	Vector2F moneyGaugeSize_;
 	float moneyPer_;
 	FLOAT4 moneyGaugeCol_;
 	float moneyGaugeColCnt_;
 
-	//不満度割合
-	float dissatisfactionPer_;
-	FLOAT4 dissatisfactionGaugeCol_;
-	Vector2F dissatisfactionGaugePos_;
 	//選択肢座標
 	std::unordered_map<SELECT,Vector2F> selectPos_;
 	std::unordered_map<SELECT,Vector2F> selectGoalPos_;
@@ -333,6 +333,9 @@ private:
 	int alternateFailedNum_;		//参勤失敗の説明の文字列の表示
 	float alternateResultCnt_;	//参勤の結果の演出のカウント
 	int alternateResultFontHandle_;	//参勤の結果の文字のフォントハンドル
+
+	int dissatisfactionUp_;		//不満度上がり幅
+
 	//更新
 	void UpdateStandby(void);
 	void UpdateNormal(void);

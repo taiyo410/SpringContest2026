@@ -198,6 +198,8 @@ private:
 	//現在の状態
 	MENU_STATE currentState_;
 
+	
+
 	//更新関数
 	std::function<void(void)>updateFunc_;
 
@@ -214,6 +216,9 @@ private:
 
 	//選択中のメニュー
 	int selectMenuNum_;
+
+	//選択中のメニューの前の番号
+	int beforeSelectMenuNum_;
 
 	//はい/いいえ状態
 	//bool isYes_;

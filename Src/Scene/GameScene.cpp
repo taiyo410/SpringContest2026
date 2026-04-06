@@ -58,6 +58,7 @@ void GameScene::Load(void)
 	//マップ
 	mapBackImage_ = resMng_.Load(ResourceManager::SRC::MAP_BACK).handleId_;
 	mapImage_ = resMng_.Load(ResourceManager::SRC::MAP).handleId_;
+	SoundManager::GetInstance().LoadResource(SoundManager::SRC::GAME_BGM);
 	//フェーズ遷移用
 	changeUpdate_.emplace(UPDATE_PHASE::NONE, [this]() {ChangeNone(); });
 	changeUpdate_.emplace(UPDATE_PHASE::FADE, [this]() {ChangeFade(); });
@@ -72,6 +73,7 @@ void GameScene::Init(void)
 	CollisionManager2D::GetInstance().Update();
 	UIManager::GetInstance().Init();
 
+	SoundManager::GetInstance().Play(SoundManager::SRC::GAME_BGM, SoundManager::PLAYTYPE::LOOP);
 	//デバッグ用
 	frame_ = 0;
 	slowFrame_ = FRAME_PER_UPDATE;
