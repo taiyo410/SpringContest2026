@@ -10,6 +10,7 @@
 #include "../Manager/Resource/ResourceManager.h"
 #include "../Manager/Generic/InputManager.h"
 #include "../Manager/Game/GameRuleManager.h"
+#include "../Manager/Game/CharacterManager.h"
 #include "../Manager/Resource/SoundManager.h"
 #include "../Object/Common/Collider2D/Collider2D.h"
 #include "../Object/Common/Collider2D/Geometry2D/BoxGeo.h"
@@ -30,7 +31,7 @@ Daimyo::Daimyo(const DaimyoImport _import)
 	isSuccess_ = false;
 	isBackMenu_ = false;
 	alternatePer_ = 0.0f;
-	edoPos_ = EDO_POS;
+	edoPos_ = CharacterManager::EDO_POS;
 	arrowPos_ = import_.pos;
 	alternateColor_ = import_.color;
 	easing_ = std::make_unique<Easing>();
@@ -926,7 +927,7 @@ void Daimyo::DrawResultAlternate(void)
 		std::wstring resultStr = isSuccess_ ? alternateSuccessStr_[alternateFailedNum_] : alternateFailedStr_[alternateFailedNum_];
 		//UtilityDraw::DrawStringCenterToFontHandle(baloonPos.x, baloonPos.y-LOCAL_POS_Y, 0x0, alternateExplanFontHandle_, resultStr);
 		UtilityDraw::DrawFormatStringCenterToFontHandle(baloonPos.x, baloonPos.y, 0x0, alternateExplanFontHandle_, (resultStr + L"\n収入：%d\n不満ゲージ：%d").c_str(),
-			income_, SUCCESS_DISSATISFACTION);
+			income_, dissatisfactionUp_);
 	}
 
 }
@@ -968,7 +969,7 @@ void Daimyo::DrawEnhancement(void)
 		posX = enhancePos.second.x + ENHANCE_MENU_MAX.x + ENHANCE_MARK_OFFSET;
 		for (int i = 0; i < enhancementCnt_[enhancePos.first] + 1; i++)
 		{
-			//if(enhancementCnt_>ENHANCE_MAX)
+			if (enhancementCnt_[enhancePos.first] >= ENHANCE_MAX)break;
 			SetDrawBlendMode(DX_BLENDMODE_ALPHA, enhancementMarkAlpha_[enhancePos.first]);
 			DrawRotaGraphF(posX, enhancePos.second.y,
 				ENHANCE_MARK_SCL, 0.0f, enhancementMarkImg_, true);
@@ -999,14 +1000,14 @@ void Daimyo::DrawDetails(void)
 
 void Daimyo::DrawKago(void)
 {
-	Vector2F dir = EDO_POS - import_.pos;
+	Vector2F dir = CharacterManager::EDO_POS - import_.pos;
 	DrawRotaGraph(kagoCenterPos_.x, kagoCenterPos_.y, 0.1f, atan2f(dir.y, dir.x), kagoImage_, true);
 }
 
 void Daimyo::KagoUpdate(void)
 {
 	////駕籠の座標をイージングで動かす
-	kagoCenterPos_ = easing_->EaseFunc(import_.pos, EDO_POS, cnt_ / alternateInfo_.requiredTime, Easing::EASING_TYPE::LERP);
+	kagoCenterPos_ = easing_->EaseFunc(import_.pos, CharacterManager::EDO_POS, cnt_ / alternateInfo_.requiredTime, Easing::EASING_TYPE::LERP);
 
 	kagoCenterPos_ += kagoCenterPos_.Vertical() + Vector2F(0.0f, easing_->EaseFunc(KAGO_VERTICAL_LOCAL_START_POS, KAGO_VERTICAL_LOCAL_GOAL_POS
 		, kagoVerticalLocalCnt_/ KAGO_VERTICAL_LOCAL_CNT,Easing::EASING_TYPE::COS_BACK));

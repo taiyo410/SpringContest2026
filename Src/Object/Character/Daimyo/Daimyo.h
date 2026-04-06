@@ -196,7 +196,6 @@ private:
 
 	static constexpr float EASEING_TIME = 0.2f;
 
-	static constexpr Vector2F EDO_POS = { 784.0f,359.0f };
 	//江戸の色
 	static constexpr FLOAT4 EDO_COL = { 1.0f, 0.647f, 0.0f, 1.0f };
 

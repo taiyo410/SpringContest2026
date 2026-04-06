@@ -13,6 +13,8 @@ class CharacterManager :public Singleton<CharacterManager>
 	friend class Singleton<CharacterManager>;
 public:
 
+	static constexpr Vector2F EDO_POS = { 710.0f,410.0f };
+
 	/// @brief ロード
 	/// @param  
 	void Load(void);
@@ -38,7 +40,6 @@ public:
 
 private:
 
-	static constexpr Vector2F EDO_POS = { 710.0f,410.0f};
 
 	//矢印ゲージ
 	std::unique_ptr<ArrowController>arrow_;
