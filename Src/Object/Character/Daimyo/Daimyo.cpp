@@ -177,6 +177,11 @@ void Daimyo::Load(void)
 
 	kagoImage_ = ResourceManager::GetInstance().Load(ResourceManager::SRC::KAGO).handleId_;
 	speechBalloonImg_ = ResourceManager::GetInstance().Load(ResourceManager::SRC::SPEECH_BUBBLE).handleId_;
+	
+	// 成功・失敗画像の読み込み
+	alternateSuccessImg_ = ResourceManager::GetInstance().Load(ResourceManager::SRC::ALTERNATE_SUCCESS_IMG).handleId_;
+	alternateFailedImg_ = ResourceManager::GetInstance().Load(ResourceManager::SRC::ALTERNATE_DAILED_IMG).handleId_;
+	
 	enhancementMarkImg_ = ResourceManager::GetInstance().Load(ResourceManager::SRC::FAMIRY_CREST).handleId_;
 	fontHandle_ = fontController_->GetFontHandle(FontManager::FONT_BOKUTATI, 30, 0);
 	//城の当たり判定生成
@@ -222,6 +227,11 @@ void Daimyo::Init(void)
 	enhancementMarkAlpha_[ENHANCEMENT_TYPE::TIME] = 0;
 	enhancementMarkAlpha_[ENHANCEMENT_TYPE::PROBABILITY] = 0;
 	enhancementMarkAlpha_[ENHANCEMENT_TYPE::INCOME] = 0;
+
+	// スタンプ演出用変数の初期化
+	alternateSrampEaseCnt_ = 0.0f;
+	alternateResultScale_ = 0.1f;
+	alternateResultAlpha_ = 255;
 }
 
 void Daimyo::Update(void)
@@ -488,6 +498,13 @@ void Daimyo::ResultAlternate(void)
 	income_ = income*GameRuleManager::UNITS;
 	//お金を増やす
 	gameMng.AddMoney(income);
+
+	// スタンプ演出のセットアップ
+	alternateSrampEaseCnt_ = ALTERNATE_STAMP_TIME;
+
+	// ベースのスケールを0.1fとし、その3倍(0,3f)からスタートさせる
+	alternateResultScale_ = 0.3f;
+	alternateResultAlpha_ = 0;
 }
 
 void Daimyo::UpdateStandby(void)
@@ -832,14 +849,14 @@ void Daimyo::DrawSelectAlternate(void)
 	UtilityDraw::DrawStringCenterToFontHandle(alternateMenuPos_[ALTERNATE_DIFF::SAFETY].x
 		, alternateMenuPos_[ALTERNATE_DIFF::SAFETY].y + FONT_ALTERNATE_LOCAL_POS_Y
 		, UtilityCommon::GREEN
-		,alternateFontHandle_
-		,alternateStr_[ALTERNATE_DIFF::SAFETY]);
+		, alternateFontHandle_
+		, alternateStr_[ALTERNATE_DIFF::SAFETY]);
 	UtilityDraw::DrawStringCenterToFontHandle(alternateMenuPos_[ALTERNATE_DIFF::SAFETY].x
 		, alternateMenuPos_[ALTERNATE_DIFF::SAFETY].y + FONT_ALTERNATE_EXPLAN_LOCAL_POS_Y
 		, UtilityCommon::BLACK
 		, alternateExplanFontHandle_
 		, time + probability + income);
-	
+
 
 	//普通の道
 	timeValue = REQUIRED_TIME_NORMAL - (REQUIRED_TIME_NORMAL / ENHANCE_PER) * enhancementCnt_[ENHANCEMENT_TYPE::TIME];
@@ -857,8 +874,8 @@ void Daimyo::DrawSelectAlternate(void)
 	UtilityDraw::DrawStringCenterToFontHandle(alternateMenuPos_[ALTERNATE_DIFF::NORMAL].x
 		, alternateMenuPos_[ALTERNATE_DIFF::NORMAL].y + FONT_ALTERNATE_LOCAL_POS_Y
 		, UtilityCommon::YELLOW
-		,alternateFontHandle_
-		,alternateStr_[ALTERNATE_DIFF::NORMAL]);
+		, alternateFontHandle_
+		, alternateStr_[ALTERNATE_DIFF::NORMAL]);
 	UtilityDraw::DrawStringCenterToFontHandle(alternateMenuPos_[ALTERNATE_DIFF::NORMAL].x
 		, alternateMenuPos_[ALTERNATE_DIFF::NORMAL].y + FONT_ALTERNATE_EXPLAN_LOCAL_POS_Y
 		, UtilityCommon::BLACK
@@ -881,8 +898,8 @@ void Daimyo::DrawSelectAlternate(void)
 	UtilityDraw::DrawStringCenterToFontHandle(alternateMenuPos_[ALTERNATE_DIFF::DENGER].x
 		, alternateMenuPos_[ALTERNATE_DIFF::DENGER].y + FONT_ALTERNATE_LOCAL_POS_Y
 		, UtilityCommon::RED
-		,alternateFontHandle_
-		,alternateStr_[ALTERNATE_DIFF::DENGER]);
+		, alternateFontHandle_
+		, alternateStr_[ALTERNATE_DIFF::DENGER]);
 	UtilityDraw::DrawStringCenterToFontHandle(alternateMenuPos_[ALTERNATE_DIFF::DENGER].x
 		, alternateMenuPos_[ALTERNATE_DIFF::DENGER].y + FONT_ALTERNATE_EXPLAN_LOCAL_POS_Y
 		, UtilityCommon::BLACK
@@ -930,6 +947,42 @@ void Daimyo::DrawResultAlternate(void)
 			income_, dissatisfactionUp_);
 	}
 
+	//DrawString(pos_.x + 50, pos_.y, isSuccess_ ? L"Success" : L"Failure", 0xffffff);
+
+	// 既存の背景やキャラの描画を先に行う
+	DrawNormal();
+
+	// 吹き出しが表示されている間だけ、画像を画面中央やや左に描画する
+	if (alternateResultCnt_ > 0.0f)
+	{
+		// スタンプ演出のイージング計算
+		if (alternateSrampEaseCnt_ > 0.0f)
+		{
+			alternateSrampEaseCnt_ -= SceneManager::GetInstance().GetDeltaTime();
+			if (alternateSrampEaseCnt_ < 0.0f) alternateSrampEaseCnt_ = 0.0f;
+
+			float t = (ALTERNATE_STAMP_TIME - alternateSrampEaseCnt_) / ALTERNATE_STAMP_TIME;
+
+			// 3.0倍(0.3f)から元のサイズ(0.1f)に向かってイージング
+			alternateResultScale_ = easing_->EaseFunc(0.3f, 0.1f, t, Easing::EASING_TYPE::QUAD_IN);
+
+			// 0から255に向かってフェードイン
+			alternateResultAlpha_ = easing_->EaseFunc(0, 255, t, Easing::EASING_TYPE::LERP);
+		}
+
+		// 参勤交代の結果に応じて画像を描画
+		int resultImg = isSuccess_ ? alternateSuccessImg_ : alternateFailedImg_;
+
+		// アルファブレンドモードを設定して描画
+		SetDrawBlendMode(DX_BLENDMODE_ALPHA, alternateResultAlpha_);
+
+		// 画面中央から少し左側に描画
+		// 画像サイズが大きい場合は、第三引数を0.5や0.6などに下げてスケールを調整してください。
+		DrawRotaGraph(Application::SCREEN_HALF_X - 180, Application::SCREEN_HALF_Y - 130, alternateResultScale_, 0.0, resultImg, true);
+
+		// ブレンドモードを元に戻す
+		SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+	}
 }
 
 void Daimyo::DrawEnhancement(void)

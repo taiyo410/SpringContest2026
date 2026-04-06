@@ -51,7 +51,13 @@ void GameOverScene::Load(void)
 	soundMng_.LoadResource(SoundManager::SRC::DESIDE_BTN_SE);
 
 	textWriter_ = std::make_unique<TextWriter>();
-	textWriter_->AddText(L"西暦1682年\n各地域の大名に反乱を起こされ、\n家康の家系は滅びました・・・");
+	//textWriter_->AddText(L"西暦1682年\n各地域の大名に反乱を起こされ、\n家康の家系は滅びました・・・");
+
+	// 1635年に経過年数を足した文字列を生成してTextWriterに登録
+	int passedYear = GameRuleManager::GetInstance().GetElapsedYear();
+	int currentYear = 1635 + passedYear;
+	std::wstring gameOverText = L"西暦" + std::to_wstring(currentYear) + L"年\n各地域の大名に反乱を起こされ、\n家康の家系は滅びました・・・";
+	textWriter_->AddText(gameOverText);
 
 	cursor_->Load();
 }

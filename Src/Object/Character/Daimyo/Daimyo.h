@@ -338,6 +338,11 @@ private:
 	float resultAlternateCnt_;
 	//吹き出し
 	int speechBalloonImg_;
+
+	// 参勤交代結果の画像
+	int alternateSuccessImg_;
+	int alternateFailedImg_;
+
 	//参勤失敗の説明の文字列
 	std::vector<std::wstring>alternateFailedStr_;
 	std::vector<std::wstring>alternateSuccessStr_;
@@ -346,6 +351,13 @@ private:
 	int alternateResultFontHandle_;	//参勤の結果の文字のフォントハンドル
 
 	int dissatisfactionUp_;		//不満度上がり幅
+
+	
+	// スタンプ演出用変数
+	float alternateSrampEaseCnt_;
+	float alternateResultScale_;
+	int alternateResultAlpha_;
+	static constexpr float ALTERNATE_STAMP_TIME = 0.2f;
 
 	//更新
 	void UpdateStandby(void);

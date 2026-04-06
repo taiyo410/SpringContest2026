@@ -42,6 +42,9 @@ public:
 		GAME_OVER_IMG,		//ゲームオーバー
 		GAME_CLEAR_IMG,		//ゲームクリア
 
+		ALTERNATE_SUCCESS_IMG,	//交代成功
+		ALTERNATE_DAILED_IMG,	//交代失敗
+
 		SPEECH_BUBBLE,		//吹き出し
 
 		//複数画像
