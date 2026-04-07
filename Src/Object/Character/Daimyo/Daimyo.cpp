@@ -990,9 +990,14 @@ void Daimyo::DrawResultAlternate(void)
 		DrawRotaGraph(baloonPos.x, baloonPos.y, SCALE, 0.0f, speechBalloonImg_, true);
 
 		std::wstring resultStr = isSuccess_ ? alternateSuccessStr_[alternateFailedNum_] : alternateFailedStr_[alternateFailedNum_];
+		std::wstringstream ss;
+		ss.imbue(std::locale(""));
+		ss << income_;
+		std::wstring str = ss.str();
 		//UtilityDraw::DrawStringCenterToFontHandle(baloonPos.x, baloonPos.y-LOCAL_POS_Y, 0x0, alternateExplanFontHandle_, resultStr);
-		UtilityDraw::DrawFormatStringCenterToFontHandle(baloonPos.x, baloonPos.y, 0x0, alternateExplanFontHandle_, (resultStr + L"\n収入：%d\n不満ゲージ：%d").c_str(),
-			income_, dissatisfactionUp_);
+		UtilityDraw::DrawFormatStringCenterToFontHandle(baloonPos.x, baloonPos.y, 0x0, alternateExplanFontHandle_
+			, (resultStr + L"\n収入：" + str + L"円\n不満ゲージ： %d 増加").c_str()
+			, dissatisfactionUp_);
 	}
 
 	//DrawString(pos_.x + 50, pos_.y, isSuccess_ ? L"Success" : L"Failure", 0xffffff);
