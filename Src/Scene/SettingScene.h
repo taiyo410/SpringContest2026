@@ -70,6 +70,15 @@ public:
 
 private:
 
+    //タイトルメニューに戻るか質問
+    const std::wstring TITLE_BACK_QUESTION = L"タイトルメニューに戻りますか？";
+
+    //ウィンドウモード変更の質問
+    const std::wstring CHANGE_WINDOW_MODE_QUESTION = L"ウィンドウモードに変更しますか？";
+
+    //フルスクリーン変更の質問
+    const std::wstring CHANGE_FULLSCREEN_QUESTION = L"フルスクリーンに変更しますか？";
+
     //選択中ボタンのイージングで動かせる距離
     static constexpr Vector2 SELECT_EASE_DISTANCE = { 20,0 };
 
@@ -87,6 +96,9 @@ private:
 
     //音の大きさの最大値(描画用)
     static constexpr int VOL_MAX = 100.0f;
+
+    //設定メニューの2Dボックスのオフセット
+    static constexpr int BOX_OFFSET = 100;
 
     //現在の状態
     SETTING_STATE state_;
@@ -117,6 +129,7 @@ private:
 
     //データバンク
     DataBank& dataBank_;
+    Application& application_;
 
     //設定関連
     //int volume_[static_cast<int>(VOLUME_TYPE::MAX)];

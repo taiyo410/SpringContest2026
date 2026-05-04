@@ -90,6 +90,26 @@ public:
 
 private:
 
+	//プロローグテキスト
+	const std::wstring PROLOGUE_STR= L"1635年。天下を平定し、江戸幕府を開いた徳川家康は、\n諸大名の統制と財力の削圧を目的とし、武家諸法度を改訂。\n\n「参勤交代」の制を定めた。\n\n参勤交代を実行し、\n各地域の大名に反乱を起こされることを阻止しよう！";
+
+	//ゲームスタート文字列
+	const std::wstring GAME_START_STR = L"ゲームスタート";
+
+	//設定
+	const std::wstring CONFIG_STR = L"設定";
+
+	//ゲーム終了
+	const std::wstring GAME_END_STR = L"ゲーム終了";
+
+	//参勤交代
+	const std::wstring ALTERNATE_STR = L"参勤交代";
+
+	//シフトキースキップ文字列
+	const std::wstring SHIFT_SKIP_STR = L"Press Shift to Skip";
+
+	//ゲーム終了確認文字列
+	const std::wstring CHECK_GAME_END_STR = L"本当にゲームを終了しますか？";
 
 	//メニュー座標の間隔
 	static constexpr float BUTTON_DISTANCE = SceneBase::FONT_SIZE + 30;
@@ -110,7 +130,6 @@ private:
 
 	//メニュー始まりの座標
 	static constexpr float BUTTON_START_POS_X = 700.0f;
-	//static constexpr float BUTTON_START_POS_Y = Application::SCREEN_HALF_Y - LOGO_SIZE_Y / 2.0f;
 	static constexpr float BUTTON_START_POS_Y = Application::SCREEN_HALF_Y + 130.0f;
 
 	//ゲーム終了確認メニューの大きさ
@@ -147,8 +166,6 @@ private:
 
 	//文字列格納
 	std::unordered_map<TITLE_BTN, std::wstring>buttonStrTable_;
-	//YES,NOの文字列
-	std::unordered_map<YES_NO, std::wstring>yesNoStrTable_;
 	//メニューマネージャ
 	std::unique_ptr<MenuManager>menuMng_;
 	//設定シーン
@@ -273,7 +290,4 @@ private:
 	void ChangeSetting(void);
 	void ChangeExit(void);
 	void ChangeGameStart(void);
-
-	//スクリーンの大きさを変更
-	void ChangeScreenSize(void);
 };

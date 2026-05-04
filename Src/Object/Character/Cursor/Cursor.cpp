@@ -51,12 +51,6 @@ void Cursor::Load(void)
 	preChange_.emplace(EXPLAN::DETAILS, [this](const int _value) {});
 	preChange_.emplace(EXPLAN::DISSATISFACTION, [this](const int _value) {});
 
-	//当たり判定
-	std::unique_ptr<Geometry2D>geo = std::make_unique<Circle>(pos_, pos_, 25,20);
-	MakeCollider(Collider2D::TAG::CURSOR, std::move(geo), { Collider2D::TAG::CURSOR });
-
-	//ヒット処理
-	onHit_ = std::make_unique<CursorOnHit>(*this);
 
 	//フォント
 	font_ = std::make_unique<FontController>();
@@ -65,6 +59,14 @@ void Cursor::Load(void)
 
 void Cursor::Init(void)
 {
+
+	//当たり判定
+	std::unique_ptr<Geometry2D>geo = std::make_unique<Circle>(pos_, pos_, 25, 20);
+	MakeCollider(Collider2D::TAG::CURSOR, std::move(geo), { Collider2D::TAG::CURSOR });
+
+	//ヒット処理
+	onHit_ = std::make_unique<CursorOnHit>(*this);
+
 	isExplanImg_ = true;
 }
 
@@ -111,6 +113,7 @@ void Cursor::Draw(void)
 
 void Cursor::Release(void)
 {
+	DeleteColliderAtTag(Collider2D::TAG::CURSOR);
 }
 
 void Cursor::OnHit(const std::weak_ptr<Collider2D> _partner)

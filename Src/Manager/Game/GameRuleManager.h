@@ -28,7 +28,7 @@ public:
 	static constexpr int START_YEAR = 1682;
 
 	//クリアとなる経過年数 (追加)
-	static constexpr int CLEAR_YEAR_LIMIT = 50;
+	static constexpr int CLEAR_YEAR_LIMIT = 10;
 
 	/// @brief ロード
 	/// @param  

@@ -53,7 +53,7 @@ void TitleScene::Load(void)
 	//フォントの登録
 	buttonFontHandle_ = fontController_->GetFontHandle(FontManager::FONT_APRIL_GOTHIC, FONT_SIZE, 0);
 	
-	// タイトル背景
+	//リソースのロード
 	imgSky_ = resMng_.Load(ResourceManager::SRC::TITLE_SKY).handleId_;
 
 	imgMountain_ = resMng_.Load(ResourceManager::SRC::TITLE_MOUNTAIN).handleId_;
@@ -105,7 +105,6 @@ void TitleScene::Init(void)
 		{TITLE_STATE::EASE_MENU,[this]() {ChangeEaseMenu(); }},
 		{TITLE_STATE::MENU,[this]() {ChangeTitleMenu(); }},
 		{TITLE_STATE::START_GAME,[this]() {ChangeGameStart(); }},
-		//{TITLE_STATE::TUTORIAL,[this]() { UpdateTutorial(); }},
 		{TITLE_STATE::START_STATE,[this]() {ChangeStart(); }},
 		{TITLE_STATE::EXIT_MENU,[this]() {ChangeExit(); }},
 		{TITLE_STATE::SETTING,[this]() {ChangeSetting(); }},
@@ -113,21 +112,16 @@ void TitleScene::Init(void)
 	};
 
 	buttonStrTable_ = {
-		{TITLE_BTN::START_GAME,L"ゲームスタート"},
-		//{TITLE_BTN::TUTORIAL,L"TUTORIAL"},
-		{TITLE_BTN::SCREEN,L"設定"},
-		{TITLE_BTN::EXIT,L"ゲーム終了"}
+		{TITLE_BTN::START_GAME,GAME_START_STR},
+		{TITLE_BTN::SCREEN,CONFIG_STR},
+		{TITLE_BTN::EXIT,GAME_END_STR}
 	};
 
-	prologueText_ = L"1635年。天下を平定し、江戸幕府を開いた徳川家康は、\n諸大名の統制と財力の削圧を目的とし、武家諸法度を改訂。\n\n「参勤交代」の制を定めた。\n\n参勤交代を実行し、\n各地域の大名に反乱を起こされることを阻止しよう！";
+	prologueText_ = PROLOGUE_STR;
 	prologueTextDispCnt_ = 0.0f;
 	prologueTextDispLen_ = 0;
-	
-	yesNoStrTable_ = {
-		{YES_NO::YES,L"はい"},
-		{YES_NO::NO,L"いいえ"}
-	};
 
+	cursor_->Init();
 	easing_ = std::make_unique<Easing>();
 	selectState_ = TITLE_STATE::MENU;
 	ChangeState(TITLE_STATE::START_STATE);
@@ -146,7 +140,6 @@ void TitleScene::Init(void)
 	}
 	menuMng_->Init();
 	yesNoscn_->Init();
-	//soundMng_.Play(SoundManager::SRC::TITLE_BGM, SoundManager::PLAYTYPE::LOOP);
 }
 
 void TitleScene::PopSceneAfter(void)
@@ -175,14 +168,17 @@ void TitleScene::NormalUpdate(void)
 	if (scrollRoadX_ <= -Application::SCREEN_SIZE_X * 2.0f) scrollRoadX_ += Application::SCREEN_SIZE_X * 2.0f;
 
 	// 14秒後のロゴスタンプ演出処理
-	if (selectState_ != TITLE_STATE::START_STATE) {
-		if (!isLogoAppeared_) {
+	if (selectState_ != TITLE_STATE::START_STATE)
+	{
+		if (!isLogoAppeared_) 
+		{
 				logoWaitTimer_ += scnMng_.GetDeltaTime();
 				if(logoWaitTimer_ >= LOGO_WAIT_TIME) {
 					isLogoAppeared_ = true;
 			}
 		}
-		else {
+		else
+		{
 			if(logoStampEaseCnt_ > 0.0f) {
 				logoStampEaseCnt_ -= scnMng_.GetDeltaTime();
 				if (logoStampEaseCnt_ < 0.0f) logoStampEaseCnt_ = 0.0f;
@@ -220,7 +216,6 @@ void TitleScene::NormalDraw(void)
 	drawTitle_();
 
 	cursor_->Draw();
-	//gaugeCntl_->Draw();
 }
 
 void TitleScene::OnSceneEnter(void)
@@ -235,14 +230,6 @@ void TitleScene::UpdateStart(void)
 {
 	stringAlpha_ = easing_->EaseFunc(0, 255, blendCnt_ / BLEND_TIME, Easing::EASING_TYPE::LERP_COMEBACK);
 	blendCnt_ > BLEND_TIME ? blendCnt_ = 0 : blendCnt_ += scnMng_.GetDeltaTime();
-
-	//if (inputMngS_.IsTrgDown(INPUT_EVENT::OK))
-	//{
-	//	soundMng_.Play(SoundManager::SRC::TITLE_BGM, SoundManager::PLAYTYPE::LOOP);
-
-	//	ChangeState(TITLE_STATE::EASE_MENU);
-	//	return;
-	//}
 
 	if (!isPrologue_)
 	{
@@ -284,11 +271,6 @@ void TitleScene::UpdateStart(void)
 
 void TitleScene::UpdateEase(void)
 {
-	//logoEaseCnt_ -= SceneManager::GetInstance().GetDeltaTime();
-
-	////ロゴ座標のイージング
-	//logoPos_ = easing_->EaseFunc(START_POS, GOAL_POS, (LOGO_EASING_TIME - logoEaseCnt_) / LOGO_EASING_TIME, Easing::EASING_TYPE::ELASTIC_OUT);
-
 	//メニューの補完
 	constexpr int OFFSET = 100;
 	menuMng_->UpdateDirection(EASING_DIS_TIME, BUTTON_EASING_TIME, Application::SCREEN_HALF_X - OFFSET);
@@ -396,21 +378,7 @@ void TitleScene::DrawMenu(void)
 		SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 	}
 
-	//DrawExtendGraph(
-	//	0,
-	//	0,
-	//	Application::SCREEN_SIZE_X,
-	//	Application::SCREEN_SIZE_Y,
-	//	imgTitleBack,
-	//	true
-	//);
-
-	//タイトルロゴ
-	//DrawExtendGraphF(logoPos_.x, logoPos_.y, logoPos_.x + LOGO_SIZE_X, logoPos_.y + LOGO_SIZE_Y, imgTitleLogo, true);
 	menuMng_->Draw();
-
-
-	//textWtiter_->Draw();
 
 	if (selectState_ == TITLE_STATE::EXIT_MENU)
 	{
@@ -420,8 +388,6 @@ void TitleScene::DrawMenu(void)
 
 void TitleScene::DrawStart(void)
 {
-	//DrawBox(0, 0, Application::SCREEN_SIZE_X, Application::SCREEN_SIZE_Y, 0xff0000, true);
-
 	if (!isPrologue_)
 	{
 		SetDrawBlendMode(DX_BLENDMODE_ALPHA, stringAlpha_);
@@ -435,14 +401,13 @@ void TitleScene::DrawStart(void)
 		DrawBox(0, 0, Application::SCREEN_SIZE_X, Application::SCREEN_SIZE_Y, UtilityCommon::BLACK, TRUE);
 		SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 
-		// テキストを描画する
-		//textWtiter_->Draw(100, 200, buttonFontHandle_);
-
 		// 「参勤交代」だけを赤くする自作テキスト描画処理
 		int curX = 100;
 		int curY = 200;
-		for (int i = 0; i < prologueTextDispLen_ && i < prologueText_.length(); ) {
-			if (i + 4 <= prologueText_.length() && prologueText_.substr(i, 4) == L"参勤交代") {
+		for (int i = 0; i < prologueTextDispLen_ && i < prologueText_.length(); ) 
+		{
+			if (i + 4 <= prologueText_.length() && prologueText_.substr(i, 4) == ALTERNATE_STR) 
+			{
 				int drawLen = std::min(4, prologueTextDispLen_ - i);
 				for(int j = 0; j < drawLen; j++) {
 					std::wstring c = prologueText_.substr(i + j, 1);
@@ -452,7 +417,8 @@ void TitleScene::DrawStart(void)
 				i += drawLen;
 				if (drawLen < 4)break;
 			}
-			else {
+			else 
+			{
 				std::wstring c = prologueText_.substr(i, 1);
 				if (c == L"\n") {
 					curX = 100;
@@ -466,11 +432,13 @@ void TitleScene::DrawStart(void)
 			}
 		}
 
+		constexpr int OFFSET_X = 350;
+		constexpr int OFFSET_Y = 40;
+
 		// スキップの案内を点滅で表示
 		SetDrawBlendMode(DX_BLENDMODE_ALPHA, stringAlpha_);
 		
-		
-		DrawStringToHandle(Application::SCREEN_SIZE_X - 350, Application::SCREEN_SIZE_Y - 40, L"Press Shift to Skip", UtilityCommon::WHITE, buttonFontHandle_);
+		DrawStringToHandle(Application::SCREEN_SIZE_X - OFFSET_X, Application::SCREEN_SIZE_Y - OFFSET_Y, SHIFT_SKIP_STR.c_str(), UtilityCommon::WHITE, buttonFontHandle_);
 		SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 	}
 
@@ -478,17 +446,11 @@ void TitleScene::DrawStart(void)
 
 void TitleScene::DrawExit(void)
 {
-	yesNoscn_->Draw(L"本当にゲームを終了しますか？");
+	yesNoscn_->Draw(CHECK_GAME_END_STR);
 }
 
 void TitleScene::UpdateSelectGame(void)
 {
-	//if (!soundMng_.IsPlay(SoundManager::SRC::GAME_START_SE_2))
-	//{
-	//	//soundMng_.Play(SoundManager::SRC::GAME_START_SE_1, SoundManager::PLAYTYPE::BACK);
-	//	//soundMng_.Play(SoundManager::SRC::GAME_START_SE_2, SoundManager::PLAYTYPE::BACK);
-	//}
-
 	//ゲームシーンに遷移
 	SceneManager::GetInstance().ChangeScene(SceneManager::SCENE_ID::GAME);
 }
@@ -536,16 +498,4 @@ void TitleScene::ChangeGameStart(void)
 	updateTitle_ = [this]() {UpdateSelectGame(); };
 }
 
-void TitleScene::ChangeScreenSize(void)
-{
-	bool isFull = DataBank::GetInstance().GetIsFullScreen();
-	if (isFull)
-	{
-		DataBank::GetInstance().SetIsFullScreen(false);
-	}
-	else
-	{
-		DataBank::GetInstance().SetIsFullScreen(true);
-	}
-}
 

@@ -49,7 +49,12 @@ public:
 
 private:
 
+    //フォントサイズ
     static constexpr int FONT_SIZE = 40;
+
+    //はい
+    const std::wstring YES_STR = L"はい";
+    const std::wstring NO_STR = L"いいえ";
 
     int fontHandle_;
     std::unique_ptr<FontController>fontController_;

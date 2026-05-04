@@ -29,9 +29,11 @@ bool Application::Init(void)
 	// アプリケーションの初期設定
 	SetWindowText(L"押せ！参勤ボタン！");
 
+	isWindow_ = false;
+
 	// ウィンドウサイズ
 	SetGraphMode(SCREEN_SIZE_X, SCREEN_SIZE_Y, 32);
-	ChangeWindowMode(true);
+	ChangeWindowMode(isWindow_);
 
 	// DxLibの初期化
 	SetUseDirect3DVersion(DX_DIRECT3D_11);
@@ -149,6 +151,12 @@ bool Application::Release(void)
 	}
 
 	return true;
+}
+
+void Application::ChangeScreenMode(void)
+{
+	isWindow_ ? isWindow_ = false : isWindow_ = true;
+	ChangeWindowMode(isWindow_);
 }
 
 Application::Application(void):

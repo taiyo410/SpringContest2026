@@ -53,6 +53,12 @@ public:
 	/// @param 
 	void IsGameEnd(void) { isGameEnd_ = true; }
 
+	const bool GetIsWindowScreen(void) { return isWindow_; }
+
+	/// @brief フルスクリーンのセット
+	/// @param _isFullScreen 
+	void ChangeScreenMode(void);
+
 private:
 
 	//FPS
@@ -63,6 +69,9 @@ private:
 
 	//ゲーム終了フラグ
 	bool isGameEnd_;
+
+	//フルスクリーン
+	bool isWindow_;
 
 	//コンストラクタ
 	Application();

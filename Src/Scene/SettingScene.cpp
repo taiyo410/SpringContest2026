@@ -21,6 +21,7 @@ SettingScene::SettingScene(void):
 	state_(SETTING_STATE::MAX),
 	soundMng_(SoundManager::GetInstance()),
 	dataBank_(DataBank::GetInstance()),
+	application_(Application::GetInstance()),
 	volume_(VOL_MAX, VOL_MAX, VOL_MAX),
 	volumePer_(1.0f,1.0f,1.0f),
 	questionStr_(L"")
@@ -58,9 +59,7 @@ SettingScene::SettingScene(void):
 	for (auto& button : buttonStrTable_)
 	{
 		//イージング演出をするために初期位置は画面外にする
-		//bool isMakeCollider = !UtilityCommon::IsHasFormat(button.second);	//タイトルメニューへはコライダを作らない
 		Vector2 pos = { BUTTON_POS.x,BUTTON_POS.y + BUTTON_OFFSET * i};
-		//menuMng_->AddMenu(static_cast<int>(button.first), button.second, pos, isMakeCollider);
 		menuMng_->AddMenu(static_cast<int>(button.first), button.second, pos, true);
 		i++;
 	}
@@ -80,12 +79,15 @@ void SettingScene::Load(void)
 	{
 		if (!menu->IsHasFormat())continue;
 
+		constexpr float SLIDER_OFFSET_X = 300.0f;
+		constexpr Vector2F LENGTH = { 200.0f,20.0f };
+
 		Vector2 menuPos = menu->GetCurrentPos();
 		std::wstring menuStr = menu->GetMenuButtonString();
 		Vector2 menuCenterPos = menuMng_->GetMenuCenterPos(menuStr);
-		Vector2F sliderPos = { static_cast<float>(menuPos.x) + 300.0f
+		Vector2F sliderPos = { static_cast<float>(menuPos.x) + SLIDER_OFFSET_X
 				,static_cast<float>(menuPos.y + (menuCenterPos.y / 2.0f)) };
-		Vector2F length = { 200.0f,20.0f };
+		Vector2F length = LENGTH;
 		VOLUME_TYPE type = GetVolumeFromString(menuStr);
 
 		volumePer_[static_cast<int>(type)] = static_cast<float>(volume_[static_cast<int>(type)]) / static_cast<float>(UtilityCommon::PERCENT_MAX);
@@ -108,10 +110,6 @@ void SettingScene::Init(void)
 
 void SettingScene::NormalUpdate(void)
 {
-	if (volume_[0] > 100)
-	{
-		int i = 0;
-	}
 
 	cursor_->Update();
 	updateSetting_();
@@ -125,7 +123,7 @@ void SettingScene::NormalUpdate(void)
 
 void SettingScene::NormalDraw(void)
 {
-	DrawBox(100, 100, Application::SCREEN_SIZE_X-100, Application::SCREEN_SIZE_Y - 100, UtilityCommon::PINK, true);
+	DrawBox(BOX_OFFSET, BOX_OFFSET, Application::SCREEN_SIZE_X- BOX_OFFSET, Application::SCREEN_SIZE_Y - BOX_OFFSET, UtilityCommon::PINK, true);
 
 	menuMng_->DrawFormat(std::vector<int>{ volume_[static_cast<int>(VOLUME_TYPE::BGM)]
 		, volume_[static_cast<int>(VOLUME_TYPE::SE)]
@@ -169,21 +167,21 @@ void SettingScene::ChangeTextSpeed(void)
 
 void SettingScene::ChangeExitSetting(void)
 {
-	questionStr_ = L"タイトルメニューに戻りますか？";
+	questionStr_ = TITLE_BACK_QUESTION;
 	updateSetting_ = [this]() {UpdateExitSetting(); };
 }
 
 void SettingScene::ChangeScreenSetting(void)
 {
-	int i= dataBank_.GetIsFullScreen();
+	const bool isWindow = application_.GetIsWindowScreen();
 
-	if (dataBank_.GetIsFullScreen())
+	if (!isWindow)
 	{
-		questionStr_ = L"ウィンドウモードに変更しますか？";
+		questionStr_ = CHANGE_WINDOW_MODE_QUESTION;
 	}
 	else
 	{
-		questionStr_ = L"フルスクリーンに変更しますか？";
+		questionStr_ = CHANGE_FULLSCREEN_QUESTION;
 	}
 	yesNoScn_->Init();
 	updateSetting_ = [this]() {UpdateScreenSetting(); };
@@ -242,6 +240,7 @@ void SettingScene::UpdateTextSpeed(void)
 
 void SettingScene::UpdateExitSetting(void)
 {
+	cursor_->Release();
 	scnMng_.PopScene();
 }
 
@@ -252,10 +251,9 @@ void SettingScene::UpdateScreenSetting(void)
 	{
 		if (yesNoScn_->GetState() == YesNoScene::YES_NO_STATE::YES)
 		{
-			dataBank_.GetIsFullScreen() ? dataBank_.SetIsFullScreen(false) : dataBank_.SetIsFullScreen(true);
+			application_.ChangeScreenMode();
 		}
 		ChangeSetting(SETTING_STATE::NORMAL);
-
 	}
 }
 
@@ -310,10 +308,6 @@ const SettingScene::VOLUME_TYPE SettingScene::GetVolumeFromString(const std::wst
 
 void SettingScene::VolumeRefrect(void)
 {
-	if (volume_[0] > 100)
-	{
-		int i = 0;
-	}
 
 	dataBank_.SetBGMVolume(volume_[0]);
 	soundMng_.SetSystemVolume(volume_[static_cast<int>(VOLUME_TYPE::BGM)], static_cast<int>(SoundManager::TYPE::BGM));

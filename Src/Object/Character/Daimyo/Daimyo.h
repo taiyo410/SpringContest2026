@@ -194,7 +194,46 @@ public:
 
 private:
 
+	//参勤交代文字列
+	const std::wstring ALTERNATE_STR = L"参勤交代";
+
+	//強化文字列
+	const std::wstring ENHANCEMENT_STR = L"強化";
+
+	//詳細文字列
+	const std::wstring DETAILS_STR = L"詳細";
+
+	//安全な道文字列
+	const std::wstring SAFETY_LOAD_STR = L"安全な道";
+
+	//普通の道文字列
+	const std::wstring NORMAL_LOAD_STR = L"普通の道";
+
+	//危険な道文字列
+	const std::wstring DENGER_LOAD_STR = L"危険な道";
+
+	//参勤交代失敗メッセージ個数
+	static constexpr int ALTERNATE_FAILED_MESSAGE_NUM = 2;
+	//参勤交代失敗メッセージ
+	const std::wstring ALTERNATE_FAILED_MESSAGE[ALTERNATE_FAILED_MESSAGE_NUM] = {
+		L"ざけんなや...\n隊列乱すな...\nドブカスが...",
+		L"列があかんわ...",
+	};
+	 
+	//参勤交代成功メッセージ個数
+	static constexpr int ALTERNATE_SUCCESS_MESSAGE_NUM = 3;
+	//参勤交代失敗メッセージ
+	const std::wstring ALTERNATE_SUCCESS_MESSAGE[ALTERNATE_SUCCESS_MESSAGE_NUM] = {
+		L"今回はドブカスおらん\nかったな。成功や。",
+		L"参勤交代成功！\nこれで民も安心だ！",
+		L"今回はスムーズに\n行けたわ"
+	};
+
+	//イージング時間
 	static constexpr float EASEING_TIME = 0.2f;
+
+	//フォントサイズ
+	static constexpr int FONT_SIZE = 30;
 
 	//江戸の色
 	static constexpr FLOAT4 EDO_COL = { 1.0f, 0.647f, 0.0f, 1.0f };
@@ -395,7 +434,6 @@ private:
 	void KagoUpdate(void);
 
 	//参勤成功失敗の演出
-	void AlternateResultEffect(void);
 	const std::wstring GetRandomAlternateResultStr(void)const;
 
 	//参勤失敗の説明をランダム決める

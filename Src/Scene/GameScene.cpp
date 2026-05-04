@@ -133,13 +133,6 @@ void GameScene::NormalUpdate(void)
 	CollisionManager2D::GetInstance().Update();
 	CollisionManager2D::GetInstance().Sweep();
 
-	////ポーズ
-	//InputManagerS& insS = InputManagerS::GetInstance();
-	//if (insS.IsTrgDown(INPUT_EVENT::PAUSE))
-	//{
-	//	SceneManager::GetInstance().PushScene(pauseScene_);
-	//}
-
 	// 右クリックによる説明テキストの表示切り替え処理
 	bool currentRightClick = (GetMouseInput() & MOUSE_INPUT_RIGHT) != 0;
 	if (currentRightClick && !oldRightClick_)

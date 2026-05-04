@@ -6,7 +6,7 @@ void DataBank::Init(void)
 {
 	playerNum_ = 0;
 	maxPlayerNum_ = GetJoypadNum();
-	isFullScreen_ = false;
+	isFullScreen_ = true;
 	bgmVol_ = 100;
 	seVol_ = 100;
 }

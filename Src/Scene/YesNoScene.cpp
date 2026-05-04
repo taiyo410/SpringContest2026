@@ -16,8 +16,8 @@ YesNoScene::YesNoScene(Vector2F _centerPos, Vector2F _size):
 	fontHandle_ = fontController_->GetFontHandle(FontManager::FONT_APRIL_GOTHIC, FONT_SIZE, 0);
 
 	menuMng_ = std::make_unique<MenuManager>();
-	yesNoStr_.emplace(YES_NO_STATE::YES, L"‚Í‚¢");
-	yesNoStr_.emplace(YES_NO_STATE::NO, L"‚¢‚¢‚¦");
+	yesNoStr_.emplace(YES_NO_STATE::YES, YES_STR);
+	yesNoStr_.emplace(YES_NO_STATE::NO, NO_STR);
 	yesNoPos_.emplace(YES_NO_STATE::YES, Vector2( centerPos_.x - size_.x / 2,centerPos_.y ));
 	yesNoPos_.emplace(YES_NO_STATE::NO, Vector2(centerPos_.x + size_.x / 2,centerPos_.y ));
 
@@ -61,11 +61,13 @@ void YesNoScene::Update(void)
 
 void YesNoScene::Draw(const std::wstring& _str)
 {
+	constexpr int OFFSET_Y = 20;
+
 	DrawBox(centerPos_.x - size_.x, centerPos_.y - size_.y, centerPos_.x + size_.x, centerPos_.y + size_.y , UtilityCommon::GREEN, true);
 
 	UtilityDraw::DrawStringCenterToFontHandle(
 		static_cast<int>(centerPos_.x),
-		static_cast<int>(centerPos_.y - (size_.y / 2 + 20)),
+		static_cast<int>(centerPos_.y - (size_.y / 2 + OFFSET_Y)),
 		UtilityCommon::BLACK,
 		fontHandle_,
 		_str);
