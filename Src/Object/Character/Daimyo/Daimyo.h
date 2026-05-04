@@ -15,57 +15,57 @@ class Daimyo : public CharacterBase2D
 {
 public:
 	
-	//çŠ¶æ…‹
+	//ó‘Ô
 	enum class STATE
 	{
-		STANDBY,			//é·ç§»å¾…æ©Ÿ
-		NORMAL,				//é€šå¸¸
-		SELECT_DIRECTION,	//æ¼”å‡º
-		DELETE_SELECT_DIRECTION,	//æ¼”å‡º
-		SELECT,				//é¸æŠ
-		SELECT_ALTERNATE,	//å‚å‹¤(é¸æŠ)
-		NO_MONEY,			//ãŠé‡‘ãŒè¶³ã‚Šãªã„
-		ACTION_ALTERNATE,	//å‚å‹¤(å®Ÿè¡Œä¸­)
-		RESULT_ALTERNATE,	//å‚å‹¤(çµæœ)
-		ENHANCEMENT,		//å¼·åŒ–
-		ENHANCE_MAX,		//å¼·åŒ–é™ç•Œ
-		DETAILS,			//è©³ç´°
+		STANDBY,			//‘JˆÚ‘Ò‹@
+		NORMAL,				//’Êí
+		SELECT_DIRECTION,	//‰‰o
+		DELETE_SELECT_DIRECTION,	//‰‰o
+		SELECT,				//‘I‘ğ
+		SELECT_ALTERNATE,	//Q‹Î(‘I‘ğ)
+		NO_MONEY,			//‚¨‹à‚ª‘«‚è‚È‚¢
+		ACTION_ALTERNATE,	//Q‹Î(Às’†)
+		RESULT_ALTERNATE,	//Q‹Î(Œ‹‰Ê)
+		ENHANCEMENT,		//‹­‰»
+		ENHANCE_MAX,		//‹­‰»ŒÀŠE
+		DETAILS,			//Ú×
 	};
 
-	//é¸æŠè‚¢
+	//‘I‘ğˆ
 	enum class SELECT
 	{
-		SELECT_ALTERNATE,	//å‚å‹¤(é¸æŠ)
-		ENHANCEMENT,		//å¼·åŒ–
-		DETAILS,			//è©³ç´°
+		SELECT_ALTERNATE,	//Q‹Î(‘I‘ğ)
+		ENHANCEMENT,		//‹­‰»
+		DETAILS,			//Ú×
 	};
 
-	//å‚å‹¤ã®é¸æŠè‚¢
+	//Q‹Î‚Ì‘I‘ğˆ
 	enum class ALTERNATE_DIFF
 	{
-		SAFETY,		//å®‰å…¨
-		NORMAL,		//æ™®é€š
-		DENGER,		//å±é™º
+		SAFETY,		//ˆÀ‘S
+		NORMAL,		//•’Ê
+		DENGER,		//ŠëŒ¯
 	};
 
-	//å¼·åŒ–ã®ç¨®é¡
+	//‹­‰»‚Ìí—Ş
 	enum class ENHANCEMENT_TYPE
 	{
-		TIME,			//æ™‚é–“
-		PROBABILITY,	//æˆåŠŸç‡
-		INCOME			//åå…¥
+		TIME,			//ŠÔ
+		PROBABILITY,	//¬Œ÷—¦
+		INCOME			//û“ü
 	};
 
-	//å‚å‹¤ã®æƒ…å ±
+	//Q‹Î‚Ìî•ñ
 	struct AlternateInfo
 	{
-		float probability = 0.0f;	//æˆåŠŸç¢ºç‡
-		float income = 0.0f;		//åç›Š
-		float confiscation = 0.0f;	//æ²¡åç‡
-		float requiredTime = 0.0f;	//æ‰€è¦æ™‚é–“
+		float probability = 0.0f;	//¬Œ÷Šm—¦
+		float income = 0.0f;		//û‰v
+		float confiscation = 0.0f;	//–vû—¦
+		float requiredTime = 0.0f;	//Š—vŠÔ
 	};
 
-	//äº‹å‰å½“ãŸã‚Šåˆ¤å®šç”¨
+	//–‘O“–‚½‚è”»’è—p
 	static constexpr float SELECT_PRE_RADIUS = 100.0f;
 	static constexpr Vector2F SELECT_MIN = {-50.0f,-20.0f};
 	static constexpr Vector2F SELECT_MAX = {50.0f,20.0f};
@@ -81,7 +81,7 @@ public:
 	static constexpr float ENHANCE_MARK_SCL = 0.3f;
 	static constexpr float ENHANCE_MARK_SIZE = 225.0f* ENHANCE_MARK_SCL;
 
-	//é¸æŠè‚¢ã¨ã®ç›¸å¯¾åº§æ¨™
+	//‘I‘ğˆ‚Æ‚Ì‘Š‘ÎÀ•W
 	static constexpr Vector2F ALTERNATE_LOCAL_POS = { 50.0f, -80.0f };
 	static constexpr Vector2F ENHANCEMENT_LOCAL_POS = { 120.0f, -20.0f };
 	static constexpr Vector2F DETAILS_LOCAL_POS = { 120.0f, 50.0f };
@@ -91,160 +91,160 @@ public:
 	static constexpr float ENHANCEMENT_MENU_LOCAL_POS_X = 330.0f;
 	static constexpr float ENHANCEMENT_MENU_LOCAL_POS_Y = 120.0f;
 
-	//é›£æ˜“åº¦ã”ã¨ã®æ‰€è¦æ™‚é–“
+	//“ïˆÕ“x‚²‚Æ‚ÌŠ—vŠÔ
 	static constexpr float REQUIRED_TIME_SAFETY = 15.0f;
 	static constexpr float REQUIRED_TIME_NORMAL = 10.0f;
 	static constexpr float REQUIRED_TIME_DENGER = 5.0f;
 
-	//é›£æ˜“åº¦ã”ã¨ã®æˆåŠŸç¢ºç‡(%)
+	//“ïˆÕ“x‚²‚Æ‚Ì¬Œ÷Šm—¦(%)
 	static constexpr int SUCCESS_SAFETY = 100;
 	static constexpr int SUCCESS_NORMAL = 70;
 	static constexpr int SUCCESS_DENGER = 50;
 
-	//é›£æ˜“åº¦ã”ã¨ã®åå…¥(100000å˜ä½)
+	//“ïˆÕ“x‚²‚Æ‚Ìû“ü(100000’PˆÊ)
 	static constexpr float INCOME_SAFETY = 30.0f;
 	static constexpr float INCOME_NORMAL = 50.0f;
 	static constexpr float INCOME_DENGER = 80.0f;
 
-	//é›£æ˜“åº¦ã”ã¨ã®å¤±æ•—ã®æ²¡åå‰²åˆ
+	//“ïˆÕ“x‚²‚Æ‚Ì¸”s‚Ì–vûŠ„‡
 	static constexpr float CONFISCATION_SAFETY = 0.5f;
 	static constexpr float CONFISCATION_NORMAL = 0.5f;
 	static constexpr float CONFISCATION_DENGER = 0.0f;
 
-	//å„é …ç›®ã®å¼·åŒ–å€ç‡(%)
+	//Še€–Ú‚Ì‹­‰»”{—¦(%)
 	static constexpr float ENHANCE_PER = 10.0f;
 
-	//å¼·åŒ–ã«å¿…è¦ãªé‡‘é¡
+	//‹­‰»‚É•K—v‚È‹àŠz
 	static constexpr int ENHANCE_FUNDS = 20;
 
-	//å¼·åŒ–å›æ•°åˆ¶é™
+	//‹­‰»‰ñ”§ŒÀ
 	static constexpr int ENHANCE_MAX = 5;
 
-	//å‚å‹¤äº¤ä»£ã«è¡Œã‘ã‚‹æœ€ä½è³‡é‡‘
+	//Q‹ÎŒğ‘ã‚És‚¯‚éÅ’á‘‹à
 	static constexpr int FUNDS_MIN = 10;
 
-	//æ‰€æŒã§ãã‚‹è³‡é‡‘ã®ä¸Šé™
+	//Š‚Å‚«‚é‘‹à‚ÌãŒÀ
 	static constexpr int FUNDS_MAX = 50;
 
-	//ãŠé‡‘ã®ä¸Šæ˜‡å¹´æœˆ
+	//‚¨‹à‚Ìã¸”NŒ
 	static constexpr int PHASE_2_YEAR = 20;
 	static constexpr int PHASE_3_YEAR = 40;
 
 	static constexpr int PHASE_2_MONEY_MULTI = 2;
 	static constexpr int PHASE_3_MONEY_MULTI = 3;
 
-	//ä¸æº€åº¦ä¸Šæ˜‡å€¤
+	//•s–“xã¸’l
 	static constexpr int SUCCESS_DISSATISFACTION = 2;
 	static constexpr int FAILED_DISSATISFACTION = 6;
 
-	//ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
+	//ƒRƒ“ƒXƒgƒ‰ƒNƒ^
 	Daimyo(const DaimyoImport _import);
 
-	//ãƒ‡ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
+	//ƒfƒXƒgƒ‰ƒNƒ^
 	~Daimyo(void)override;
 
-	//èª­ã¿è¾¼ã¿
+	//“Ç‚İ‚İ
 	void Load(void)override;
 
-	//åˆæœŸåŒ–
+	//‰Šú‰»
 	void Init(void)override;
 
-	//æ›´æ–°
+	//XV
 	void Update(void)override;
 
-	//æç”»
+	//•`‰æ
 	void Draw(void)override;
 
-	//å¾Œæç”»
+	//Œã•`‰æ
 	void DrawSpeech(void);
 	void DrawSelectBox(void);
 
-	//è§£æ”¾
+	//‰ğ•ú
 	void Release(void)override;
 
-	//ãƒ’ãƒƒãƒˆå‡¦ç†
+	//ƒqƒbƒgˆ—
 	void OnHit(const std::weak_ptr<Collider2D> _partner)override;
 
-	//é …ç›®ã‚’æˆ»ã‚‹ã“ã¨ã‚’ç¦ãšã‚‹
+	//€–Ú‚ğ–ß‚é‚±‚Æ‚ğ‹Ö‚¸‚é
 	void ProhibitedBack(void) { isBackMenu_ = false; }
 
-	//ãŠé‡‘ãŒä¸Šé™ã«é”ã—ãŸã‹
+	//‚¨‹à‚ªãŒÀ‚É’B‚µ‚½‚©
 	const bool IsMoneyMax(void)const { return money_ >= FUNDS_MAX; }
 
-	// ã€ä¿®æ­£3ã€‘DaimyoOnHit.cppã‹ã‚‰å‘¼ã³å‡ºã•ã‚Œã‚‹é–¢æ•°ã®å®£è¨€ã‚’è¿½åŠ 
+	// yC³3zDaimyoOnHit.cpp‚©‚çŒÄ‚Ño‚³‚ê‚éŠÖ”‚ÌéŒ¾‚ğ’Ç‰Á
 	const STATE GetState(void) const { return state_; }
 	
-	//çŠ¶æ…‹é·ç§»
+	//ó‘Ô‘JˆÚ
 	void ChangeState(const STATE _nextState);
 	
-	//æ‰€æŒé‡‘
+	//Š‹à
 	const float GetMoney(void) const { return money_; }
 	
-	//é›£æ˜“åº¦è¨­å®š
+	//“ïˆÕ“xİ’è
 	void SetAlternateDiff(ALTERNATE_DIFF _diff);
 
-	//å¼·åŒ–
+	//‹­‰»
 	void Enhancement(ENHANCEMENT_TYPE _type);
 
-	//å¼·åŒ–ã®å›æ•°
+	//‹­‰»‚Ì‰ñ”
 	const int GetEnhancementCnt(ENHANCEMENT_TYPE _type)const;
 
-	//å¼·åŒ–ãƒãƒ¼ã‚¯ã®ã‚¢ãƒ«ãƒ•ã‚¡å€¤ã®æ›´æ–°
+	//‹­‰»ƒ}[ƒN‚ÌƒAƒ‹ƒtƒ@’l‚ÌXV
 	void UpdateEnhancementMarkAlpha(ENHANCEMENT_TYPE _type);
 
 private:
 
-	//å‚å‹¤äº¤ä»£æ–‡å­—åˆ—
-	const std::wstring ALTERNATE_STR = L"å‚å‹¤äº¤ä»£";
+	//Q‹ÎŒğ‘ã•¶š—ñ
+	const std::wstring ALTERNATE_STR = L"Q‹ÎŒğ‘ã";
 
-	//å¼·åŒ–æ–‡å­—åˆ—
-	const std::wstring ENHANCEMENT_STR = L"å¼·åŒ–";
+	//‹­‰»•¶š—ñ
+	const std::wstring ENHANCEMENT_STR = L"‹­‰»";
 
-	//è©³ç´°æ–‡å­—åˆ—
-	const std::wstring DETAILS_STR = L"è©³ç´°";
+	//Ú×•¶š—ñ
+	const std::wstring DETAILS_STR = L"Ú×";
 
-	//å®‰å…¨ãªé“æ–‡å­—åˆ—
-	const std::wstring SAFETY_LOAD_STR = L"å®‰å…¨ãªé“";
+	//ˆÀ‘S‚È“¹•¶š—ñ
+	const std::wstring SAFETY_LOAD_STR = L"ˆÀ‘S‚È“¹";
 
-	//æ™®é€šã®é“æ–‡å­—åˆ—
-	const std::wstring NORMAL_LOAD_STR = L"æ™®é€šã®é“";
+	//•’Ê‚Ì“¹•¶š—ñ
+	const std::wstring NORMAL_LOAD_STR = L"•’Ê‚Ì“¹";
 
-	//å±é™ºãªé“æ–‡å­—åˆ—
-	const std::wstring DENGER_LOAD_STR = L"å±é™ºãªé“";
+	//ŠëŒ¯‚È“¹•¶š—ñ
+	const std::wstring DENGER_LOAD_STR = L"ŠëŒ¯‚È“¹";
 
-	//å‚å‹¤äº¤ä»£å¤±æ•—ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸å€‹æ•°
+	//Q‹ÎŒğ‘ã¸”sƒƒbƒZ[ƒWŒÂ”
 	static constexpr int ALTERNATE_FAILED_MESSAGE_NUM = 2;
-	//å‚å‹¤äº¤ä»£å¤±æ•—ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸
+	//Q‹ÎŒğ‘ã¸”sƒƒbƒZ[ƒW
 	const std::wstring ALTERNATE_FAILED_MESSAGE[ALTERNATE_FAILED_MESSAGE_NUM] = {
-		L"ã–ã‘ã‚“ãªã‚„...\néšŠåˆ—ä¹±ã™ãª...\nãƒ‰ãƒ–ã‚«ã‚¹ãŒ...",
-		L"åˆ—ãŒã‚ã‹ã‚“ã‚...",
+		L"‚´‚¯‚ñ‚È‚â...\n‘à—ñ—‚·‚È...\nƒhƒuƒJƒX‚ª...",
+		L"—ñ‚ª‚ ‚©‚ñ‚í...",
 	};
 	 
-	//å‚å‹¤äº¤ä»£æˆåŠŸãƒ¡ãƒƒã‚»ãƒ¼ã‚¸å€‹æ•°
+	//Q‹ÎŒğ‘ã¬Œ÷ƒƒbƒZ[ƒWŒÂ”
 	static constexpr int ALTERNATE_SUCCESS_MESSAGE_NUM = 3;
-	//å‚å‹¤äº¤ä»£å¤±æ•—ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸
+	//Q‹ÎŒğ‘ã¸”sƒƒbƒZ[ƒW
 	const std::wstring ALTERNATE_SUCCESS_MESSAGE[ALTERNATE_SUCCESS_MESSAGE_NUM] = {
-		L"ä»Šå›ã¯ãƒ‰ãƒ–ã‚«ã‚¹ãŠã‚‰ã‚“\nã‹ã£ãŸãªã€‚æˆåŠŸã‚„ã€‚",
-		L"å‚å‹¤äº¤ä»£æˆåŠŸï¼\nã“ã‚Œã§æ°‘ã‚‚å®‰å¿ƒã ï¼",
-		L"ä»Šå›ã¯ã‚¹ãƒ ãƒ¼ã‚ºã«\nè¡Œã‘ãŸã‚"
+		L"¡‰ñ‚ÍƒhƒuƒJƒX‚¨‚ç‚ñ\n‚©‚Á‚½‚ÈB¬Œ÷‚âB",
+		L"Q‹ÎŒğ‘ã¬Œ÷I\n‚±‚ê‚Å–¯‚àˆÀS‚¾I",
+		L"¡‰ñ‚ÍƒXƒ€[ƒY‚É\ns‚¯‚½‚í"
 	};
 
-	//ã‚¤ãƒ¼ã‚¸ãƒ³ã‚°æ™‚é–“
+	//ƒC[ƒWƒ“ƒOŠÔ
 	static constexpr float EASEING_TIME = 0.2f;
 
-	//ãƒ•ã‚©ãƒ³ãƒˆã‚µã‚¤ã‚º
+	//ƒtƒHƒ“ƒgƒTƒCƒY
 	static constexpr int FONT_SIZE = 30;
 
-	//æ±Ÿæˆ¸ã®è‰²
+	//]ŒË‚ÌF
 	static constexpr FLOAT4 EDO_COL = { 1.0f, 0.647f, 0.0f, 1.0f };
 
-	//çŸ¢å°ã®å¤ªã•
+	//–îˆó‚Ì‘¾‚³
 	static constexpr float ARROW_THICK = 40.0f;
 
-	//å¹ãå‡ºã—ç›¸å¯¾åº§æ¨™
+	//‚«o‚µ‘Š‘ÎÀ•W
 	static constexpr Vector2F SPEECH_LOCAL_POS = { 120.0f,-120.0f };
 
-	//ã‹ã”ç”»åƒã‚µã‚¤ã‚º
+	//‚©‚²‰æ‘œƒTƒCƒY
 	static constexpr Vector2F KAGO_SIZE = { 1536.0f * 0.3f,1024.0f * 0.3f };
 
 	static constexpr float KAGO_VERTICAL_LOCAL_START_POS = -30.0f;
@@ -260,10 +260,10 @@ private:
 
 	static constexpr float ALTERNATE_RESULT_TIME = 3.0f;
 	static constexpr Vector2F BALOON_SIZE = { 320.0f,192.0f };
-	//é¸æŠè‚¢ç”»åƒ
+	//‘I‘ğˆ‰æ‘œ
 	int selectMenuImg_;
 
-	//ãƒ•ã‚©ãƒ³ãƒˆ
+	//ƒtƒHƒ“ƒg
 	std::unique_ptr<FontController> font_;
 	int selectFontHandle_;
 	std::unordered_map<SELECT, std::wstring> selectStr_;
@@ -271,77 +271,77 @@ private:
 	int alternateExplanFontHandle_;
 	std::unordered_map<ALTERNATE_DIFF, std::wstring> alternateStr_;
 	int income_;
-	//çŠ¶æ…‹
+	//ó‘Ô
 	STATE state_;
 	STATE nextState_;
 
-	//å½“ãŸã‚Šåˆ¤å®š
+	//“–‚½‚è”»’è
 	std::unique_ptr<DaimyoOnHit> onHit_;
-	//ã‚µã‚¦ãƒ³ãƒ‰ãƒãƒãƒ¼ã‚¸ãƒ£ãƒ¼
+	//ƒTƒEƒ“ƒhƒ}ƒl[ƒWƒƒ[
 	SoundManager& soundMng_;
 
-	//ã‚¤ãƒ³ãƒãƒ¼ãƒˆæƒ…å ±
+	//ƒCƒ“ƒ|[ƒgî•ñ
 	DaimyoImport import_;
 
-	//æ±Ÿæˆ¸ã®åº§æ¨™
+	//]ŒË‚ÌÀ•W
 	Vector2F edoPos_;
 
-	//æ‰€æŒé‡‘
+	//Š‹à
 	float money_;
 
-	//ä¸æº€åº¦
+	//•s–“x
 	int dissatisfaction_;
 
-	//å‚å‹¤ã®æˆåŠŸå¤±æ•—
+	//Q‹Î‚Ì¬Œ÷¸”s
 	bool isSuccess_;
 
-	//å‚å‹¤ã®æƒ…å ±
+	//Q‹Î‚Ìî•ñ
 	AlternateInfo alternateInfo_;
 
-	//å¼·åŒ–å›æ•°
+	//‹­‰»‰ñ”
 	std::unordered_map<ENHANCEMENT_TYPE, int> enhancementCnt_;
-	//å¼·åŒ–ãƒ¡ãƒ‹ãƒ¥ãƒ¼
+	//‹­‰»ƒƒjƒ…[
 	std::unordered_map<ENHANCEMENT_TYPE, Vector2F> enhancementPos_;
-	//å¼·åŒ–ã‚¹ãƒ†ãƒ¼ã‚¿ã‚¹ãƒãƒ¼ã‚¯
+	//‹­‰»ƒXƒe[ƒ^ƒXƒ}[ƒN
 	int enhancementMarkImg_;
-	//å¼·åŒ–ã‚¹ãƒ†ãƒ¼ã‚¿ã‚¹ãƒãƒ¼ã‚¯ã®ã‚¢ãƒ«ãƒ•ã‚¡å€¤
+	//‹­‰»ƒXƒe[ƒ^ƒXƒ}[ƒN‚ÌƒAƒ‹ƒtƒ@’l
 	std::unordered_map<ENHANCEMENT_TYPE, int> enhancementMarkAlpha_;
 	float enhancementMarkAlphaCnt_;
-	//ãƒ•ã‚©ãƒ³ãƒˆãƒãƒ³ãƒ‰ãƒ«
+	//ƒtƒHƒ“ƒgƒnƒ“ƒhƒ‹
 	int fontHandle_;
-	//ãƒ•ã‚©ãƒ³ãƒˆã‚³ãƒ³ãƒˆãƒ­ãƒ¼ãƒ©ãƒ¼
+	//ƒtƒHƒ“ƒgƒRƒ“ƒgƒ[ƒ‰[
 	std::unique_ptr<FontController> fontController_;
-	//å¼·åŒ–é …ç›®ã®é¸æŠè‚¢ã®æ–‡å­—åˆ—
+	//‹­‰»€–Ú‚Ì‘I‘ğˆ‚Ì•¶š—ñ
 	std::unordered_map<ENHANCEMENT_TYPE, std::wstring> enhancementStr_;
-	//å¼·åŒ–é …ç›®æ¯ã®è‰²
+	//‹­‰»€–Ú–ˆ‚ÌF
 	std::unordered_map<ENHANCEMENT_TYPE, unsigned int> enhancementCol_;
 
 	
 
-	//å‚å‹¤äº¤ä»£ã®æ™‚é–“
+	//Q‹ÎŒğ‘ã‚ÌŠÔ
 	float cnt_;
 	float alternatePer_;
 	FLOAT4 alternateColor_;
 
 
-	//ã‚¤ãƒ¼ã‚¸ãƒ³ã‚°
+	//ƒC[ƒWƒ“ƒO
 	std::unique_ptr<Easing> easing_;
 
-	//çŸ¢å°ã‚²ãƒ¼ã‚¸
+	//–îˆóƒQ[ƒW
 	std::unique_ptr<ArrowController>arrow_;
-	//ã‚¤ãƒ¼ã‚¸ãƒ³ã‚°ã‚«ã‚¦ãƒ³ãƒˆ
+	//ƒC[ƒWƒ“ƒOƒJƒEƒ“ƒg
 	float easingCnt_;
-	//ã‚¢ãƒ«ãƒ•ã‚¡å€¤
+	//ƒAƒ‹ƒtƒ@’l
 	int blendAlpha_;
 	int startAlpha_;
 	int goalAlpha_;
 
-	//ã‹ã”ã®ç”»åƒ
+	//‚©‚²‚Ì‰æ‘œ
 	int kagoImage_;
 	Vector2F kagoCenterPos_;
 	float kagoVerticalLocalCnt_;
 
-	//ãŠé‡‘ã‚²ãƒ¼ã‚¸
+	//‚¨‹àƒQ[ƒW
 	std::unique_ptr<GaugeController>moneyGauge_;
 	Vector2F moneyGaugePos_;
 	Vector2F moneyGaugeSize_;
@@ -349,56 +349,56 @@ private:
 	FLOAT4 moneyGaugeCol_;
 	float moneyGaugeColCnt_;
 
-	//é¸æŠè‚¢åº§æ¨™
+	//‘I‘ğˆÀ•W
 	std::unordered_map<SELECT,Vector2F> selectPos_;
 	std::unordered_map<SELECT,Vector2F> selectGoalPos_;
 	std::unordered_map<SELECT,Vector2F> selectStartPos_;
 
-	//å‚å‹¤é›£æ˜“åº¦
+	//Q‹Î“ïˆÕ“x
 	std::unordered_map<ALTERNATE_DIFF, Vector2F> alternateMenuPos_;
 
-	//çŠ¶æ…‹ã”ã¨ã®æ›´æ–°
+	//ó‘Ô‚²‚Æ‚ÌXV
 	std::unordered_map<STATE,std::function<void(void)>>update_;
 
-	//çŠ¶æ…‹ã”ã¨ã®æç”»
+	//ó‘Ô‚²‚Æ‚Ì•`‰æ
 	std::unordered_map<STATE, std::function<void(void)>>draw_;
 	std::unordered_map<STATE, std::function<void(void)>>drawSpeech_;
 	std::unordered_map<STATE, std::function<void(void)>>drawSelect_;
 
-	//çŠ¶æ…‹ã”ã¨ã®è¨­å®š
+	//ó‘Ô‚²‚Æ‚Ìİ’è
 	std::unordered_map<STATE, std::function<void(void)>>changeSetting_;
 
-	//é›£æ˜“åº¦ã”ã¨ã®è¨­å®š
+	//“ïˆÕ“x‚²‚Æ‚Ìİ’è
 	std::unordered_map<ALTERNATE_DIFF, std::function<void(void)>>settingDiff_;
 
-	//æˆ»ã‚‹ã‹
+	//–ß‚é‚©
 	bool isBackMenu_;
-	//çµæœã®æ¼”å‡ºã®ã‚«ã‚¦ãƒ³ãƒˆ
+	//Œ‹‰Ê‚Ì‰‰o‚ÌƒJƒEƒ“ƒg
 	float resultAlternateCnt_;
-	//å¹ãå‡ºã—
+	//‚«o‚µ
 	int speechBalloonImg_;
 
-	// å‚å‹¤äº¤ä»£çµæœã®ç”»åƒ
+	// Q‹ÎŒğ‘ãŒ‹‰Ê‚Ì‰æ‘œ
 	int alternateSuccessImg_;
 	int alternateFailedImg_;
 
-	//å‚å‹¤å¤±æ•—ã®èª¬æ˜ã®æ–‡å­—åˆ—
+	//Q‹Î¸”s‚Ìà–¾‚Ì•¶š—ñ
 	std::vector<std::wstring>alternateFailedStr_;
 	std::vector<std::wstring>alternateSuccessStr_;
-	int alternateFailedNum_;		//å‚å‹¤å¤±æ•—ã®èª¬æ˜ã®æ–‡å­—åˆ—ã®è¡¨ç¤º
-	float alternateResultCnt_;	//å‚å‹¤ã®çµæœã®æ¼”å‡ºã®ã‚«ã‚¦ãƒ³ãƒˆ
-	int alternateResultFontHandle_;	//å‚å‹¤ã®çµæœã®æ–‡å­—ã®ãƒ•ã‚©ãƒ³ãƒˆãƒãƒ³ãƒ‰ãƒ«
+	int alternateFailedNum_;		//Q‹Î¸”s‚Ìà–¾‚Ì•¶š—ñ‚Ì•\¦
+	float alternateResultCnt_;	//Q‹Î‚ÌŒ‹‰Ê‚Ì‰‰o‚ÌƒJƒEƒ“ƒg
+	int alternateResultFontHandle_;	//Q‹Î‚ÌŒ‹‰Ê‚Ì•¶š‚ÌƒtƒHƒ“ƒgƒnƒ“ƒhƒ‹
 
-	int dissatisfactionUp_;		//ä¸æº€åº¦ä¸ŠãŒã‚Šå¹…
+	int dissatisfactionUp_;		//•s–“xã‚ª‚è•
 
 	
-	// ã‚¹ã‚¿ãƒ³ãƒ—æ¼”å‡ºç”¨å¤‰æ•°
+	// ƒXƒ^ƒ“ƒv‰‰o—p•Ï”
 	float alternateSrampEaseCnt_;
 	float alternateResultScale_;
 	int alternateResultAlpha_;
 	static constexpr float ALTERNATE_STAMP_TIME = 0.2f;
 
-	//æ›´æ–°
+	//XV
 	void UpdateStandby(void);
 	void UpdateNormal(void);
 	void UpdateSelectDirection(void);
@@ -413,7 +413,7 @@ private:
 	void UpdateEnhancementDirction(void);
 	void UpdateDetails(void);
 
-	//æç”»
+	//•`‰æ
 	void DrawStandby(void);
 	void DrawNormal(void);
 	void DrawSelect(void);
@@ -425,48 +425,48 @@ private:
 	void DrawEnhancement(void);
 	void DrawEnhancementMax(void);
 	void DrawDetails(void);
-	//ã‹ã”ã®æç”»
+	//‚©‚²‚Ì•`‰æ
 	void DrawKago(void);
 
 
 
-	//ã‹ã”ã®æ›´æ–°
+	//‚©‚²‚ÌXV
 	void KagoUpdate(void);
 
-	//å‚å‹¤æˆåŠŸå¤±æ•—ã®æ¼”å‡º
+	//Q‹Î¬Œ÷¸”s‚Ì‰‰o
 	const std::wstring GetRandomAlternateResultStr(void)const;
 
-	//å‚å‹¤å¤±æ•—ã®èª¬æ˜ã‚’ãƒ©ãƒ³ãƒ€ãƒ æ±ºã‚ã‚‹
+	//Q‹Î¸”s‚Ìà–¾‚ğƒ‰ƒ“ƒ_ƒ€Œˆ‚ß‚é
 	void RandomAlternateFailedStr(const std::vector<std::wstring>_str);
 
 
-	//åŸã‚³ãƒ©ã‚¤ãƒ€ã®ç”Ÿæˆ
+	//éƒRƒ‰ƒCƒ_‚Ì¶¬
 	void CreateCastleCol(void);
 
-	//é¸æŠè‚¢ã®å‡ºã¦ãã‚‹æ¼”å‡ºã®åˆæœŸåŒ–
+	//‘I‘ğˆ‚Ìo‚Ä‚­‚é‰‰o‚Ì‰Šú‰»
 	void InitSelectDirection(void);
 
-	//é¸æŠè‚¢ã‚’æ¶ˆã™æ™‚ã®æ¼”å‡ºã®åˆæœŸåŒ–
+	//‘I‘ğˆ‚ğÁ‚·‚Ì‰‰o‚Ì‰Šú‰»
 	void DeleteSelectDirection(void);
 
-	//é¸æŠè‚¢ã«ã¤ã„ã¦ã®ã‚¤ãƒ¼ã‚¸ãƒ³ã‚°
+	//‘I‘ğˆ‚É‚Â‚¢‚Ä‚ÌƒC[ƒWƒ“ƒO
 	void EasingSelectDirection(void);
 
-	//é …ç›®ã‚³ãƒ©ã‚¤ãƒ€ã®ç”Ÿæˆ
+	//€–ÚƒRƒ‰ƒCƒ_‚Ì¶¬
 	void CreateSelectCol(void);
 
-	//å‚å‹¤é …ç›®ã‚³ãƒ©ã‚¤ãƒ€ã®ç”Ÿæˆ
+	//Q‹Î€–ÚƒRƒ‰ƒCƒ_‚Ì¶¬
 	void CreateAlternateCol(void);
 
-	//å¼·åŒ–é …ç›®ã‚³ãƒ©ã‚¤ãƒ€ã®ç”Ÿæˆ
+	//‹­‰»€–ÚƒRƒ‰ƒCƒ_‚Ì¶¬
 	void CreateEnhancementCol(void);
 
-	//é›£æ˜“åº¦ã”ã¨ã®è¨­å®š
+	//“ïˆÕ“x‚²‚Æ‚Ìİ’è
 	void SettingSafety(void);
 	void SettingNormal(void);
 	void SettingDenger(void);
 
-	//å‚å‹¤äº¤ä»£ã®çµæœ
+	//Q‹ÎŒğ‘ã‚ÌŒ‹‰Ê
 	void ResultAlternate(void);
 };
 
